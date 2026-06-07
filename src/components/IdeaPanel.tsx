@@ -1,26 +1,35 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import type { District, IdeaNode, IdeaType, RoleContribution } from '../types';
+import type { DiscussionMode, District, IdeaNode, IdeaType, RoleContribution, UsageLedger } from '../types';
+import { discussionModes } from '../lib/modes';
 import { typeDistrictName, typeLabel } from '../lib/layout';
+import { InfoHint } from './InfoHint';
+import { LedgerBar } from './LedgerBar';
 import { MvpPath } from './MvpPath';
 
 interface IdeaPanelProps {
   topic: string;
+  mode: DiscussionMode;
+  ledger: UsageLedger;
   districts: District[];
   roleContributions: RoleContribution[];
   onAddIdea: (draft: Pick<IdeaNode, 'title' | 'body' | 'type' | 'districtId' | 'authorRole'>) => void;
   onUseRoleContribution: (contribution: RoleContribution) => void;
   onStartOpening: (topic: string) => void;
+  onModeChange: (mode: DiscussionMode) => void;
 }
 
 const ideaTypes: IdeaType[] = ['question', 'hypothesis', 'evidence', 'counter', 'action'];
 
 export function IdeaPanel({
   topic,
+  mode,
+  ledger,
   districts,
   roleContributions,
   onAddIdea,
   onUseRoleContribution,
   onStartOpening,
+  onModeChange,
 }: IdeaPanelProps) {
   const [forgeOpen, setForgeOpen] = useState(false);
   const [topicDraft, setTopicDraft] = useState(topic);
@@ -66,18 +75,29 @@ export function IdeaPanel({
 
       <form className="topic-scroll topic-forge" onSubmit={handleOpening}>
         <label>
-          <span>立题台</span>
+          <span>
+            立题台 <InfoHint text="写下一个还没想清楚的问题，系统会按你选择的模式拆成第一批观点。" />
+          </span>
           <textarea
             value={topicDraft}
             onChange={(event) => setTopicDraft(event.target.value)}
             placeholder="写下一个模糊议题"
           />
         </label>
+        <div className="mode-switch" aria-label="讨论模式">
+          {discussionModes.map((item) => (
+            <button className={item.id === mode ? 'active' : ''} key={item.id} type="button" onClick={() => onModeChange(item.id)}>
+              <strong>{item.shortLabel}</strong>
+              <small>{item.description}</small>
+            </button>
+          ))}
+        </div>
         <button className="primary-action" type="submit">
-          开局推演
+          {ledger.status === 'running' ? '推演中...' : '开局推演'}
         </button>
       </form>
 
+      <LedgerBar ledger={ledger} mode={mode} />
       <MvpPath />
 
       <button className="forge-gate" type="button" onClick={() => setForgeOpen((value) => !value)} data-guide="forge">
@@ -119,7 +139,9 @@ export function IdeaPanel({
       )}
 
       <section className="voices-court">
-        <div className="section-title">集思席位</div>
+        <div className="section-title">
+          集思席位 <InfoHint text="这是早期静态入口；主流程请优先使用地图里的居民席位。" />
+        </div>
         <p className="term-hint">来自不同角色的建议。点击只在地图内预览，需要采纳才会入城。</p>
         <div className="role-list">
           {roleContributions.map((contribution) => (

@@ -32,6 +32,10 @@ AI 时代，信息生成和资料整理越来越便宜，但个人真正需要�
 - 建筑工坊：手动新增五类观点节点。
 - 角色席位：实践者、研究者、怀疑者、执行者提供模拟 agent 建议；点击只预览，采纳后才入城。
 - 巡城官令：诊断缺证据假设、未处理反驳、孤立观点和未闭环行动。
+- 三种固定讨论模式：探索、决策、行动。
+- 城邦账簿：展示本轮是否使用 AI、调用次数、token 和估算费用。
+- 地图内服务建筑：居民席位、巡城官塔、卷轴馆。
+- 卷轴馆 Markdown 导出：报告、行动计划、圆桌记录、巡城修缮记录。
 - 新手指引和常驻 MVP 任务线。
 - 自有美术资产接入，包含城市主视觉、建筑、城区和纹理。
 - GitHub Pages 自动部署配置。
@@ -112,6 +116,32 @@ npm run build:pages
 ```bash
 npm run check:assets
 ```
+
+## Mimo API 代理
+
+前端不会保存 Mimo API Key。真实 AI 推演通过 Vercel Serverless Function 代理：
+
+```text
+api/mimo/chat.ts
+```
+
+Vercel 环境变量：
+
+```text
+MIMO_API_KEY=你的 Mimo Key
+MIMO_BASE_URL=https://api.mimo.run/v1
+MIMO_MODEL=mimo-chat
+```
+
+前端环境变量：
+
+```text
+VITE_MIMO_PROXY_URL=https://your-vercel-app.vercel.app/api/mimo/chat
+VITE_MIMO_INPUT_PRICE_CNY_PER_1K=0
+VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K=0
+```
+
+如果代理未配置，产品会自动回退到本地模板，并在“城邦账簿”中显示回退原因。
 
 ## 目录结构
 

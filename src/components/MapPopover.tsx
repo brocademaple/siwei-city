@@ -1,6 +1,7 @@
 import { art } from '../assets/art';
 import { relationOptions } from '../data/seed';
 import { typeLabel } from '../lib/layout';
+import { InfoHint } from './InfoHint';
 import type { District, IdeaNode, RoleContribution, Route, RouteRelation } from '../types';
 
 interface MapPopoverProps {
@@ -47,6 +48,7 @@ export function MapPopover({
         <div className="meta-row">
           <span>{typeLabel(previewContribution.type)}</span>
           <span>建议落入 {district?.name}</span>
+          <span>{previewContribution.source ?? '本地模板'}</span>
         </div>
         <p className="term-hint">居民动态 = 多角色 agent 的建议流。点击只预览，不会自动改变地图。</p>
         <button
@@ -91,11 +93,14 @@ export function MapPopover({
         <span>{typeLabel(idea.type)}</span>
         <span>{idea.authorRole}</span>
         <span>{idea.status === 'resolved' ? '已闭环' : idea.status === 'linked' ? '已连接' : '开放'}</span>
+        <span>{idea.source ?? '本地模板'}</span>
       </div>
       <p className="term-hint">铭文 = 观点正文；这里保留这座建筑真正要表达的判断。</p>
 
       <div className="road-forge">
-        <div className="section-title">铺设道路</div>
+        <div className="section-title">
+          铺设道路 <InfoHint text="三步：设当前建筑为起点，选择关系，再点击另一座建筑作为终点。" />
+        </div>
         <small className="term-hint">铺设道路 = 建立观点之间的支持、冲突、依赖、延伸或回流关系。</small>
         <div className="relation-seals" aria-label="道路关系">
           {relationOptions.map((option) => (
@@ -118,7 +123,11 @@ export function MapPopover({
             设为起点
           </button>
         )}
-        {routeSource && <p className="route-state">起点：{routeSource.title}</p>}
+        {routeSource ? (
+          <p className="route-state">第 2/3 步：起点是「{routeSource.title}」。现在选择关系，再点击目标建筑。</p>
+        ) : (
+          <p className="route-state">第 1/3 步：先把这座建筑设为道路起点。</p>
+        )}
       </div>
 
       <div className="link-list">

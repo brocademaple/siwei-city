@@ -43,7 +43,11 @@ const pathItems = [
 
 export function MvpPath() {
   return (
-    <section className="mvp-path" aria-label="当前 MVP 使用路径">
+    <details className="mvp-path" aria-label="当前使用路径">
+      <summary>
+        <span className="section-title">下一步</span>
+        <strong>输入议题，选择模式，让居民圆桌开始讨论。</strong>
+      </summary>
       <div className="mvp-goal">
         <span className="section-title">本轮目标</span>
         <strong>把模糊议题或零散想法，推进成思维地图、下一步行动和可导出的报告材料。</strong>
@@ -67,6 +71,6 @@ export function MvpPath() {
           </li>
         ))}
       </ol>
-    </section>
+    </details>
   );
 }

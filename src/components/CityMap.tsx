@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 import { art } from '../assets/art';
 import { contributionKey } from '../lib/contribution';
 import { typeLabel } from '../lib/layout';
-import type { District, IdeaNode, RoleContribution, Route, RouteRelation } from '../types';
+import type { District, IdeaNode, RoleContribution, Route, RouteRelation, ServicePanel } from '../types';
 import { MapPopover } from './MapPopover';
 
 interface CityMapProps {
@@ -21,6 +21,7 @@ interface CityMapProps {
   onRelationChange: (relation: RouteRelation) => void;
   onClosePopover: () => void;
   onAcceptContribution: (contribution: RoleContribution) => void;
+  onOpenService: (panel: ServicePanel) => void;
 }
 
 export function CityMap({
@@ -39,6 +40,7 @@ export function CityMap({
   onRelationChange,
   onClosePopover,
   onAcceptContribution,
+  onOpenService,
 }: CityMapProps) {
   return (
     <main
@@ -85,6 +87,21 @@ export function CityMap({
       </svg>
 
       <div className="idea-layer" data-guide="buildings">
+        <button className="service-building service-residents" type="button" onClick={() => onOpenService('roundtable')}>
+          <img src={art.buildings[10]} alt="" />
+          <span>居民席位</span>
+          <small>圆桌讨论</small>
+        </button>
+        <button className="service-building service-inspector" type="button" onClick={() => onOpenService('inspector')}>
+          <img src={art.buildings[4]} alt="" />
+          <span>巡城官塔</span>
+          <small>修缮令</small>
+        </button>
+        <button className="service-building service-archive" type="button" onClick={() => onOpenService('archive')}>
+          <img src={art.buildings[1]} alt="" />
+          <span>卷轴馆</span>
+          <small>报告归档</small>
+        </button>
         {ideas.map((idea) => {
           const selected = selectedIdeaId === idea.id;
           const routeSource = routeDraftFromId === idea.id;

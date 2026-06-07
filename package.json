@@ -2,6 +2,7 @@
   "name": "siwei-city",
   "version": "0.1.0",
   "private": true,
+  "description": "Siwei City: a React MVP that turns fuzzy ideas into structured thinking maps, next actions, and report-ready notes.",
   "homepage": "https://brocademaple.github.io/siwei-city/",
   "type": "module",
   "scripts": {

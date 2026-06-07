@@ -73,9 +73,9 @@ AI 时代，信息生成和资料整理越来越便宜，但个人真正需要�
 
 更多资产说明和提示词见：[docs/art-direction.md](docs/art-direction.md)。
 
-## 面试官阅读路径
+## 项目阅读路径
 
-- 产品与工程展示简报：[docs/interview-brief.md](docs/interview-brief.md)
+- 产品与工程说明：[docs/product-engineering-brief.md](docs/product-engineering-brief.md)
 - 当前进度与 PRD：[docs/project-status-prd.md](docs/project-status-prd.md)
 - MVP 产品决策记录：[docs/product-mvp-decisions.md](docs/product-mvp-decisions.md)
 - 流程与美术规划：[docs/mvp-flow-and-art-direction.md](docs/mvp-flow-and-art-direction.md)
@@ -124,7 +124,7 @@ src/
   assets/art/              # 前端正式引用的美术资产
   assets/generated/        # 生成母图与切片记录
 docs/
-  interview-brief.md       # 面试展示简报
+  product-engineering-brief.md # 产品与工程说明
   project-status-prd.md    # 当前进度与 PRD 概览
   art-direction.md         # 美术资产、提示词和质量规则
 scripts/

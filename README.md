@@ -1,0 +1,160 @@
+# 思维城邦 Siwei City
+
+![思维城邦主视觉](src/assets/art/hero-city-panorama.png)
+
+思维城邦是一个把模糊议题转化为结构化思维地图的前端 MVP。它把观点做成建筑，把论证关系做成道路，把多角色建议做成居民来函，把结构诊断做成巡城官令，帮助用户把一次复杂思考收束成三类产物：一张地图、一个下一步行动、一份可导出的报告材料。
+
+在线演示：<https://brocademaple.github.io/siwei-city/>
+
+## 为什么做这个
+
+AI 时代，信息生成和资料整理越来越便宜，但个人真正需要沉淀的并不是更多答案，而是：
+
+- 问题如何演化。
+- 判断依赖哪些证据。
+- 哪些反驳还没处理。
+- 哪个行动能带回新证据。
+- 一轮讨论如何转化成可复用报告。
+
+思维城邦用空间化界面把这些结构显性化，让用户不是“收藏 AI 答案”，而是在维护自己的判断系统。
+
+默认测试议题：
+
+> AI 时代，个人应该如何重建自己的知识管理系统？
+
+## 当前完成度
+
+这个仓库已经是可运行、可部署的前端原型：
+
+- Vite + React + TypeScript 单页应用。
+- panorama 城邦地图、观点建筑、道路关系和地图内弹窗。
+- 立题台：输入模糊议题后生成问题、假设、证据缺口、反驳和行动。
+- 建筑工坊：手动新增五类观点节点。
+- 角色席位：实践者、研究者、怀疑者、执行者提供模拟 agent 建议；点击只预览，采纳后才入城。
+- 巡城官令：诊断缺证据假设、未处理反驳、孤立观点和未闭环行动。
+- 新手指引和常驻 MVP 任务线。
+- 自有美术资产接入，包含城市主视觉、建筑、城区和纹理。
+- GitHub Pages 自动部署配置。
+
+## 产品闭环
+
+```text
+输入材料
+  -> 开局推演
+  -> 观点建筑
+  -> 居民建议
+  -> 采纳入城
+  -> 铺设道路
+  -> 巡城官令
+  -> 下一步行动 / 报告材料
+```
+
+核心设计原则：系统可以建议，但不自动替用户改地图。居民来函只预览，巡城官令只提示问题，最终判断权始终留给用户。
+
+## 前端与设计亮点
+
+- **空间化认知界面**：不做普通列表或卡片墙，而是用城邦地图表达推理结构。
+- **地图内操作闭环**：点击建筑即可查看铭文、设置道路起点、建立关系。
+- **角色化 AI 入口**：agent 不是聊天框，而是有职责分工的居民席位。
+- **可解释巡检规则**：诊断逻辑独立在 `src/lib/review.ts`，后续可直接扩展测试。
+- **生成式美术工程化**：正式素材集中在 `src/assets/art/`，并提供绿幕残留检测。
+- **可部署交付**：GitHub Actions 自动构建并发布到 GitHub Pages。
+
+## 美术资产
+
+当前版本已接入三类正式资产：
+
+| 类型 | 目录 | 用途 |
+| --- | --- | --- |
+| 城邦主视觉 | `src/assets/art/hero-city-panorama.png` | 应用主工作区背景和产品介绍第一视觉 |
+| 建筑资产 | `src/assets/art/buildings/` | 地图上的观点节点 |
+| 城区资产 | `src/assets/art/districts/` | 问题、证据、假设、冲突、行动等语义区域 |
+| 纹理资产 | `src/assets/art/textures/` | 面板、印章、羊皮纸、青铜和地图质感 |
+
+更多资产说明和提示词见：[docs/art-direction.md](docs/art-direction.md)。
+
+## 面试官阅读路径
+
+- 产品与工程展示简报：[docs/interview-brief.md](docs/interview-brief.md)
+- 当前进度与 PRD：[docs/project-status-prd.md](docs/project-status-prd.md)
+- MVP 产品决策记录：[docs/product-mvp-decisions.md](docs/product-mvp-decisions.md)
+- 流程与美术规划：[docs/mvp-flow-and-art-direction.md](docs/mvp-flow-and-art-direction.md)
+- 美术资产与提示词：[docs/art-direction.md](docs/art-direction.md)
+
+## 快速运行
+
+```bash
+npm install
+npm run dev
+```
+
+如果 PowerShell 拦截 `npm.ps1`，改用：
+
+```bash
+npm.cmd install
+npm.cmd run dev
+```
+
+生产构建：
+
+```bash
+npm run build
+```
+
+GitHub Pages 构建：
+
+```bash
+npm run build:pages
+```
+
+素材检测：
+
+```bash
+npm run check:assets
+```
+
+## 目录结构
+
+```text
+src/
+  App.tsx                  # 应用状态和主流程编排
+  components/              # 地图、弹窗、左侧面板、巡检面板、新手指引
+  data/seed.ts             # 默认议题、城区、初始观点、角色建议
+  lib/                     # 开局推演、布局、巡检、贡献去重
+  assets/art/              # 前端正式引用的美术资产
+  assets/generated/        # 生成母图与切片记录
+docs/
+  interview-brief.md       # 面试展示简报
+  project-status-prd.md    # 当前进度与 PRD 概览
+  art-direction.md         # 美术资产、提示词和质量规则
+scripts/
+  slice-assets.mjs
+  check-green-artifacts.mjs
+.github/workflows/
+  deploy-pages.yml         # GitHub Pages 自动部署
+```
+
+## 下一步规划
+
+### P0：报告导出
+
+生成 Markdown 报告，包含当前议题、观点节点、道路关系、巡检问题和下一步行动。
+
+### P1：本地保存与多条导入
+
+支持多行想法导入、浏览器本地保存、重置和恢复。
+
+### P2：真实 agent 接入
+
+用真实模型生成实践者、研究者、怀疑者、执行者建议，但继续保持“先预览，后采纳”的产品约束。
+
+### P3：地图内角色建筑
+
+把右侧角色/巡检列表迁移为地图上的居民席位和巡城官塔。
+
+## 关键假设
+
+- 首版先验证交互闭环，不做账号、后端和多人协作。
+- 当前角色建议来自本地 seed 数据，用于模拟 agent 分工。
+- 用户保留最终判断权，系统只辅助发现结构和提出建议。
+- 报告导出是下一阶段最能提升交付感的功能。

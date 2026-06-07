@@ -1,6 +1,6 @@
 import { ArchivePanel } from './ArchivePanel';
 import { InfoHint } from './InfoHint';
-import type { ArchiveDoc, ReviewFinding, RoundtableTurn, ServicePanel } from '../types';
+import type { ArchiveDoc, ReviewFinding, RoundtableTurn, SavedCity, ServicePanel } from '../types';
 
 interface ServiceDrawerProps {
   open: boolean;
@@ -8,6 +8,7 @@ interface ServiceDrawerProps {
   turns: RoundtableTurn[];
   findings: ReviewFinding[];
   docs: ArchiveDoc[];
+  savedCities: SavedCity[];
   activeDocId: string | null;
   onToggle: () => void;
   onPanelChange: (panel: ServicePanel) => void;
@@ -16,6 +17,9 @@ interface ServiceDrawerProps {
   onDiscussFinding: (finding: ReviewFinding) => void;
   onOpenDoc: (id: string) => void;
   onCloseDoc: () => void;
+  onSaveCity: () => void;
+  onLoadCity: (id: string) => void;
+  onLoadSampleCase: (id: string) => void;
 }
 
 export function ServiceDrawer({
@@ -24,6 +28,7 @@ export function ServiceDrawer({
   turns,
   findings,
   docs,
+  savedCities,
   activeDocId,
   onToggle,
   onPanelChange,
@@ -32,6 +37,9 @@ export function ServiceDrawer({
   onDiscussFinding,
   onOpenDoc,
   onCloseDoc,
+  onSaveCity,
+  onLoadCity,
+  onLoadSampleCase,
 }: ServiceDrawerProps) {
   return (
     <aside className={open ? 'city-log service-drawer open' : 'city-log service-drawer'} data-guide="log">
@@ -125,7 +133,18 @@ export function ServiceDrawer({
         </section>
       )}
 
-      {activePanel === 'archive' && <ArchivePanel docs={docs} activeDocId={activeDocId} onOpenDoc={onOpenDoc} onCloseDoc={onCloseDoc} />}
+      {activePanel === 'archive' && (
+        <ArchivePanel
+          docs={docs}
+          savedCities={savedCities}
+          activeDocId={activeDocId}
+          onOpenDoc={onOpenDoc}
+          onCloseDoc={onCloseDoc}
+          onSaveCity={onSaveCity}
+          onLoadCity={onLoadCity}
+          onLoadSampleCase={onLoadSampleCase}
+        />
+      )}
     </aside>
   );
 }

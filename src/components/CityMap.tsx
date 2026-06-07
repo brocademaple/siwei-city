@@ -15,6 +15,7 @@ interface CityMapProps {
   previewContribution: RoleContribution | null;
   relation: RouteRelation;
   acceptedContributionKeys: string[];
+  recentAcceptedIdeaId: string | null;
   onSelectIdea: (id: string) => void;
   onStartRoute: (id: string) => void;
   onCompleteRoute: (id: string) => void;
@@ -34,6 +35,7 @@ export function CityMap({
   previewContribution,
   relation,
   acceptedContributionKeys,
+  recentAcceptedIdeaId,
   onSelectIdea,
   onStartRoute,
   onCompleteRoute,
@@ -124,6 +126,7 @@ export function CityMap({
                 `prominence-${idea.prominence ?? 'normal'}`,
                 selected ? 'selected' : '',
                 routeSource ? 'route-source' : '',
+                recentAcceptedIdeaId === idea.id ? 'just-accepted' : '',
               ].join(' ')}
               key={idea.id}
               style={style}

@@ -12,6 +12,7 @@ export interface DiscussionModeConfig {
   id: DiscussionMode;
   label: string;
   shortLabel: string;
+  intent: string;
   description: string;
   outputName: string;
   steps: ModeStep[];
@@ -22,6 +23,7 @@ export const discussionModes: DiscussionModeConfig[] = [
     id: 'explore',
     label: '探索模式',
     shortLabel: '探索',
+    intent: '我还不知道问题是什么',
     description: '先扩展问题谱系，找证据和反例，适合还没确定方向的议题。',
     outputName: '问题谱系卷',
     steps: [
@@ -34,6 +36,7 @@ export const discussionModes: DiscussionModeConfig[] = [
     id: 'decide',
     label: '决策模式',
     shortLabel: '决策',
+    intent: '我需要做取舍',
     description: '围绕一个选择形成判断，列出证据、风险和取舍，适合做方案判断。',
     outputName: '决策札记',
     steps: [
@@ -46,6 +49,7 @@ export const discussionModes: DiscussionModeConfig[] = [
     id: 'act',
     label: '行动模式',
     shortLabel: '行动',
+    intent: '我需要马上推进',
     description: '直接把议题压缩成下一步实验，适合已经想推进但卡在执行的议题。',
     outputName: '行动令',
     steps: [

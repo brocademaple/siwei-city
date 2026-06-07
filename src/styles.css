@@ -175,6 +175,12 @@ h2 {
   font-size: 13px;
 }
 
+.mode-switch b {
+  color: #3d2b1d;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
 .mode-switch small {
   display: -webkit-box;
   overflow: hidden;
@@ -989,6 +995,34 @@ textarea {
   outline: 3px solid rgba(49, 91, 130, 0.35);
 }
 
+.idea-building.just-accepted .building-figure {
+  animation: building-awaken 1400ms ease both;
+}
+
+.idea-building.just-accepted .idea-plaque {
+  border-color: rgba(173, 123, 61, 0.9);
+  box-shadow:
+    0 0 0 4px rgba(255, 230, 158, 0.28),
+    0 20px 38px rgba(56, 33, 12, 0.38);
+}
+
+@keyframes building-awaken {
+  0% {
+    filter: drop-shadow(0 18px 20px rgba(28, 19, 10, 0.32));
+    transform: translateY(0) scale(1);
+  }
+  42% {
+    filter:
+      drop-shadow(0 0 22px rgba(255, 226, 150, 0.92))
+      drop-shadow(0 18px 20px rgba(28, 19, 10, 0.28));
+    transform: translateY(-8px) scale(1.08);
+  }
+  100% {
+    filter: drop-shadow(0 18px 20px rgba(28, 19, 10, 0.32));
+    transform: translateY(0) scale(1);
+  }
+}
+
 .prominence-quiet .idea-plaque:not(:hover) {
   min-height: 46px;
 }
@@ -1216,6 +1250,43 @@ textarea {
   gap: 10px;
 }
 
+.archive-shelves {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.archive-shelves button,
+.archive-save,
+.case-actions button {
+  min-height: 32px;
+  border: 1px solid rgba(119, 83, 45, 0.26);
+  border-radius: 8px;
+  background: rgba(255, 253, 242, 0.58);
+  color: #624c36;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.archive-shelves button.active {
+  background: rgba(40, 91, 130, 0.16);
+  color: var(--lapis);
+}
+
+.archive-save {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  padding: 10px;
+  text-align: left;
+}
+
+.archive-save small {
+  color: #735f49;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 .archive-list {
   display: grid;
   gap: 8px;
@@ -1245,6 +1316,51 @@ textarea {
 }
 
 .archive-file small {
+  color: #7b6650;
+}
+
+.case-library,
+.history-library {
+  display: grid;
+  gap: 8px;
+}
+
+.case-card,
+.empty-archive,
+.history-city {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 11px;
+  border: 1px solid rgba(119, 83, 45, 0.28);
+  border-radius: 8px;
+  background: rgba(255, 253, 242, 0.66);
+  color: #3a2a1d;
+  text-align: left;
+}
+
+.case-card span,
+.history-city span {
+  color: var(--lapis);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.case-card p,
+.empty-archive p {
+  margin: 0;
+  color: #5a4634;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.case-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.history-city small {
   color: #7b6650;
 }
 
@@ -1281,6 +1397,48 @@ textarea {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
+}
+
+.adoption-ritual {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 18;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  max-width: min(720px, calc(100vw - 48px));
+  padding: 12px 14px;
+  border: 1px solid rgba(246, 222, 165, 0.52);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 250, 232, 0.96), rgba(230, 204, 154, 0.9)),
+    repeating-linear-gradient(135deg, rgba(96, 63, 29, 0.035), rgba(96, 63, 29, 0.035) 2px, transparent 2px, transparent 8px);
+  box-shadow: 0 24px 60px rgba(18, 12, 8, 0.32);
+  color: #3a2a1d;
+  transform: translateX(-50%);
+}
+
+.adoption-ritual span {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(40, 91, 130, 0.12);
+  color: var(--lapis);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.adoption-ritual i {
+  color: var(--bronze);
+  font-style: normal;
+  font-weight: 900;
+}
+
+.adoption-ritual strong {
+  flex-basis: 100%;
+  color: #4b3725;
+  font-size: 13px;
 }
 
 .log-entry.accepted {

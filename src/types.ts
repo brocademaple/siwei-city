@@ -7,6 +7,7 @@ export type Prominence = 'primary' | 'normal' | 'quiet';
 export type IdeaSource = '本地模板' | 'AI 生成' | '用户手写';
 export type DiscussionMode = 'explore' | 'decide' | 'act';
 export type ServicePanel = 'roundtable' | 'inspector' | 'archive';
+export type ArchiveKind = 'report' | 'action' | 'roundtable' | 'repair' | 'narrative' | 'case' | 'mechanism';
 
 export interface District {
   id: string;
@@ -88,7 +89,17 @@ export interface UsageLedger {
 export interface ArchiveDoc {
   id: string;
   title: string;
-  kind: 'report' | 'action' | 'roundtable' | 'repair';
+  kind: ArchiveKind;
   body: string;
   createdAt: string;
+}
+
+export interface SavedCity {
+  id: string;
+  topic: string;
+  mode: DiscussionMode;
+  ideas: IdeaNode[];
+  routes: Route[];
+  turns: RoundtableTurn[];
+  savedAt: string;
 }

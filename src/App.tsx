@@ -11,10 +11,12 @@ import { nextIdeaPosition } from './lib/layout';
 import { createOpeningDraft } from './lib/opening';
 import { buildReviewFindings } from './lib/review';
 import { requestAiDraft } from './lib/ai';
-import type { ArchiveDoc, DiscussionMode, IdeaNode, ReviewFinding, RoleContribution, RoundtableTurn, Route, RouteRelation, ServicePanel, UsageLedger } from './types';
+import { sampleCases } from './lib/sampleCases';
+import type { ArchiveDoc, DiscussionMode, IdeaNode, ReviewFinding, RoleContribution, RoundtableTurn, Route, RouteRelation, SavedCity, ServicePanel, UsageLedger } from './types';
 
 const GUIDE_STORAGE_KEY = 'siwei-city-guide-complete';
 const APP_STATE_KEY = 'siwei-city-session-v2';
+const CITY_HISTORY_KEY = 'siwei-city-history-v1';
 
 const initialLedger: UsageLedger = {
   engine: '本地模板',
@@ -44,18 +46,32 @@ function loadPersistedState(): PersistedState | null {
   }
 }
 
+function loadSavedCities(): SavedCity[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem(CITY_HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
 function App() {
   const persisted = useMemo(() => loadPersistedState(), []);
+  const persistedCities = useMemo(() => loadSavedCities(), []);
   const [currentTopic, setCurrentTopic] = useState(persisted?.currentTopic ?? topic);
   const [mode, setMode] = useState<DiscussionMode>(persisted?.mode ?? 'explore');
   const [ledger, setLedger] = useState<UsageLedger>(initialLedger);
   const [ideas, setIdeas] = useState<IdeaNode[]>(persisted?.ideas ?? initialIdeas.map((idea) => ({ ...idea, source: '本地模板' })));
   const [routes, setRoutes] = useState<Route[]>(persisted?.routes ?? initialRoutes);
   const [turns, setTurns] = useState<RoundtableTurn[]>(persisted?.turns ?? createOpeningDraft(topic, 'explore').turns);
+  const [savedCities, setSavedCities] = useState<SavedCity[]>(persistedCities);
   const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>((persisted?.ideas ?? initialIdeas)[0]?.id ?? null);
   const [activePopoverIdeaId, setActivePopoverIdeaId] = useState<string | null>((persisted?.ideas ?? initialIdeas)[0]?.id ?? null);
   const [previewContribution, setPreviewContribution] = useState<RoleContribution | null>(null);
   const [acceptedContributionKeys, setAcceptedContributionKeys] = useState<string[]>(persisted?.acceptedContributionKeys ?? []);
+  const [recentAcceptedIdeaId, setRecentAcceptedIdeaId] = useState<string | null>(null);
+  const [adoptionNotice, setAdoptionNotice] = useState<string | null>(null);
   const [routeDraftFromId, setRouteDraftFromId] = useState<string | null>(null);
   const [relation, setRelation] = useState<RouteRelation>('支持');
   const [guideOpen, setGuideOpen] = useState(false);
@@ -73,6 +89,20 @@ function App() {
     const state: PersistedState = { currentTopic, ideas, routes, mode, turns, acceptedContributionKeys };
     window.localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
   }, [currentTopic, ideas, routes, mode, turns, acceptedContributionKeys]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(CITY_HISTORY_KEY, JSON.stringify(savedCities));
+  }, [savedCities]);
+
+  useEffect(() => {
+    if (!adoptionNotice) return;
+    const timer = window.setTimeout(() => {
+      setAdoptionNotice(null);
+      setRecentAcceptedIdeaId(null);
+    }, 3600);
+    return () => window.clearTimeout(timer);
+  }, [adoptionNotice]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -134,6 +164,8 @@ function App() {
         ]);
       }
     }
+    setRecentAcceptedIdeaId(newIdea.id);
+    setAdoptionNotice(`来函已入城：${newIdea.title}。建筑亮起，道路与卷轴记录已更新。`);
   }
 
   function selectIdea(id: string) {
@@ -200,6 +232,65 @@ function App() {
     setActiveDocId('archive-report');
   }
 
+  function saveCurrentCity() {
+    const savedAt = new Date().toLocaleString('zh-CN', { hour12: false });
+    const city: SavedCity = {
+      id: `city-${Date.now()}`,
+      topic: currentTopic,
+      mode,
+      ideas,
+      routes,
+      turns,
+      savedAt,
+    };
+    setSavedCities((current) => [city, ...current].slice(0, 12));
+    setAdoptionNotice(`城邦已封存：${currentTopic}`);
+  }
+
+  function loadSavedCity(id: string) {
+    const city = savedCities.find((item) => item.id === id);
+    if (!city) return;
+    setCurrentTopic(city.topic);
+    setMode(city.mode);
+    setIdeas(city.ideas);
+    setRoutes(city.routes);
+    setTurns(city.turns);
+    setSelectedIdeaId(city.ideas[0]?.id ?? null);
+    setActivePopoverIdeaId(city.ideas[0]?.id ?? null);
+    setPreviewContribution(null);
+    setAcceptedContributionKeys(city.turns.filter((turn) => turn.accepted).map((turn) => contributionKey(turn)));
+    setActivePanel('archive');
+    setDrawerOpen(true);
+    setActiveDocId('archive-report');
+    setAdoptionNotice(`已打开历史城邦：${city.topic}`);
+  }
+
+  function loadSampleCase(id: string) {
+    const sample = sampleCases.find((item) => item.id === id);
+    if (!sample) return;
+    const draft = createOpeningDraft(sample.topic, sample.recommendedMode);
+    const sampleTurns = draft.turns.map((turn, index) => ({
+      ...turn,
+      title: index === 0 ? '先确认这个议题真正卡在哪里' : turn.title,
+      body: `${sample.modeAngles[sample.recommendedMode]} ${turn.body}`,
+      respondsTo: index === 0 ? '样例议题' : draft.turns[index - 1]?.role,
+    }));
+    setCurrentTopic(draft.topic);
+    setMode(sample.recommendedMode);
+    setLedger({ ...initialLedger, engine: '本地模板', status: 'ready' });
+    setIdeas(draft.ideas);
+    setRoutes(draft.routes);
+    setTurns(sampleTurns);
+    setSelectedIdeaId(draft.ideas[0]?.id ?? null);
+    setActivePopoverIdeaId(draft.ideas[0]?.id ?? null);
+    setPreviewContribution(null);
+    setAcceptedContributionKeys([]);
+    setActivePanel('archive');
+    setDrawerOpen(true);
+    setActiveDocId(`case-${sample.id}`);
+    setAdoptionNotice(`已载入案例馆藏：${sample.title}`);
+  }
+
   function openService(panel: ServicePanel) {
     setActivePanel(panel);
     setDrawerOpen(true);
@@ -259,6 +350,7 @@ function App() {
             previewContribution={previewContribution}
             relation={relation}
             acceptedContributionKeys={acceptedContributionKeys}
+            recentAcceptedIdeaId={recentAcceptedIdeaId}
             onSelectIdea={selectIdea}
             onStartRoute={startRoute}
             onCompleteRoute={completeRoute}
@@ -276,6 +368,7 @@ function App() {
             turns={turns}
             findings={findings}
             docs={archiveDocs}
+            savedCities={savedCities}
             activeDocId={activeDocId}
             onToggle={() => setDrawerOpen((value) => !value)}
             onPanelChange={setActivePanel}
@@ -284,9 +377,22 @@ function App() {
             onDiscussFinding={discussFinding}
             onOpenDoc={setActiveDocId}
             onCloseDoc={() => setActiveDocId(null)}
+            onSaveCity={saveCurrentCity}
+            onLoadCity={loadSavedCity}
+            onLoadSampleCase={loadSampleCase}
           />
         </section>
       </div>
+      {adoptionNotice && (
+        <div className="adoption-ritual" role="status">
+          <span>来函</span>
+          <i>→</i>
+          <span>预览</span>
+          <i>→</i>
+          <span>采纳入城</span>
+          <strong>{adoptionNotice}</strong>
+        </div>
+      )}
       <GuideButton
         onOpen={() => {
           setGuideStep(0);

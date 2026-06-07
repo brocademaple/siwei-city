@@ -88,6 +88,7 @@ export function IdeaPanel({
           {discussionModes.map((item) => (
             <button className={item.id === mode ? 'active' : ''} key={item.id} type="button" onClick={() => onModeChange(item.id)}>
               <strong>{item.shortLabel}</strong>
+              <b>{item.intent}</b>
               <small>{item.description}</small>
             </button>
           ))}

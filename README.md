@@ -36,6 +36,8 @@ AI 时代，信息生成和资料整理越来越便宜，但个人真正需要�
 - 城邦账簿：展示本轮是否使用 AI、调用次数、token 和估算费用。
 - 地图内服务建筑：居民席位、巡城官塔、卷轴馆。
 - 卷轴馆 Markdown 导出：报告、行动计划、圆桌记录、巡城修缮记录。
+- 卷轴馆案例馆藏：内置 4 个高质量演示议题，可一键载入城邦。
+- 历史城邦：把不同议题保存为本地项目档案，支持回看。
 - 新手指引和常驻 MVP 任务线。
 - 自有美术资产接入，包含城市主视觉、建筑、城区和纹理。
 - GitHub Pages 自动部署配置。
@@ -79,6 +81,10 @@ AI 时代，信息生成和资料整理越来越便宜，但个人真正需要�
 
 ## 项目阅读路径
 
+- 产品叙事页：[docs/product-narrative.md](docs/product-narrative.md)
+- 居民圆桌机制设计：[docs/roundtable-mechanism.md](docs/roundtable-mechanism.md)
+- 面试展示 Case Study：[docs/case-study.md](docs/case-study.md)
+- 升级版测试报告：[docs/upgrade-test-report.md](docs/upgrade-test-report.md)
 - 产品与工程说明：[docs/product-engineering-brief.md](docs/product-engineering-brief.md)
 - 当前进度与 PRD：[docs/project-status-prd.md](docs/project-status-prd.md)
 - MVP 产品决策记录：[docs/product-mvp-decisions.md](docs/product-mvp-decisions.md)
@@ -148,12 +154,16 @@ VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K=0
 ```text
 src/
   App.tsx                  # 应用状态和主流程编排
-  components/              # 地图、弹窗、左侧面板、巡检面板、新手指引
-  data/seed.ts             # 默认议题、城区、初始观点、角色建议
-  lib/                     # 开局推演、布局、巡检、贡献去重
+  components/              # 地图、弹窗、左侧面板、服务抽屉、卷轴馆、新手指引
+  data/seed.ts             # 默认议题、城区、初始观点、早期角色建议
+  lib/                     # 开局推演、讨论模式、AI 代理调用、归档、样例馆藏、巡检
   assets/art/              # 前端正式引用的美术资产
   assets/generated/        # 生成母图与切片记录
 docs/
+  product-narrative.md     # 一页产品叙事
+  roundtable-mechanism.md  # 多 agent 圆桌机制
+  case-study.md            # 面试展示 Case Study
+  upgrade-test-report.md   # 升级版体验测试报告
   product-engineering-brief.md # 产品与工程说明
   project-status-prd.md    # 当前进度与 PRD 概览
   art-direction.md         # 美术资产、提示词和质量规则
@@ -166,25 +176,25 @@ scripts/
 
 ## 下一步规划
 
-### P0：报告导出
+### P0：真实 Mimo 联调
 
-生成 Markdown 报告，包含当前议题、观点节点、道路关系、巡检问题和下一步行动。
+用真实 Mimo API 校验 OpenAI-compatible 协议、usage 返回、错误结构和费用估算。
 
-### P1：本地保存与多条导入
+### P1：多轮居民互相引用
 
-支持多行想法导入、浏览器本地保存、重置和恢复。
+让每位居民必须引用上一轮发言或某座建筑，再生成回应和建议道路。
 
-### P2：真实 agent 接入
+### P2：道路解释
 
-用真实模型生成实践者、研究者、怀疑者、执行者建议，但继续保持“先预览，后采纳”的产品约束。
+给每条道路增加“为什么成立”的解释，提升推理透明度和报告质量。
 
-### P3：地图内角色建筑
+### P3：专属服务建筑资产
 
-把右侧角色/巡检列表迁移为地图上的居民席位和巡城官塔。
+为居民席位、巡城官塔、卷轴馆、蜡板任务卡生成更贴合世界观的新美术素材。
 
 ## 关键假设
 
-- 首版先验证交互闭环，不做账号、后端和多人协作。
-- 当前角色建议来自本地 seed 数据，用于模拟 agent 分工。
+- 首版先验证 Web 桌面端交互闭环，不做移动端和多人协作。
+- 如果未配置 Mimo/Vercel，产品会清楚回退到本地模板。
 - 用户保留最终判断权，系统只辅助发现结构和提出建议。
-- 报告导出是下一阶段最能提升交付感的功能。
+- 历史城邦先存在浏览器 localStorage，账号同步后续再做。

@@ -1,4 +1,5 @@
 import { getDiscussionMode } from './modes';
+import { residentProfiles } from './residents';
 import type { DiscussionMode, IdeaNode, RoundtableTurn, Route, UsageLedger } from '../types';
 
 export interface AiDraft {
@@ -21,7 +22,10 @@ export async function requestAiDraft(topic: string, mode: DiscussionMode, ideas:
     {
       role: 'system',
       content:
-        '你是思维城邦的多 agent 调度器。只输出 JSON，不要 markdown。输出必须包含 ideas 和 turns 两个数组。ideas 是首批观点建筑；turns 是居民圆桌发言。所有内容使用中文，短而具体。',
+        `你是思维城邦议会的多 agent 调度器。只输出 JSON，不要 markdown。输出必须包含 ideas 和 turns 两个数组。ideas 是首批观点建筑；turns 是居民圆桌发言。所有内容使用中文，短而具体。居民角色设定：${residentProfiles
+          .filter((profile) => ['researcher', 'skeptic', 'practitioner', 'executor'].includes(profile.id))
+          .map((profile) => `${profile.roleName}=${profile.promptBrief}`)
+          .join('；')}`,
     },
     {
       role: 'user',

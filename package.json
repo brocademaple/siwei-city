@@ -10,6 +10,7 @@
     "build": "tsc -b && vite build",
     "build:pages": "tsc -b && vite build --mode github-pages",
     "preview": "vite preview",
+    "trace:thinking": "node scripts/run-thinking-traces.mjs",
     "slice:assets": "node scripts/slice-assets.mjs",
     "check:assets": "node scripts/check-green-artifacts.mjs"
   },

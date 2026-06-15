@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CityMap } from './components/CityMap';
+import { CouncilStage } from './components/CouncilStage';
 import { GuideButton } from './components/GuideButton';
 import { GuideOverlay } from './components/GuideOverlay';
 import { IdeaPanel } from './components/IdeaPanel';
@@ -11,8 +12,9 @@ import { nextIdeaPosition } from './lib/layout';
 import { createOpeningDraft } from './lib/opening';
 import { buildReviewFindings } from './lib/review';
 import { requestAiDraft } from './lib/ai';
+import { getResidentProfile, residentProfiles } from './lib/residents';
 import { sampleCases } from './lib/sampleCases';
-import type { ArchiveDoc, DiscussionMode, IdeaNode, ReviewFinding, RoleContribution, RoundtableTurn, Route, RouteRelation, SavedCity, ServicePanel, UsageLedger } from './types';
+import type { ArchiveDoc, DiscussionMode, IdeaNode, ResidentId, ReviewFinding, RoleContribution, RoundtableTurn, Route, RouteRelation, SavedCity, SceneView, ServicePanel, UsageLedger } from './types';
 
 const GUIDE_STORAGE_KEY = 'siwei-city-guide-complete';
 const APP_STATE_KEY = 'siwei-city-session-v2';
@@ -66,8 +68,8 @@ function App() {
   const [routes, setRoutes] = useState<Route[]>(persisted?.routes ?? initialRoutes);
   const [turns, setTurns] = useState<RoundtableTurn[]>(persisted?.turns ?? createOpeningDraft(topic, 'explore').turns);
   const [savedCities, setSavedCities] = useState<SavedCity[]>(persistedCities);
-  const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>((persisted?.ideas ?? initialIdeas)[0]?.id ?? null);
-  const [activePopoverIdeaId, setActivePopoverIdeaId] = useState<string | null>((persisted?.ideas ?? initialIdeas)[0]?.id ?? null);
+  const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(null);
+  const [activePopoverIdeaId, setActivePopoverIdeaId] = useState<string | null>(null);
   const [previewContribution, setPreviewContribution] = useState<RoleContribution | null>(null);
   const [acceptedContributionKeys, setAcceptedContributionKeys] = useState<string[]>(persisted?.acceptedContributionKeys ?? []);
   const [recentAcceptedIdeaId, setRecentAcceptedIdeaId] = useState<string | null>(null);
@@ -79,10 +81,16 @@ function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<ServicePanel>('roundtable');
   const [activeDocId, setActiveDocId] = useState<string | null>('archive-report');
+  const [sceneView, setSceneView] = useState<SceneView>('city');
+  const [activeResidentId, setActiveResidentId] = useState<ResidentId | null>('researcher');
+  const [activeCodexResidentId, setActiveCodexResidentId] = useState<ResidentId>('proposer');
 
   const findings = useMemo(() => buildReviewFindings(ideas, routes), [ideas, routes]);
   const activeIdea = ideas.find((idea) => idea.id === activePopoverIdeaId) ?? null;
   const archiveDocs: ArchiveDoc[] = useMemo(() => buildArchiveDocs(currentTopic, mode, ideas, routes, findings, turns), [currentTopic, mode, ideas, routes, findings, turns]);
+  const acceptedTurnCount = useMemo(() => turns.filter((turn) => turn.accepted).length, [turns]);
+  const openingStarted = ledger.calls > 0 || acceptedTurnCount > 0 || (persisted?.currentTopic && persisted.currentTopic !== topic);
+  const activeCodexProfile = useMemo(() => getResidentProfile(activeCodexResidentId), [activeCodexResidentId]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -135,6 +143,7 @@ function App() {
     setPreviewContribution(contribution);
     setActivePopoverIdeaId(null);
     setRouteDraftFromId(null);
+    setSceneView('city');
   }
 
   function acceptContribution(contribution: RoleContribution) {
@@ -166,6 +175,9 @@ function App() {
     }
     setRecentAcceptedIdeaId(newIdea.id);
     setAdoptionNotice(`来函已入城：${newIdea.title}。建筑亮起，道路与卷轴记录已更新。`);
+    setSelectedIdeaId(null);
+    setActivePopoverIdeaId(null);
+    setPreviewContribution(null);
   }
 
   function selectIdea(id: string) {
@@ -221,8 +233,8 @@ function App() {
     setIdeas(opening.ideas);
     setRoutes(opening.routes);
     setTurns(opening.turns);
-    setSelectedIdeaId(opening.ideas[0]?.id ?? null);
-    setActivePopoverIdeaId(opening.ideas[0]?.id ?? null);
+    setSelectedIdeaId(null);
+    setActivePopoverIdeaId(null);
     setPreviewContribution(null);
     setAcceptedContributionKeys([]);
     setRouteDraftFromId(null);
@@ -230,6 +242,80 @@ function App() {
     setDrawerOpen(true);
     setActivePanel('roundtable');
     setActiveDocId('archive-report');
+    setSceneView('council');
+  }
+
+  function runCompleteDiscussion(rawTopic: string) {
+    const opening = createOpeningDraft(rawTopic, mode);
+    const completeIdeas: IdeaNode[] = [...opening.ideas];
+    const completeRoutes: Route[] = [...opening.routes];
+    const acceptedTurns: RoundtableTurn[] = opening.turns.map((turn, index) => {
+      const district = districts.find((item) => item.id === turn.districtId) ?? districts[0];
+      const districtIdeaCount = completeIdeas.filter((idea) => idea.districtId === turn.districtId).length;
+      const position = nextIdeaPosition(district, districtIdeaCount);
+      const acceptedIdea: IdeaNode = {
+        id: `idea-complete-${turn.id}`,
+        title: turn.title,
+        body: turn.body,
+        type: turn.type,
+        districtId: turn.districtId,
+        authorRole: turn.role,
+        status: turn.relation === '回流' ? 'resolved' : 'linked',
+        sprite: (completeIdeas.length + index) % 12,
+        source: turn.source ?? '本地模板',
+        ...position,
+      };
+      completeIdeas.push(acceptedIdea);
+      if (turn.targetIdeaId) {
+        completeRoutes.push({
+          id: `route-complete-${turn.id}`,
+          fromId: turn.targetIdeaId,
+          toId: acceptedIdea.id,
+          relation: turn.relation,
+        });
+      }
+      return { ...turn, accepted: true };
+    });
+
+    setLedger({
+      ...initialLedger,
+      engine: '本地模板',
+      status: 'ready',
+      calls: 1,
+      inputTokens: Math.ceil(JSON.stringify({ topic: opening.topic, mode, turns: opening.turns }).length / 1.8),
+    });
+    setCurrentTopic(opening.topic);
+    setIdeas(completeIdeas);
+    setRoutes(completeRoutes);
+    setTurns(acceptedTurns);
+    setAcceptedContributionKeys(acceptedTurns.map((turn) => contributionKey(turn)));
+    setSelectedIdeaId(null);
+    setActivePopoverIdeaId(null);
+    setPreviewContribution(null);
+    setRouteDraftFromId(null);
+    setRelation('支持');
+    setDrawerOpen(true);
+    setActivePanel('walkthrough');
+    setActiveDocId('archive-report');
+    setSceneView('council');
+    setActiveResidentId('archive');
+    setAdoptionNotice(`完整讨论已跑通：${opening.topic}`);
+  }
+
+  function enterCouncil(rawTopic?: string, residentId?: ResidentId) {
+    const cleanTopic = rawTopic?.trim();
+    if (cleanTopic) setCurrentTopic(cleanTopic);
+    setSceneView('council');
+    setActiveResidentId(residentId ?? activeResidentId ?? 'researcher');
+    setPreviewContribution(null);
+    setActivePopoverIdeaId(null);
+  }
+
+  function selectDistrictCodex(districtId: string) {
+    const profile = residentProfiles.find((item) => item.homeDistrictId === districtId) ?? getResidentProfile('proposer');
+    setActiveCodexResidentId(profile.id);
+    setActivePopoverIdeaId(null);
+    setPreviewContribution(null);
   }
 
   function saveCurrentCity() {
@@ -255,8 +341,8 @@ function App() {
     setIdeas(city.ideas);
     setRoutes(city.routes);
     setTurns(city.turns);
-    setSelectedIdeaId(city.ideas[0]?.id ?? null);
-    setActivePopoverIdeaId(city.ideas[0]?.id ?? null);
+    setSelectedIdeaId(null);
+    setActivePopoverIdeaId(null);
     setPreviewContribution(null);
     setAcceptedContributionKeys(city.turns.filter((turn) => turn.accepted).map((turn) => contributionKey(turn)));
     setActivePanel('archive');
@@ -281,8 +367,8 @@ function App() {
     setIdeas(draft.ideas);
     setRoutes(draft.routes);
     setTurns(sampleTurns);
-    setSelectedIdeaId(draft.ideas[0]?.id ?? null);
-    setActivePopoverIdeaId(draft.ideas[0]?.id ?? null);
+    setSelectedIdeaId(null);
+    setActivePopoverIdeaId(null);
     setPreviewContribution(null);
     setAcceptedContributionKeys([]);
     setActivePanel('archive');
@@ -296,6 +382,12 @@ function App() {
     setDrawerOpen(true);
     setPreviewContribution(null);
     setActivePopoverIdeaId(null);
+  }
+
+  function openArchiveDoc(id: string) {
+    setActiveDocId(id);
+    setActivePanel('archive');
+    setDrawerOpen(true);
   }
 
   function discussFinding(finding: ReviewFinding) {
@@ -333,38 +425,74 @@ function App() {
         ledger={ledger}
         districts={districts}
         roleContributions={roleContributions}
+        openingStarted={Boolean(openingStarted)}
+        ideaCount={ideas.length}
+        routeCount={routes.length}
+        turnCount={turns.length}
+        acceptedTurnCount={acceptedTurnCount}
+        findingCount={findings.length}
         onAddIdea={addIdea}
         onUseRoleContribution={previewResidentContribution}
         onStartOpening={startOpening}
+        onRunComplete={runCompleteDiscussion}
+        sceneView={sceneView}
+        onEnterCouncil={enterCouncil}
         onModeChange={setMode}
       />
       <div className="realm-column">
         <section className="map-workspace">
-          <CityMap
-            districts={districts}
-            ideas={ideas}
-            routes={routes}
-            selectedIdeaId={selectedIdeaId}
-            routeDraftFromId={routeDraftFromId}
-            activeIdea={activeIdea}
-            previewContribution={previewContribution}
-            relation={relation}
-            acceptedContributionKeys={acceptedContributionKeys}
-            recentAcceptedIdeaId={recentAcceptedIdeaId}
-            onSelectIdea={selectIdea}
-            onStartRoute={startRoute}
-            onCompleteRoute={completeRoute}
-            onRelationChange={setRelation}
-            onClosePopover={() => {
-              setActivePopoverIdeaId(null);
-              setPreviewContribution(null);
-            }}
-            onAcceptContribution={acceptContribution}
-            onOpenService={openService}
-          />
-          <ServiceDrawer
+          {sceneView === 'city' ? (
+            <CityMap
+              districts={districts}
+              ideas={ideas}
+              routes={routes}
+              selectedIdeaId={selectedIdeaId}
+              routeDraftFromId={routeDraftFromId}
+              activeIdea={activeIdea}
+              previewContribution={previewContribution}
+              relation={relation}
+              acceptedContributionKeys={acceptedContributionKeys}
+              recentAcceptedIdeaId={recentAcceptedIdeaId}
+              activeCodexProfile={activeCodexProfile}
+              onSelectDistrict={selectDistrictCodex}
+              onEnterCouncil={() => enterCouncil(undefined, activeCodexResidentId)}
+              onCloseCodex={() => setActiveCodexResidentId('proposer')}
+              onSelectIdea={selectIdea}
+              onStartRoute={startRoute}
+              onCompleteRoute={completeRoute}
+              onRelationChange={setRelation}
+              onClosePopover={() => {
+                setActivePopoverIdeaId(null);
+                setPreviewContribution(null);
+              }}
+              onAcceptContribution={acceptContribution}
+            />
+          ) : (
+            <CouncilStage
+              topic={currentTopic}
+              mode={mode}
+              turns={turns}
+              findings={findings}
+              docs={archiveDocs}
+              activeDocId={activeDocId}
+              activeResidentId={activeResidentId}
+              onActiveResidentChange={setActiveResidentId}
+              onRunComplete={() => runCompleteDiscussion(currentTopic)}
+              onStartOpening={() => startOpening(currentTopic)}
+              onAcceptTurn={acceptContribution}
+              onDiscussFinding={discussFinding}
+              onOpenDoc={openArchiveDoc}
+              onBackToCity={() => setSceneView('city')}
+            />
+          )}
+          {sceneView === 'city' && (
+            <ServiceDrawer
             open={drawerOpen}
             activePanel={activePanel}
+            topic={currentTopic}
+            mode={mode}
+            ideas={ideas}
+            routes={routes}
             turns={turns}
             findings={findings}
             docs={archiveDocs}
@@ -381,6 +509,7 @@ function App() {
             onLoadCity={loadSavedCity}
             onLoadSampleCase={loadSampleCase}
           />
+          )}
         </section>
       </div>
       {adoptionNotice && (

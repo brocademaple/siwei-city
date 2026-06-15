@@ -6,8 +6,11 @@ export type LabelSide = 'left' | 'right' | 'top' | 'bottom';
 export type Prominence = 'primary' | 'normal' | 'quiet';
 export type IdeaSource = '本地模板' | 'AI 生成' | '用户手写';
 export type DiscussionMode = 'explore' | 'decide' | 'act';
-export type ServicePanel = 'roundtable' | 'inspector' | 'archive';
+export type ServicePanel = 'walkthrough' | 'roundtable' | 'inspector' | 'archive';
 export type ArchiveKind = 'report' | 'action' | 'roundtable' | 'repair' | 'narrative' | 'case' | 'mechanism';
+export type SceneView = 'city' | 'council';
+export type ResidentId = 'proposer' | 'researcher' | 'skeptic' | 'practitioner' | 'executor' | 'inspector' | 'archive';
+export type ResidentRoleName = AuthorRole | '立题者' | '巡城官' | '卷轴官';
 
 export interface District {
   id: string;
@@ -102,4 +105,16 @@ export interface SavedCity {
   routes: Route[];
   turns: RoundtableTurn[];
   savedAt: string;
+}
+
+export interface ResidentProfile {
+  id: ResidentId;
+  roleName: ResidentRoleName;
+  title: string;
+  responsibility: string;
+  commonQuestions: string[];
+  promptBrief: string;
+  outputContract: string;
+  assetKey: ResidentId;
+  homeDistrictId: string;
 }

@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import type { DiscussionMode, District, IdeaNode, IdeaType, RoleContribution, UsageLedger } from '../types';
+import type { DiscussionMode, District, IdeaNode, IdeaType, RoleContribution, SceneView, UsageLedger } from '../types';
 import { discussionModes } from '../lib/modes';
 import { typeDistrictName, typeLabel } from '../lib/layout';
 import { InfoHint } from './InfoHint';
@@ -12,9 +12,18 @@ interface IdeaPanelProps {
   ledger: UsageLedger;
   districts: District[];
   roleContributions: RoleContribution[];
+  openingStarted: boolean;
+  ideaCount: number;
+  routeCount: number;
+  turnCount: number;
+  acceptedTurnCount: number;
+  findingCount: number;
   onAddIdea: (draft: Pick<IdeaNode, 'title' | 'body' | 'type' | 'districtId' | 'authorRole'>) => void;
   onUseRoleContribution: (contribution: RoleContribution) => void;
   onStartOpening: (topic: string) => void;
+  onRunComplete: (topic: string) => void;
+  sceneView: SceneView;
+  onEnterCouncil: (topic: string) => void;
   onModeChange: (mode: DiscussionMode) => void;
 }
 
@@ -26,9 +35,18 @@ export function IdeaPanel({
   ledger,
   districts,
   roleContributions,
+  openingStarted,
+  ideaCount,
+  routeCount,
+  turnCount,
+  acceptedTurnCount,
+  findingCount,
   onAddIdea,
   onUseRoleContribution,
   onStartOpening,
+  onRunComplete,
+  sceneView,
+  onEnterCouncil,
   onModeChange,
 }: IdeaPanelProps) {
   const [forgeOpen, setForgeOpen] = useState(false);
@@ -61,9 +79,13 @@ export function IdeaPanel({
     setForgeOpen(false);
   }
 
-  function handleOpening(event: FormEvent) {
+  function handleCompleteRun(event: FormEvent) {
     event.preventDefault();
-    onStartOpening(topicDraft);
+    if (sceneView === 'city') {
+      onEnterCouncil(topicDraft);
+      return;
+    }
+    onRunComplete(topicDraft);
   }
 
   return (
@@ -73,7 +95,7 @@ export function IdeaPanel({
         <h1>思维城邦</h1>
       </header>
 
-      <form className="topic-scroll topic-forge" onSubmit={handleOpening}>
+      <form className="topic-scroll topic-forge" onSubmit={handleCompleteRun}>
         <label>
           <span>
             立题台 <InfoHint text="写下一个还没想清楚的问题，系统会按你选择的模式拆成第一批观点。" />
@@ -89,71 +111,93 @@ export function IdeaPanel({
             <button className={item.id === mode ? 'active' : ''} key={item.id} type="button" onClick={() => onModeChange(item.id)}>
               <strong>{item.shortLabel}</strong>
               <b>{item.intent}</b>
-              <small>{item.description}</small>
             </button>
           ))}
         </div>
-        <button className="primary-action" type="submit">
-          {ledger.status === 'running' ? '推演中...' : '开局推演'}
-        </button>
+        <div className="topic-actions">
+          <button className="primary-action" type="submit">
+            {sceneView === 'city' ? '进入议会' : openingStarted ? '重新跑完整讨论' : '跑通完整讨论'}
+          </button>
+          <button className="secondary-action" type="button" onClick={() => onStartOpening(topicDraft)}>
+            只开局
+          </button>
+        </div>
       </form>
 
       <LedgerBar ledger={ledger} mode={mode} />
-      <MvpPath />
+      <MvpPath
+        openingStarted={openingStarted}
+        ideaCount={ideaCount}
+        routeCount={routeCount}
+        turnCount={turnCount}
+        acceptedTurnCount={acceptedTurnCount}
+        findingCount={findingCount}
+      />
 
-      <button className="forge-gate" type="button" onClick={() => setForgeOpen((value) => !value)} data-guide="forge">
-        <span>建筑工坊</span>
-        <strong>{forgeOpen ? '收起工坊' : '建造新观点'}</strong>
-        <small>新建观点，会在地图上生成一座建筑。</small>
-      </button>
-
-      {forgeOpen && (
-        <form className="forge-form" onSubmit={handleSubmit}>
-          <label>
-            <span>建筑名</span>
-            <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="写下一个想法" />
-          </label>
-          <label>
-            <span>铭文</span>
-            <textarea value={body} onChange={(event) => setBody(event.target.value)} placeholder="补充判断、证据或下一步" />
-          </label>
-          <div className="seal-grid" aria-label="观点类型">
-            {ideaTypes.map((item) => (
-              <button
-                className={item === type ? 'seal-chip active' : 'seal-chip'}
-                key={item}
-                type="button"
-                onClick={() => setType(item)}
-              >
-                {typeLabel(item)}
-              </button>
-            ))}
-          </div>
-          <div className="district-target">
-            <span>落入</span>
-            <strong>{targetDistrict?.name ?? typeDistrictName(type)}</strong>
-          </div>
-          <button className="primary-action" type="submit">
-            建造
+      <details className="advanced-court compact-court">
+        <summary>
+          <span className="section-title">高级编辑</span>
+          <strong>手动建观点、预览备用来函</strong>
+        </summary>
+        <div className="advanced-tools">
+          <button className="forge-gate" type="button" onClick={() => setForgeOpen((value) => !value)} data-guide="forge">
+            <span>建筑工坊</span>
+            <strong>{forgeOpen ? '收起工坊' : '建造新观点'}</strong>
+            <small>新建观点，会在地图上生成一座建筑。</small>
           </button>
-        </form>
-      )}
 
-      <section className="voices-court">
-        <div className="section-title">
-          集思席位 <InfoHint text="这是早期静态入口；主流程请优先使用地图里的居民席位。" />
+          {forgeOpen && (
+            <form className="forge-form" onSubmit={handleSubmit}>
+              <label>
+                <span>建筑名</span>
+                <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="写下一个想法" />
+              </label>
+              <label>
+                <span>铭文</span>
+                <textarea value={body} onChange={(event) => setBody(event.target.value)} placeholder="补充判断、证据或下一步" />
+              </label>
+              <div className="seal-grid" aria-label="观点类型">
+                {ideaTypes.map((item) => (
+                  <button
+                    className={item === type ? 'seal-chip active' : 'seal-chip'}
+                    key={item}
+                    type="button"
+                    onClick={() => setType(item)}
+                  >
+                    {typeLabel(item)}
+                  </button>
+                ))}
+              </div>
+              <div className="district-target">
+                <span>落入</span>
+                <strong>{targetDistrict?.name ?? typeDistrictName(type)}</strong>
+              </div>
+              <button className="primary-action" type="submit">
+                建造
+              </button>
+            </form>
+          )}
+
+          <details className="voices-court backup-court">
+            <summary>
+              <span className="section-title">
+                备用来函 <InfoHint text="这是早期静态入口；主流程请优先使用右侧城邦服务。" />
+              </span>
+              <strong>固定角色建议</strong>
+            </summary>
+            <p className="term-hint">需要临时补一条建议时再打开这里。</p>
+            <div className="role-list">
+              {roleContributions.map((contribution) => (
+                <button className="role-card" key={contribution.role} type="button" onClick={() => onUseRoleContribution(contribution)}>
+                  <span>{contribution.role}</span>
+                  <strong>{contribution.title}</strong>
+                  <small>预览建议</small>
+                </button>
+              ))}
+            </div>
+          </details>
         </div>
-        <p className="term-hint">来自不同角色的建议。点击只在地图内预览，需要采纳才会入城。</p>
-        <div className="role-list">
-          {roleContributions.map((contribution) => (
-            <button className="role-card" key={contribution.role} type="button" onClick={() => onUseRoleContribution(contribution)}>
-              <span>{contribution.role}</span>
-              <strong>{contribution.title}</strong>
-              <small>预览建议</small>
-            </button>
-          ))}
-        </div>
-      </section>
+      </details>
     </aside>
   );
 }

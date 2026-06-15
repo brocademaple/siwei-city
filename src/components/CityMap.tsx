@@ -2,8 +2,9 @@ import type { CSSProperties } from 'react';
 import { art } from '../assets/art';
 import { contributionKey } from '../lib/contribution';
 import { typeLabel } from '../lib/layout';
-import type { District, IdeaNode, RoleContribution, Route, RouteRelation, ServicePanel } from '../types';
+import type { District, IdeaNode, ResidentProfile, RoleContribution, Route, RouteRelation } from '../types';
 import { MapPopover } from './MapPopover';
+import { ResidentCodexPanel } from './ResidentCodexPanel';
 
 interface CityMapProps {
   districts: District[];
@@ -22,7 +23,10 @@ interface CityMapProps {
   onRelationChange: (relation: RouteRelation) => void;
   onClosePopover: () => void;
   onAcceptContribution: (contribution: RoleContribution) => void;
-  onOpenService: (panel: ServicePanel) => void;
+  activeCodexProfile?: ResidentProfile | null;
+  onSelectDistrict?: (districtId: string) => void;
+  onEnterCouncil?: () => void;
+  onCloseCodex?: () => void;
 }
 
 export function CityMap({
@@ -42,7 +46,10 @@ export function CityMap({
   onRelationChange,
   onClosePopover,
   onAcceptContribution,
-  onOpenService,
+  activeCodexProfile,
+  onSelectDistrict,
+  onEnterCouncil,
+  onCloseCodex,
 }: CityMapProps) {
   return (
     <main
@@ -53,18 +60,24 @@ export function CityMap({
       data-guide="map"
     >
       <div className="map-vignette" />
-      <div className="district-layer" aria-hidden="true">
+      <button className="council-entry-banner" type="button" onClick={onEnterCouncil}>
+        <span>冲突议会</span>
+        <strong>进入议会展开思维碰撞</strong>
+      </button>
+      <div className="district-layer" aria-label="城邦建筑图鉴">
         {districts
           .filter((district) => district.showOnMap !== false)
           .map((district) => (
-            <div
+            <button
               className="district-marker"
               key={district.id}
               style={{ left: `${district.labelX ?? district.x}%`, top: `${district.labelY ?? district.y}%` }}
+              type="button"
+              onClick={() => onSelectDistrict?.(district.id)}
             >
               <strong>{district.name}</strong>
               <span className="district-tooltip">{district.role}</span>
-            </div>
+            </button>
           ))}
       </div>
 
@@ -89,21 +102,6 @@ export function CityMap({
       </svg>
 
       <div className="idea-layer" data-guide="buildings">
-        <button className="service-building service-residents" type="button" onClick={() => onOpenService('roundtable')}>
-          <img src={art.buildings[10]} alt="" />
-          <span>居民席位</span>
-          <small>圆桌讨论</small>
-        </button>
-        <button className="service-building service-inspector" type="button" onClick={() => onOpenService('inspector')}>
-          <img src={art.buildings[4]} alt="" />
-          <span>巡城官塔</span>
-          <small>修缮令</small>
-        </button>
-        <button className="service-building service-archive" type="button" onClick={() => onOpenService('archive')}>
-          <img src={art.buildings[1]} alt="" />
-          <span>卷轴馆</span>
-          <small>报告归档</small>
-        </button>
         {ideas.map((idea) => {
           const selected = selectedIdeaId === idea.id;
           const routeSource = routeDraftFromId === idea.id;
@@ -167,6 +165,12 @@ export function CityMap({
           onAcceptContribution={onAcceptContribution}
         />
       )}
+
+      <ResidentCodexPanel
+        profile={activeCodexProfile ?? null}
+        onEnterCouncil={() => onEnterCouncil?.()}
+        onClose={() => onCloseCodex?.()}
+      />
     </main>
   );
 }

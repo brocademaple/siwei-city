@@ -23,8 +23,8 @@ export default async function handler(request: any, response: any) {
   }
 
   const apiKey = process.env.MIMO_API_KEY;
-  const baseUrl = process.env.MIMO_BASE_URL ?? 'https://api.mimo.run/v1';
-  const model = process.env.MIMO_MODEL ?? 'mimo-chat';
+  const baseUrl = process.env.MIMO_BASE_URL ?? 'https://token-plan-cn.xiaomimimo.com/v1';
+  const model = process.env.MIMO_MODEL ?? 'mimo-v2.5-pro';
 
   if (!apiKey) {
     response.status(501).json({ error: 'MIMO_API_KEY is not configured' });

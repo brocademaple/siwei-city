@@ -3,6 +3,9 @@ dist/
 *.tsbuildinfo
 *.log
 dev-server*.log
+.env
+.env.local
+.env.*.local
 work/assets-raw/
 .DS_Store
 Thumbs.db

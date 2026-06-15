@@ -81,6 +81,8 @@ AI 时代，信息生成和资料整理越来越便宜，但个人真正需要�
 
 ## 项目阅读路径
 
+- 图文 MVP 说明书：[docs/siwei-city-mvp-manual.md](docs/siwei-city-mvp-manual.md)
+- 重新接手说明：[docs/project-orientation.md](docs/project-orientation.md)
 - 产品叙事页：[docs/product-narrative.md](docs/product-narrative.md)
 - 居民圆桌机制设计：[docs/roundtable-mechanism.md](docs/roundtable-mechanism.md)
 - 面试展示 Case Study：[docs/case-study.md](docs/case-study.md)
@@ -90,6 +92,7 @@ AI 时代，信息生成和资料整理越来越便宜，但个人真正需要�
 - MVP 产品决策记录：[docs/product-mvp-decisions.md](docs/product-mvp-decisions.md)
 - 流程与美术规划：[docs/mvp-flow-and-art-direction.md](docs/mvp-flow-and-art-direction.md)
 - 美术资产与提示词：[docs/art-direction.md](docs/art-direction.md)
+- 两条思维链路留痕：[docs/trace-runs/README.md](docs/trace-runs/README.md)
 
 ## 快速运行
 
@@ -123,6 +126,12 @@ npm run build:pages
 npm run check:assets
 ```
 
+生成两条完整思维链路留痕：
+
+```bash
+npm run trace:thinking
+```
+
 ## Mimo API 代理
 
 前端不会保存 Mimo API Key。真实 AI 推演通过 Vercel Serverless Function 代理：
@@ -135,14 +144,25 @@ Vercel 环境变量：
 
 ```text
 MIMO_API_KEY=你的 Mimo Key
-MIMO_BASE_URL=https://api.mimo.run/v1
-MIMO_MODEL=mimo-chat
+MIMO_BASE_URL=https://token-plan-cn.xiaomimimo.com/v1
+MIMO_MODEL=mimo-v2.5-pro
 ```
 
 前端环境变量：
 
 ```text
-VITE_MIMO_PROXY_URL=https://your-vercel-app.vercel.app/api/mimo/chat
+VITE_MIMO_PROXY_URL=/api/mimo/chat
+VITE_MIMO_INPUT_PRICE_CNY_PER_1K=0
+VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K=0
+```
+
+本地开发可以直接在 `.env.local` 中配置：
+
+```text
+MIMO_API_KEY=你的完整专属 API key
+MIMO_BASE_URL=https://token-plan-cn.xiaomimimo.com/v1
+MIMO_MODEL=mimo-v2.5-pro
+VITE_MIMO_PROXY_URL=/api/mimo/chat
 VITE_MIMO_INPUT_PRICE_CNY_PER_1K=0
 VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K=0
 ```

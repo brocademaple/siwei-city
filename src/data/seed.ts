@@ -81,6 +81,19 @@ export const districts: District[] = [
     sprite: 5,
     showOnMap: true,
   },
+  {
+    id: 'archive',
+    name: '卷轴馆',
+    role: '整理报告、行动计划和讨论记录',
+    assetKey: 'archive',
+    description: '把议会里的碰撞记录成可以带走的卷轴。',
+    x: 63,
+    y: 48,
+    labelX: 61,
+    labelY: 52,
+    sprite: 1,
+    showOnMap: true,
+  },
 ];
 
 export const initialIdeas: IdeaNode[] = [

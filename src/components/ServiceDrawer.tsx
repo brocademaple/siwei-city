@@ -1,10 +1,16 @@
 import { ArchivePanel } from './ArchivePanel';
 import { InfoHint } from './InfoHint';
+import { ProcessPanel } from './ProcessPanel';
 import type { ArchiveDoc, ReviewFinding, RoundtableTurn, SavedCity, ServicePanel } from '../types';
+import type { DiscussionMode, IdeaNode, Route } from '../types';
 
 interface ServiceDrawerProps {
   open: boolean;
   activePanel: ServicePanel;
+  topic: string;
+  mode: DiscussionMode;
+  ideas: IdeaNode[];
+  routes: Route[];
   turns: RoundtableTurn[];
   findings: ReviewFinding[];
   docs: ArchiveDoc[];
@@ -25,6 +31,10 @@ interface ServiceDrawerProps {
 export function ServiceDrawer({
   open,
   activePanel,
+  topic,
+  mode,
+  ideas,
+  routes,
   turns,
   findings,
   docs,
@@ -43,10 +53,16 @@ export function ServiceDrawer({
 }: ServiceDrawerProps) {
   return (
     <aside className={open ? 'city-log service-drawer open' : 'city-log service-drawer'} data-guide="log">
-      <button className="drawer-toggle" type="button" onClick={onToggle}>
-        {open ? '收起' : '城邦服务'}
+      <button className="drawer-toggle" type="button" onClick={onToggle} aria-label={open ? '收起城邦服务' : '打开城邦服务'}>
+        <span className="drawer-icon" aria-hidden="true">
+          城
+        </span>
+        <b>{open ? '收起' : '城邦服务'}</b>
       </button>
       <div className="drawer-tabs">
+        <button className={activePanel === 'walkthrough' ? 'active' : ''} type="button" onClick={() => onPanelChange('walkthrough')}>
+          全过程
+        </button>
         <button className={activePanel === 'roundtable' ? 'active' : ''} type="button" onClick={() => onPanelChange('roundtable')}>
           居民席位
         </button>
@@ -57,6 +73,25 @@ export function ServiceDrawer({
           卷轴馆
         </button>
       </div>
+      <div className="drawer-helper">
+        <span>{helperCopy(activePanel).step}</span>
+        <strong>{helperCopy(activePanel).title}</strong>
+        <p>{helperCopy(activePanel).body}</p>
+      </div>
+
+      {activePanel === 'walkthrough' && (
+        <ProcessPanel
+          topic={topic}
+          mode={mode}
+          ideas={ideas}
+          routes={routes}
+          turns={turns}
+          findings={findings}
+          docs={docs}
+          onPanelChange={onPanelChange}
+          onOpenDoc={onOpenDoc}
+        />
+      )}
 
       {activePanel === 'roundtable' && (
         <section className="log-section role-court">
@@ -70,6 +105,15 @@ export function ServiceDrawer({
             </span>
           </div>
           <div className="log-list">
+            {turns.length === 0 && (
+              <article className="log-entry calm">
+                <span className="role-avatar text-avatar">席</span>
+                <span>
+                  <strong>还没有圆桌记录</strong>
+                  <p>先在左侧点击“开始一轮推演”，系统会生成第一批居民来函。</p>
+                </span>
+              </article>
+            )}
             {turns.map((turn) => (
               <button
                 className={turn.accepted ? 'log-entry resident-entry accepted' : 'log-entry resident-entry'}
@@ -147,4 +191,30 @@ export function ServiceDrawer({
       )}
     </aside>
   );
+}
+
+function helperCopy(panel: ServicePanel) {
+  const map: Record<ServicePanel, { step: string; title: string; body: string }> = {
+    walkthrough: {
+      step: '完整链路',
+      title: '看这一轮如何跑完',
+      body: '这里把议题、地图、居民、巡城和卷轴串成一条可见流程。',
+    },
+    roundtable: {
+      step: '第 2 步',
+      title: '看居民说了什么',
+      body: '点一条来函会在地图上预览；觉得有用再采纳入城，地图才会新增建筑。',
+    },
+    inspector: {
+      step: '第 3 步',
+      title: '查哪里还没想透',
+      body: '巡城官只指出结构缺口。你可以定位相关建筑，也可以请对应角色继续讨论。',
+    },
+    archive: {
+      step: '第 4 步',
+      title: '把结果带走',
+      body: '这里会自动生成报告、行动计划、圆桌记录和修缮记录，支持复制或下载 Markdown。',
+    },
+  };
+  return map[panel];
 }

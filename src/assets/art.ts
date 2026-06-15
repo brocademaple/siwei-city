@@ -1,4 +1,12 @@
 import heroCity from './art/hero-city-panorama.png';
+import councilChamber from './art/scenes/council-chamber-panorama.png';
+
+import archiveKeeper from './art/characters/archive-keeper.png';
+import cityInspector from './art/characters/city-inspector.png';
+import residentExecutor from './art/characters/resident-executor.png';
+import residentPractitioner from './art/characters/resident-practitioner.png';
+import residentResearcher from './art/characters/resident-researcher.png';
+import residentSkeptic from './art/characters/resident-skeptic.png';
 
 import buildingArch from './art/buildings/building-arch.png';
 import buildingBellTower from './art/buildings/building-bell-tower.png';
@@ -22,6 +30,18 @@ import textureVellum from './art/textures/texture-vellum.png';
 
 export const art = {
   heroCity,
+  scenes: {
+    councilChamber,
+  },
+  characters: {
+    proposer: archiveKeeper,
+    researcher: residentResearcher,
+    skeptic: residentSkeptic,
+    practitioner: residentPractitioner,
+    executor: residentExecutor,
+    inspector: cityInspector,
+    archive: archiveKeeper,
+  },
   buildings: [
     buildingTemple,
     buildingLibrary,

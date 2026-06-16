@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { art } from '../assets/art';
 import type { CityBuilding } from '../lib/cityBuildings';
-import { getResidentProfile } from '../lib/residents';
-import type { ArchiveDoc, IdeaNode, ReviewFinding, Route, RoundtableTurn } from '../types';
+import { residentProfiles } from '../lib/residents';
+import type { ArchiveDoc, BuildingActionTarget, IdeaNode, ReviewFinding, Route, RoundtableTurn } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
 
 interface BuildingSceneProps {
@@ -29,6 +30,9 @@ export function BuildingScene({
   onEnterCouncil,
   onRunComplete,
 }: BuildingSceneProps) {
+  const [activeTarget, setActiveTarget] = useState<BuildingActionTarget>(building.primaryActionTarget);
+  const primaryLabel = building.id === 'council' ? '召开完整议会' : building.primaryAction;
+
   return (
     <main
       className={`building-scene building-${building.id}`}
@@ -52,12 +56,16 @@ export function BuildingScene({
         <h2>{building.name}</h2>
         <p>{building.entryCopy}</p>
         <div className="building-actions">
-          <button className="primary-action" type="button" onClick={building.id === 'council' ? onRunComplete : onEnterCouncil}>
-            {building.id === 'council' ? '召开完整议会' : building.primaryAction}
+          <button
+            className="primary-action"
+            type="button"
+            onClick={building.id === 'council' ? onRunComplete : () => setActiveTarget(building.primaryActionTarget)}
+          >
+            {primaryLabel}
           </button>
           {building.id !== 'council' && (
-            <button className="secondary-action" type="button" onClick={onRunComplete}>
-              跑通一轮示例
+            <button className="secondary-action" type="button" onClick={onEnterCouncil}>
+              去冲突议会
             </button>
           )}
         </div>
@@ -73,7 +81,7 @@ export function BuildingScene({
         </div>
       </section>
 
-      <section className="building-state-panel" aria-label={`${building.name} 当前状态`}>
+      <section className={`building-state-panel target-${activeTarget}`} aria-label={`${building.name} 当前状态`}>
         <SceneContent
           building={building}
           topic={topic}
@@ -126,15 +134,15 @@ function SceneContent({ building, topic, ideas, routes, turns, findings, docs }:
       <>
         <SceneHeading title="居民图鉴" body="这里解释居民为什么会在议会里采取不同认知姿态。" />
         <div className="resident-neighborhood">
-          {(building.linkedResidents ?? []).map((id) => {
-            const profile = getResidentProfile(id);
+          {residentProfiles.map((profile) => {
             return (
-              <article className="resident-neighbor-card" key={id}>
-                <img src={art.characters[profile.assetKey]} alt="" />
+              <article className="resident-neighbor-card" key={profile.id}>
+                <img src={art.characters[profile.assetKey]} alt="" loading="lazy" />
                 <span>
-                  <small>{profile.roleName}</small>
+                  <small>职能席位：{profile.roleName}</small>
                   <strong>{profile.title}</strong>
                   <p>{profile.promptBrief}</p>
+                  <em>当前居民人格 · 同职能居民可在后续版本替换上桌</em>
                 </span>
               </article>
             );

@@ -22,6 +22,7 @@ import type { ArchiveDoc, BuildingSceneId, DiscussionMode, IdeaNode, ResidentId,
 const GUIDE_STORAGE_KEY = 'siwei-city-guide-complete';
 const APP_STATE_KEY = 'siwei-city-session-v2';
 const CITY_HISTORY_KEY = 'siwei-city-history-v1';
+const pagesBasePath = import.meta.env.BASE_URL.startsWith('/siwei-city') ? '/siwei-city' : '';
 
 const initialLedger: UsageLedger = {
   engine: '本地模板',
@@ -64,6 +65,7 @@ function loadSavedCities(): SavedCity[] {
 function App() {
   const persisted = useMemo(() => loadPersistedState(), []);
   const persistedCities = useMemo(() => loadSavedCities(), []);
+  const [restoredSession, setRestoredSession] = useState(Boolean(persisted));
   const [currentTopic, setCurrentTopic] = useState(persisted?.currentTopic ?? topic);
   const [mode, setMode] = useState<DiscussionMode>(persisted?.mode ?? 'explore');
   const [ledger, setLedger] = useState<UsageLedger>(initialLedger);
@@ -315,6 +317,36 @@ function App() {
     setAdoptionNotice(`完整讨论已跑通：${opening.topic}`);
   }
 
+  function resetCurrentSession() {
+    const opening = createOpeningDraft(topic, 'explore');
+    setCurrentTopic(topic);
+    setMode('explore');
+    setLedger(initialLedger);
+    setIdeas(initialIdeas.map((idea) => ({ ...idea, source: '本地模板' })));
+    setRoutes(initialRoutes);
+    setTurns(opening.turns);
+    setSelectedIdeaId(null);
+    setActivePopoverIdeaId(null);
+    setPreviewContribution(null);
+    setAcceptedContributionKeys([]);
+    setRecentAcceptedIdeaId(null);
+    setRouteDraftFromId(null);
+    setRelation('支持');
+    setDrawerOpen(false);
+    setActivePanel('roundtable');
+    setActiveDocId('archive-report');
+    setSceneView('city');
+    setActiveResidentId(councilResidentIds[0]);
+    setActiveCodexResidentId(null);
+    setActiveBlueprintDistrictId(null);
+    setScribeCollapsed(true);
+    setRestoredSession(false);
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(APP_STATE_KEY);
+    }
+    setAdoptionNotice('已新开一轮：城邦回到干净起点，历史卷轴仍保留。');
+  }
+
   function enterCouncil(rawTopic?: string, residentId?: ResidentId) {
     const cleanTopic = rawTopic?.trim();
     if (cleanTopic) setCurrentTopic(cleanTopic);
@@ -452,6 +484,10 @@ function App() {
 
   return (
     <div className={[scribeCollapsed ? 'app-shell scribe-collapsed' : 'app-shell', sceneView === 'city' ? 'home-shell' : ''].join(' ')}>
+      <nav className="version-return-nav" aria-label="版本展厅导航">
+        <a href={`${pagesBasePath}/`}>版本展厅</a>
+        <a href={`${pagesBasePath}/v1/`}>1.0 回顾</a>
+      </nav>
       <IdeaPanel
         topic={currentTopic}
         mode={mode}
@@ -482,9 +518,11 @@ function App() {
               ideas={ideas}
               routes={routes}
               turns={turns}
-              findings={findings}
+            findings={findings}
+              restoredSession={restoredSession}
               onOpenBuilding={openBuildingScene}
               onOpenScribe={() => setScribeCollapsed(false)}
+              onResetSession={resetCurrentSession}
             />
           ) : sceneView === 'council' ? (
             <CouncilStage

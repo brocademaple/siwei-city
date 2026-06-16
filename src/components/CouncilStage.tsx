@@ -42,6 +42,19 @@ export function CouncilStage({
   const roleTurns = turns.filter((turn) => turn.role === activeProfile.roleName);
   const reportDoc = docs.find((doc) => doc.id === 'archive-report');
   const actionDoc = docs.find((doc) => doc.id === 'archive-action');
+  const hasAcceptedTurns = acceptedTurns.length > 0;
+  const stageHint = hasAcceptedTurns
+    ? `已采纳 ${acceptedTurns.length} 条观点，可以查看卷轴或继续采纳。`
+    : '先读居民席位发言，再在右侧卡片采纳有用观点。';
+
+  function handlePrimaryNext() {
+    if (hasAcceptedTurns && reportDoc) {
+      onActiveResidentChange('reportEditor');
+      onOpenDoc(reportDoc.id);
+      return;
+    }
+    onRunComplete();
+  }
 
   return (
     <main
@@ -53,25 +66,25 @@ export function CouncilStage({
     >
       <div className="council-vignette" />
       <header className="council-topbar">
-        <button type="button" onClick={onBackToCity}>
+        <button className="hud-button ghost" type="button" onClick={onBackToCity}>
           ← 返回城邦
         </button>
-        <span>{modeLabel(mode)}</span>
-        <button type="button" onClick={onRunComplete}>
-          跑通完整讨论
+        <span className="hud-plaque">{modeLabel(mode)}</span>
+        <button className="hud-button" type="button" onClick={onRunComplete}>
+          完成本轮演示
         </button>
       </header>
 
       <section className="council-table" aria-label="议会讨论桌">
-        <span className="kicker">当前议题</span>
+        <span className="kicker">议题桌</span>
         <h2>{topic}</h2>
-        <p>主要观点碰撞在议会内发生；采纳后的观点会同步沉淀回城邦地图。</p>
+        <p>{stageHint}</p>
         <div className="council-actions">
           <button type="button" onClick={onStartOpening}>
-            只开局
+            召集居民发言
           </button>
-          <button type="button" onClick={onRunComplete}>
-            召开完整议会
+          <button type="button" onClick={handlePrimaryNext} disabled={!hasAcceptedTurns}>
+            {hasAcceptedTurns ? '查看卷轴报告' : '先采纳右侧发言'}
           </button>
         </div>
         <div className="adopted-scrolls">
@@ -101,7 +114,7 @@ export function CouncilStage({
               <img src={art.characters[profile.assetKey]} alt="" />
               <span>
                 <strong>{profile.title}</strong>
-                <small>{profile.roleName} · {count} 条记录</small>
+                <small>职能席位：{profile.roleName} · {count} 条记录</small>
               </span>
             </button>
           );
@@ -149,21 +162,27 @@ function ResidentSeatPanel({
   onDiscussFinding,
   onOpenDoc,
 }: ResidentSeatPanelProps) {
+  const activeTurn = roleTurns.find((turn) => !turn.accepted) ?? roleTurns[0] ?? null;
+
   return (
     <aside className="council-focus-panel" aria-label={`${profile.title} 面板`}>
       <div className="focus-heading">
         <img src={art.characters[profile.assetKey]} alt="" />
         <span>
-          <small>{profile.roleName}</small>
+          <small>职能席位：{profile.roleName}</small>
           <strong>{profile.title}</strong>
         </span>
       </div>
-      <p>{profile.responsibility}</p>
+      <p className="focus-mission">{profile.responsibility}</p>
       <div className="profile-traits">
-        <span>{profile.persona}</span>
-        <span>{profile.tone}</span>
+        <span>人格：{profile.title}</span>
+        <span>语气：{profile.tone}</span>
+        <span>常问：{profile.commonQuestions[0]}</span>
       </div>
-      <div className="prompt-chip">{profile.promptBrief}</div>
+      <details className="prompt-chip">
+        <summary>查看席位 prompt</summary>
+        <p>{profile.promptBrief}</p>
+      </details>
 
       {profile.roleName === '巡城官' ? (
         <div className="seat-list">
@@ -204,22 +223,32 @@ function ResidentSeatPanel({
       ) : (
         <div className="seat-list">
           {roleTurns.length === 0 ? (
-            <article className="seat-card calm">这一席还没有发言。点击“召开完整议会”生成本轮观点碰撞。</article>
+            <article className="seat-card calm">这一席还没有发言。点击“召集居民发言”生成本轮观点碰撞。</article>
           ) : (
-            roleTurns.map((turn) => (
-              <article className={turn.accepted ? 'seat-card accepted' : 'seat-card'} key={turn.id}>
-                <strong>{turn.title}</strong>
-                <p>{turn.body}</p>
-                <em>
-                  回应 {turn.respondsTo ?? '议题'} · 建议关系 {turn.relation}
-                </em>
-                {!turn.accepted && (
-                  <button type="button" onClick={() => onAcceptTurn(turn)}>
-                    采纳入城
-                  </button>
-                )}
-              </article>
-            ))
+            <>
+              {activeTurn && (
+                <article className={activeTurn.accepted ? 'seat-card current accepted' : 'seat-card current'} key={activeTurn.id}>
+                  <span className="seat-card-label">当前贡献</span>
+                  <strong>{activeTurn.title}</strong>
+                  <p>{activeTurn.body}</p>
+                  <em>
+                    回应 {activeTurn.respondsTo ?? '议题'} · {activeTurn.relation}
+                  </em>
+                  {!activeTurn.accepted && (
+                    <button type="button" onClick={() => onAcceptTurn(activeTurn)}>
+                      采纳入城
+                    </button>
+                  )}
+                </article>
+              )}
+              {roleTurns.length > 1 && (
+                <div className="seat-mini-history">
+                  {roleTurns.slice(1, 4).map((turn) => (
+                    <span key={turn.id}>{turn.title}</span>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

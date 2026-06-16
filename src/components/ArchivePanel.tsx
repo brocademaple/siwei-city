@@ -14,7 +14,7 @@ interface ArchivePanelProps {
   onLoadSampleCase: (id: string) => void;
 }
 
-type ArchiveShelf = 'current' | 'cases' | 'history' | 'product';
+type ArchiveShelf = 'current' | 'cases' | 'traces' | 'history' | 'product';
 
 export function ArchivePanel({
   docs,
@@ -31,6 +31,7 @@ export function ArchivePanel({
   const currentDocs = useMemo(() => docs.filter((doc) => ['report', 'action', 'roundtable', 'repair'].includes(doc.kind)), [docs]);
   const productDocs = useMemo(() => docs.filter((doc) => ['narrative', 'mechanism'].includes(doc.kind)), [docs]);
   const caseDocs = useMemo(() => docs.filter((doc) => doc.kind === 'case'), [docs]);
+  const traceDocs = useMemo(() => docs.filter((doc) => doc.kind === 'trace'), [docs]);
 
   function downloadDoc(doc: ArchiveDoc) {
     const blob = new Blob([doc.body], { type: 'text/markdown;charset=utf-8' });
@@ -56,6 +57,7 @@ export function ArchivePanel({
       <div className="archive-shelves" aria-label="卷轴馆分区">
         {shelfButton('current', '本轮卷轴', shelf, setShelf)}
         {shelfButton('cases', '案例馆藏', shelf, setShelf)}
+        {shelfButton('traces', '链路留痕', shelf, setShelf)}
         {shelfButton('history', '历史城邦', shelf, setShelf)}
         {shelfButton('product', '产品叙事', shelf, setShelf)}
       </div>
@@ -94,6 +96,8 @@ export function ArchivePanel({
           })}
         </div>
       )}
+
+      {shelf === 'traces' && <DocList docs={traceDocs} activeDocId={activeDocId} onOpenDoc={onOpenDoc} />}
 
       {shelf === 'history' && (
         <div className="history-library">
@@ -169,6 +173,7 @@ function kindLabel(kind: ArchiveDoc['kind']) {
     narrative: '产品叙事',
     case: '案例馆藏',
     mechanism: '圆桌机制',
+    trace: '链路留痕',
   };
   return map[kind];
 }

@@ -60,6 +60,10 @@ export function IdeaPanel({
   const [type, setType] = useState<IdeaType>('hypothesis');
   const districtId = useMemo(() => defaultDistrictForType(type), [type]);
   const targetDistrict = districts.find((district) => district.id === districtId);
+  const activeMode = discussionModes.find((item) => item.id === mode) ?? discussionModes[0];
+  const showLedger = ledger.calls > 0 || ledger.status !== 'idle' || Boolean(ledger.lastError);
+  const inCouncil = sceneView === 'council';
+  const inCity = sceneView === 'city';
 
   useEffect(() => {
     setTopicDraft(topic);
@@ -106,6 +110,68 @@ export function IdeaPanel({
     );
   }
 
+  if (!inCity) {
+    return (
+      <aside className="scribe-panel runtime-scribe" aria-label="议题令牌">
+        <header className="scribe-header">
+          <div className="scribe-header-row">
+            <span className="kicker">议题令牌</span>
+            <button className="scribe-collapse-toggle" type="button" onClick={onToggleCollapsed} aria-label="收起立题台">
+              收起
+            </button>
+          </div>
+          <h1>本轮议题</h1>
+        </header>
+
+        <section className="runtime-decree" aria-label="当前议题">
+          <span className="section-title">{activeMode.label}</span>
+          <strong>{topic}</strong>
+          <p>{inCouncil ? '当前已在议会大厅。先看居民席位发言，再采纳有用观点入城。' : '当前在建筑二级页。这里负责查看沉淀，讨论仍回到冲突议会。'}</p>
+          <div className="decree-meta" aria-label="本轮简况">
+            <span>{ideaCount} 建筑</span>
+            <span>{routeCount} 道路</span>
+            <span>{acceptedTurnCount}/{turnCount} 采纳</span>
+            <span>{findingCount} 修缮</span>
+          </div>
+          {!inCouncil && (
+            <button className="primary-action" type="button" onClick={() => onEnterCouncil(topicDraft)}>
+              回议会继续碰撞
+            </button>
+          )}
+        </section>
+
+        <MvpPath
+          openingStarted={true}
+          ideaCount={ideaCount}
+          routeCount={routeCount}
+          turnCount={turnCount}
+          acceptedTurnCount={acceptedTurnCount}
+          findingCount={findingCount}
+        />
+
+        <details className="advanced-court compact-court rewrite-court">
+          <summary>
+            <span className="section-title">改写议题</span>
+            <strong>需要重开时再用</strong>
+          </summary>
+          <form className="rewrite-form" onSubmit={(event) => {
+            event.preventDefault();
+            onStartOpening(topicDraft);
+          }}>
+            <textarea
+              value={topicDraft}
+              onChange={(event) => setTopicDraft(event.target.value)}
+              placeholder="改写本轮议题"
+            />
+            <button className="secondary-action" type="submit">
+              以此题重召居民
+            </button>
+          </form>
+        </details>
+      </aside>
+    );
+  }
+
   return (
     <aside className="scribe-panel">
       <header className="scribe-header">
@@ -139,15 +205,12 @@ export function IdeaPanel({
         </div>
         <div className="topic-actions">
           <button className="primary-action" type="submit">
-            {sceneView === 'city' ? '进入议会' : openingStarted ? '重新跑完整讨论' : '跑通完整讨论'}
-          </button>
-          <button className="secondary-action" type="button" onClick={() => onStartOpening(topicDraft)}>
-            只开局
+            进入冲突议会
           </button>
         </div>
       </form>
 
-      <LedgerBar ledger={ledger} mode={mode} />
+      {showLedger && <LedgerBar ledger={ledger} mode={mode} />}
       <MvpPath
         openingStarted={openingStarted}
         ideaCount={ideaCount}
@@ -159,7 +222,7 @@ export function IdeaPanel({
 
       <details className="advanced-court compact-court">
         <summary>
-          <span className="section-title">高级编辑</span>
+          <span className="section-title">可选工坊</span>
           <strong>手动建观点、预览备用来函</strong>
         </summary>
         <div className="advanced-tools">

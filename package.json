@@ -12,7 +12,9 @@
     "preview": "vite preview",
     "trace:thinking": "node scripts/run-thinking-traces.mjs",
     "slice:assets": "node scripts/slice-assets.mjs",
-    "check:assets": "node scripts/check-green-artifacts.mjs"
+    "optimize:assets": "node scripts/optimize-art-assets.mjs",
+    "check:assets": "node scripts/check-green-artifacts.mjs",
+    "test:smoke": "node scripts/smoke-test.mjs"
   },
   "dependencies": {
     "react": "^19.0.0",

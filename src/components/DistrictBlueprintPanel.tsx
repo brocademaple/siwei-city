@@ -31,7 +31,7 @@ export function DistrictBlueprintPanel({
         ×
       </button>
       <div className="district-blueprint-hero">
-        <img src={buildingImage} alt="" />
+        <img src={buildingImage} alt="" loading="lazy" />
         <span>
           <small>规划档案 · 二级页面</small>
           <strong>{district.name}</strong>
@@ -67,10 +67,10 @@ export function DistrictBlueprintPanel({
           <div>
             {relatedResidents.map((resident) => (
               <button key={resident.id} type="button" onClick={() => onSelectResident(resident.id)}>
-                <img src={art.characters[resident.assetKey]} alt="" />
+                <img src={art.characters[resident.assetKey]} alt="" loading="lazy" />
                 <span>
                   <b>{resident.title}</b>
-                  <small>{resident.roleName}</small>
+                  <small>职能席位：{resident.roleName}</small>
                 </span>
               </button>
             ))}

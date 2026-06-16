@@ -17,7 +17,7 @@
 
 ### 主视觉
 
-![城邦 panorama](../src/assets/art/hero-city-panorama.png)
+![城邦 panorama](../../src/assets/art/hero-city-panorama.png)
 
 用途：
 
@@ -95,6 +95,7 @@ npm run check:assets
 规则：
 
 - 正式 UI 只引用 `src/assets/art/`。
+- 2.0 应用优先引用 `src/assets/art/optimized/` 下的 WebP 产物；PNG 原图保留为源资产和 1.0 展厅素材。
 - `src/assets/generated/` 可保留生成记录和切片来源，但不作为 UI 直接引用。
 - 可见资产不得残留明显绿幕。
 - 图片中不放中文文字，中文由 HTML 渲染，保证可维护和可访问性。

@@ -20,9 +20,9 @@ export function ResidentCodexPanel({ profile, profiles, onSelectProfile, onEnter
         ×
       </button>
       <div className="codex-portrait">
-        <img src={art.characters[profile.assetKey]} alt="" />
+        <img src={art.characters[profile.assetKey]} alt="" loading="lazy" />
       </div>
-      <span className="kicker">角色图鉴 · {profile.roleName}</span>
+      <span className="kicker">角色图鉴 · 职能席位：{profile.roleName}</span>
       <h2>{profile.title}</h2>
       <p>{profile.responsibility}</p>
       <div className="profile-traits">
@@ -39,7 +39,7 @@ export function ResidentCodexPanel({ profile, profiles, onSelectProfile, onEnter
               type="button"
               onClick={() => onSelectProfile(item.id)}
             >
-              <img src={art.characters[item.assetKey]} alt="" />
+              <img src={art.characters[item.assetKey]} alt="" loading="lazy" />
               <span>
                 <strong>{item.title}</strong>
                 <small>{item.roleName} · {item.genderPresentation === 'female' ? '女性角色' : item.genderPresentation === 'male' ? '男性角色' : '中性角色'}</small>

@@ -7,7 +7,8 @@ export type Prominence = 'primary' | 'normal' | 'quiet';
 export type IdeaSource = '本地模板' | 'AI 生成' | '用户手写';
 export type DiscussionMode = 'explore' | 'decide' | 'act';
 export type ServicePanel = 'walkthrough' | 'roundtable' | 'inspector' | 'archive';
-export type ArchiveKind = 'report' | 'action' | 'roundtable' | 'repair' | 'narrative' | 'case' | 'mechanism';
+export type ArchiveKind = 'report' | 'action' | 'roundtable' | 'repair' | 'narrative' | 'case' | 'mechanism' | 'trace';
+export type BuildingActionTarget = 'overview' | 'archive' | 'residents' | 'candidates' | 'actions' | 'notes' | 'graveyard' | 'diagnostics';
 export type BuildingSceneId =
   | 'council'
   | 'library'

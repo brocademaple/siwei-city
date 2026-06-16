@@ -41,7 +41,9 @@ AI 时代，信息生成和资料整理越来越便宜，但个人真正需要�
 - 地图内服务建筑：居民席位、巡城官塔、卷轴馆。
 - 卷轴馆 Markdown 导出：报告、行动计划、圆桌记录、巡城修缮记录。
 - 卷轴馆案例馆藏：内置 4 个高质量演示议题，可一键载入城邦。
-- 历史城邦：把不同议题保存为本地项目档案，支持回看。
+- 当前会话恢复：刷新或重新打开同一浏览器时，会恢复上次城邦。
+- 新开一轮：从恢复提示中清空当前轮次，回到干净起点。
+- 历史城邦：把不同议题保存为本地项目档案，新开一轮不会清掉历史卷轴。
 - 新手指引和常驻 MVP 任务线。
 - 自有美术资产接入，包含城市主视觉、建筑、城区和纹理。
 - GitHub Pages 自动部署配置。
@@ -60,6 +62,10 @@ AI 时代，信息生成和资料整理越来越便宜，但个人真正需要�
 ```
 
 核心设计原则：系统可以建议，但不自动替用户改地图。居民来函只预览，巡城官令只提示问题，最终判断权始终留给用户。
+
+## 2.0 演示话术
+
+2.0 版可以这样演示：先输入一个模糊议题，进入冲突议会并召开完整议会，四位居民会把问题、证据、反驳和行动沉淀成地图建筑，巡城官指出结构缺口，卷轴馆生成可复制或下载的报告。此时刷新页面，城邦会从浏览器本地会话中恢复，主页显示“已恢复上次城邦”；如果要重新开始，点击“新开一轮”，当前轮次会回到默认干净状态。已经在卷轴馆“封存当前城邦”的历史卷轴仍然保留，可以继续回看或重新打开。
 
 ## 前端与设计亮点
 
@@ -81,23 +87,17 @@ AI 时代，信息生成和资料整理越来越便宜，但个人真正需要�
 | 城区资产 | `src/assets/art/districts/` | 问题、证据、假设、冲突、行动等语义区域 |
 | 纹理资产 | `src/assets/art/textures/` | 面板、印章、羊皮纸、青铜和地图质感 |
 
-更多资产说明和提示词见：[docs/art-direction.md](docs/art-direction.md)。
+更多资产说明和提示词见：[docs/current/art-direction.md](docs/current/art-direction.md)。
 
 ## 项目阅读路径
 
-- 图文 MVP 说明书：[docs/siwei-city-mvp-manual.md](docs/siwei-city-mvp-manual.md)
-- 重新接手说明：[docs/project-orientation.md](docs/project-orientation.md)
-- 产品叙事页：[docs/product-narrative.md](docs/product-narrative.md)
-- 居民圆桌机制设计：[docs/roundtable-mechanism.md](docs/roundtable-mechanism.md)
-- 面试展示 Case Study：[docs/case-study.md](docs/case-study.md)
-- 升级版测试报告：[docs/upgrade-test-report.md](docs/upgrade-test-report.md)
-- 产品与工程说明：[docs/product-engineering-brief.md](docs/product-engineering-brief.md)
-- 当前进度与 PRD：[docs/project-status-prd.md](docs/project-status-prd.md)
-- MVP 产品决策记录：[docs/product-mvp-decisions.md](docs/product-mvp-decisions.md)
-- 流程与美术规划：[docs/mvp-flow-and-art-direction.md](docs/mvp-flow-and-art-direction.md)
-- 美术资产与提示词：[docs/art-direction.md](docs/art-direction.md)
-- 世界观设定：[docs/siwei-city-worldbuilding.md](docs/siwei-city-worldbuilding.md)
-- 版本历史：[docs/version-history.md](docs/version-history.md)
+- 图文 MVP 说明书：[docs/current/siwei-city-mvp-manual.md](docs/current/siwei-city-mvp-manual.md)
+- 当前进度与 PRD：[docs/current/project-status-prd.md](docs/current/project-status-prd.md)
+- 世界观设定：[docs/current/siwei-city-worldbuilding.md](docs/current/siwei-city-worldbuilding.md)
+- 居民圆桌机制设计：[docs/current/roundtable-mechanism.md](docs/current/roundtable-mechanism.md)
+- 版本历史：[docs/current/version-history.md](docs/current/version-history.md)
+- 1.0 和旧版材料归档：[docs/archive-v1/](docs/archive-v1/)
+- 后续规划与候选想法：[docs/planning/](docs/planning/)
 - 两条思维链路留痕：[docs/trace-runs/README.md](docs/trace-runs/README.md)
 
 ## 快速运行
@@ -186,16 +186,14 @@ src/
   assets/art/              # 前端正式引用的美术资产
   assets/generated/        # 生成母图与切片记录
 docs/
-  product-narrative.md     # 一页产品叙事
-  roundtable-mechanism.md  # 多 agent 圆桌机制
-  case-study.md            # 面试展示 Case Study
-  upgrade-test-report.md   # 升级版体验测试报告
-  product-engineering-brief.md # 产品与工程说明
-  project-status-prd.md    # 当前进度与 PRD 概览
-  art-direction.md         # 美术资产、提示词和质量规则
+  current/                 # 2.0 当前说明书、PRD、世界观、机制说明
+  archive-v1/              # 1.0 与旧版产品/美术/测试材料
+  planning/                # 后续建筑、居民日常 talk、长期 roadmap
+  trace-runs/              # 两条思维链路留痕
 scripts/
   slice-assets.mjs
   check-green-artifacts.mjs
+  optimize-art-assets.mjs
 .github/workflows/
   deploy-pages.yml         # GitHub Pages 自动部署
 ```
@@ -223,4 +221,4 @@ scripts/
 - 首版先验证 Web 桌面端交互闭环，不做移动端和多人协作。
 - 如果未配置 Mimo/Vercel，产品会清楚回退到本地模板。
 - 用户保留最终判断权，系统只辅助发现结构和提出建议。
-- 历史城邦先存在浏览器 localStorage，账号同步后续再做。
+- 当前会话和历史城邦先存在浏览器 localStorage，账号同步后续再做。

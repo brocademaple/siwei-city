@@ -9,8 +9,10 @@ interface HomeWorldMapProps {
   routes: Route[];
   turns: RoundtableTurn[];
   findings: ReviewFinding[];
+  restoredSession: boolean;
   onOpenBuilding: (id: BuildingSceneId) => void;
   onOpenScribe: () => void;
+  onResetSession: () => void;
 }
 
 export function HomeWorldMap({
@@ -19,13 +21,17 @@ export function HomeWorldMap({
   routes,
   turns,
   findings,
+  restoredSession,
   onOpenBuilding,
   onOpenScribe,
+  onResetSession,
 }: HomeWorldMapProps) {
   const [scale, setScale] = useState(1);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [offset, setOffset] = useState(() => initialMapOffset());
+  const [activeBuildingId, setActiveBuildingId] = useState<BuildingSceneId>('council');
   const dragRef = useRef<{ pointerId: number; x: number; y: number; offsetX: number; offsetY: number } | null>(null);
   const acceptedTurns = turns.filter((turn) => turn.accepted).length;
+  const activeBuilding = cityBuildings.find((building) => building.id === activeBuildingId) ?? cityBuildings[0];
 
   function updateScale(delta: number) {
     setScale((current) => Math.min(1.85, Math.max(0.78, Number((current + delta).toFixed(2)))));
@@ -33,7 +39,7 @@ export function HomeWorldMap({
 
   function resetView() {
     setScale(1);
-    setOffset({ x: 0, y: 0 });
+    setOffset(initialMapOffset());
   }
 
   return (
@@ -84,6 +90,8 @@ export function HomeWorldMap({
               style={{ left: `${building.mapX}%`, top: `${building.mapY}%` }}
               type="button"
               onPointerDown={(event) => event.stopPropagation()}
+              onFocus={() => setActiveBuildingId(building.id)}
+              onMouseEnter={() => setActiveBuildingId(building.id)}
               onClick={(event) => {
                 event.stopPropagation();
                 onOpenBuilding(building.id);
@@ -97,10 +105,27 @@ export function HomeWorldMap({
         </div>
       </div>
 
+      <section className={`world-marker-brief tone-${activeBuilding.markerTone}`} aria-live="polite">
+        <span>{activeBuilding.id === 'council' ? '推荐起点' : '城邦建筑'}</span>
+        <strong>{activeBuilding.name}</strong>
+        <p>{activeBuilding.mvpRole}</p>
+        <button type="button" onClick={() => onOpenBuilding(activeBuilding.id)}>
+          进入{activeBuilding.shortName}
+        </button>
+      </section>
+
       <section className="home-entry-card" aria-label="城邦入口">
         <span>当前议题</span>
         <h2>{topic}</h2>
         <p>从冲突议会开始一轮圆桌。其他建筑负责归档、诊断、行动和长期记忆。</p>
+        {restoredSession && (
+          <div className="home-session-note" role="status">
+            <strong>已恢复上次城邦</strong>
+            <button type="button" onClick={onResetSession}>
+              新开一轮
+            </button>
+          </div>
+        )}
         <div className="home-entry-actions">
           <button className="primary-action" type="button" onClick={() => onOpenBuilding('council')}>
             进入冲突议会
@@ -130,4 +155,9 @@ export function HomeWorldMap({
       </div>
     </main>
   );
+}
+
+function initialMapOffset() {
+  if (typeof window === 'undefined') return { x: 0, y: 0 };
+  return window.innerWidth <= 720 ? { x: -220, y: 0 } : { x: 0, y: 0 };
 }

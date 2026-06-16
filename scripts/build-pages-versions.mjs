@@ -111,9 +111,11 @@ function renderHomePage() {
           <h2>世界观不是装饰，是产品结构</h2>
           <p>8 座建筑对应一次议题闭环的 8 个阶段：冲突议会、大图书馆、居民区、假设码头、行动码头、沉思庭院、记忆墓园 / 废案馆、灯塔 / 巡城塔。未想清楚的新建筑先留在 PRD 和世界观文档里，不挤进产品 UI。</p>
           <div class="pill-row">
-            <a href="https://github.com/brocademaple/siwei-city/blob/main/docs/siwei-city-worldbuilding.md">世界观文档</a>
-            <a href="https://github.com/brocademaple/siwei-city/blob/main/docs/project-status-prd.md">当前 PRD</a>
-            <a href="https://github.com/brocademaple/siwei-city/blob/main/docs/version-history.md">版本历史</a>
+            <a href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/siwei-city-mvp-manual.md">MVP 说明书</a>
+            <a href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/siwei-city-worldbuilding.md">世界观文档</a>
+            <a href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/project-status-prd.md">当前 PRD</a>
+            <a href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/roundtable-mechanism.md">圆桌机制</a>
+            <a href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/version-history.md">版本历史</a>
           </div>
         </section>
       </main>

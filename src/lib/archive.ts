@@ -1,5 +1,6 @@
 import { modeLabel } from './modes';
 import { buildSampleCaseDocs } from './sampleCases';
+import { buildTraceRunDocs } from './traceRunDocs';
 import type { ArchiveDoc, DiscussionMode, IdeaNode, ReviewFinding, RoundtableTurn, Route } from '../types';
 
 export function buildArchiveDocs(topic: string, mode: DiscussionMode, ideas: IdeaNode[], routes: Route[], findings: ReviewFinding[], turns: RoundtableTurn[]): ArchiveDoc[] {
@@ -8,6 +9,7 @@ export function buildArchiveDocs(topic: string, mode: DiscussionMode, ideas: Ide
     buildNarrativeDoc(),
     buildMechanismDoc(),
     ...buildSampleCaseDocs(),
+    ...buildTraceRunDocs(),
   ];
   return [
     {

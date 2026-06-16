@@ -55,9 +55,10 @@ export function ServiceDrawer({
     <aside className={open ? 'city-log service-drawer open' : 'city-log service-drawer'} data-guide="log">
       <button className="drawer-toggle" type="button" onClick={onToggle} aria-label={open ? '收起城邦服务' : '打开城邦服务'}>
         <span className="drawer-icon" aria-hidden="true">
-          城
+          巡
         </span>
         <b>{open ? '收起' : '城邦服务'}</b>
+        <small>居民 · 巡城 · 卷轴</small>
       </button>
       <div className="drawer-tabs">
         <button className={activePanel === 'walkthrough' ? 'active' : ''} type="button" onClick={() => onPanelChange('walkthrough')}>
@@ -196,24 +197,24 @@ export function ServiceDrawer({
 function helperCopy(panel: ServicePanel) {
   const map: Record<ServicePanel, { step: string; title: string; body: string }> = {
     walkthrough: {
-      step: '完整链路',
-      title: '看这一轮如何跑完',
-      body: '这里把议题、地图、居民、巡城和卷轴串成一条可见流程。',
+      step: '城邦令',
+      title: '看本轮修城路线',
+      body: '从立题、居民来函、巡城修缮到卷轴报告，按顺序检查本轮进展。',
     },
     roundtable: {
-      step: '第 2 步',
-      title: '看居民说了什么',
-      body: '点一条来函会在地图上预览；觉得有用再采纳入城，地图才会新增建筑。',
+      step: '居民席',
+      title: '读居民来函',
+      body: '点一条来函先预览，觉得有用再采纳入城，地图才会新增建筑。',
     },
     inspector: {
-      step: '第 3 步',
-      title: '查哪里还没想透',
-      body: '巡城官只指出结构缺口。你可以定位相关建筑，也可以请对应角色继续讨论。',
+      step: '巡城令',
+      title: '查结构缺口',
+      body: '巡城官指出缺证据、未回应反驳和未回流行动；按修缮令继续讨论。',
     },
     archive: {
-      step: '第 4 步',
-      title: '把结果带走',
-      body: '这里会自动生成报告、行动计划、圆桌记录和修缮记录，支持复制或下载 Markdown。',
+      step: '卷轴馆',
+      title: '带走报告',
+      body: '这里沉淀报告、行动计划和圆桌记录，支持复制或下载 Markdown。',
     },
   };
   return map[panel];

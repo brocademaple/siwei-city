@@ -3,6 +3,7 @@ dist/
 *.tsbuildinfo
 *.log
 dev-server*.log
+.playwright-cli/
 .env
 .env.local
 .env.*.local

@@ -1,8 +1,10 @@
 import type { CSSProperties } from 'react';
 import { art } from '../assets/art';
 import { contributionKey } from '../lib/contribution';
+import type { DistrictBlueprint } from '../lib/districtBlueprints';
 import { typeLabel } from '../lib/layout';
-import type { District, IdeaNode, ResidentProfile, RoleContribution, Route, RouteRelation } from '../types';
+import type { District, IdeaNode, ResidentId, ResidentProfile, RoleContribution, Route, RouteRelation } from '../types';
+import { DistrictBlueprintPanel } from './DistrictBlueprintPanel';
 import { MapPopover } from './MapPopover';
 import { ResidentCodexPanel } from './ResidentCodexPanel';
 
@@ -24,9 +26,14 @@ interface CityMapProps {
   onClosePopover: () => void;
   onAcceptContribution: (contribution: RoleContribution) => void;
   activeCodexProfile?: ResidentProfile | null;
+  activeBlueprintDistrict?: District | null;
+  activeDistrictBlueprint?: DistrictBlueprint | null;
+  residentProfiles?: ResidentProfile[];
+  onSelectResidentProfile?: (id: ResidentId) => void;
   onSelectDistrict?: (districtId: string) => void;
   onEnterCouncil?: () => void;
   onCloseCodex?: () => void;
+  onCloseBlueprint?: () => void;
 }
 
 export function CityMap({
@@ -47,10 +54,20 @@ export function CityMap({
   onClosePopover,
   onAcceptContribution,
   activeCodexProfile,
+  activeBlueprintDistrict,
+  activeDistrictBlueprint,
+  residentProfiles = [],
+  onSelectResidentProfile,
   onSelectDistrict,
   onEnterCouncil,
   onCloseCodex,
+  onCloseBlueprint,
 }: CityMapProps) {
+  function enterCouncilFromMap(event?: { preventDefault: () => void }) {
+    event?.preventDefault();
+    onEnterCouncil?.();
+  }
+
   return (
     <main
       className={previewContribution ? 'city-stage previewing-contribution' : 'city-stage'}
@@ -60,13 +77,13 @@ export function CityMap({
       data-guide="map"
     >
       <div className="map-vignette" />
-      <button className="council-entry-banner" type="button" onClick={onEnterCouncil}>
+      <button className="council-entry-banner" type="button" onPointerDown={enterCouncilFromMap} onClick={() => enterCouncilFromMap()}>
         <span>冲突议会</span>
         <strong>进入议会展开思维碰撞</strong>
       </button>
       <div className="district-layer" aria-label="城邦建筑图鉴">
         {districts
-          .filter((district) => district.showOnMap !== false)
+          .filter((district) => district.showOnMap !== false && district.id !== 'conflict')
           .map((district) => (
             <button
               className="district-marker"
@@ -76,6 +93,7 @@ export function CityMap({
               onClick={() => onSelectDistrict?.(district.id)}
             >
               <strong>{district.name}</strong>
+              <small>规划</small>
               <span className="district-tooltip">{district.role}</span>
             </button>
           ))}
@@ -148,6 +166,16 @@ export function CityMap({
         })}
       </div>
 
+      {!activeIdea && !previewContribution && !activeCodexProfile && !activeBlueprintDistrict && (
+        <section className="city-deposit-summary" aria-label="本轮城邦沉淀">
+          <span>城邦沉淀</span>
+          <strong>
+            {ideas.length} 座观点小筑 · {routes.length} 条关系道路
+          </strong>
+          <p>小建筑只作记录，点击才展开正文；主要讨论从上方进入议会。</p>
+        </section>
+      )}
+
       {(activeIdea || previewContribution) && (
         <MapPopover
           districts={districts}
@@ -168,8 +196,18 @@ export function CityMap({
 
       <ResidentCodexPanel
         profile={activeCodexProfile ?? null}
+        profiles={residentProfiles}
+        onSelectProfile={(id) => onSelectResidentProfile?.(id)}
         onEnterCouncil={() => onEnterCouncil?.()}
         onClose={() => onCloseCodex?.()}
+      />
+      <DistrictBlueprintPanel
+        district={activeBlueprintDistrict ?? null}
+        blueprint={activeDistrictBlueprint ?? null}
+        residents={residentProfiles}
+        onSelectResident={(id) => onSelectResidentProfile?.(id)}
+        onEnterCouncil={() => onEnterCouncil?.()}
+        onClose={() => onCloseBlueprint?.()}
       />
     </main>
   );

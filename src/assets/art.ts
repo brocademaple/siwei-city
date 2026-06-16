@@ -1,5 +1,13 @@
 import heroCity from './art/hero-city-panorama.png';
+import cityWorld from './art/scenes/city-world-panorama.png';
+import actionHarbor from './art/scenes/action-harbor-panorama.png';
+import contemplationGarden from './art/scenes/contemplation-garden-panorama.png';
 import councilChamber from './art/scenes/council-chamber-panorama.png';
+import grandLibrary from './art/scenes/grand-library-panorama.png';
+import hypothesisHarbor from './art/scenes/hypothesis-harbor-panorama.png';
+import lighthouseWatchtower from './art/scenes/lighthouse-watchtower-panorama.png';
+import memoryCemetery from './art/scenes/memory-cemetery-panorama.png';
+import residentialQuarter from './art/scenes/residential-quarter-panorama.png';
 
 import archiveKeeper from './art/characters/archive-keeper.png';
 import cityInspector from './art/characters/city-inspector.png';
@@ -7,6 +15,12 @@ import residentExecutor from './art/characters/resident-executor.png';
 import residentPractitioner from './art/characters/resident-practitioner.png';
 import residentResearcher from './art/characters/resident-researcher.png';
 import residentSkeptic from './art/characters/resident-skeptic.png';
+import residentBoundarySkeptic from './art/characters/resident-boundary-skeptic.png';
+import residentEvidenceCartographer from './art/characters/resident-evidence-cartographer.png';
+import residentFieldEthnographer from './art/characters/resident-field-ethnographer.png';
+import residentMomentumExecutor from './art/characters/resident-momentum-executor.png';
+import reportEditor from './art/characters/report-editor.png';
+import systemsInspector from './art/characters/systems-inspector.png';
 
 import buildingArch from './art/buildings/building-arch.png';
 import buildingBellTower from './art/buildings/building-bell-tower.png';
@@ -31,7 +45,15 @@ import textureVellum from './art/textures/texture-vellum.png';
 export const art = {
   heroCity,
   scenes: {
+    actionHarbor,
+    cityWorld,
+    contemplationGarden,
     councilChamber,
+    grandLibrary,
+    hypothesisHarbor,
+    lighthouseWatchtower,
+    memoryCemetery,
+    residentialQuarter,
   },
   characters: {
     proposer: archiveKeeper,
@@ -41,6 +63,12 @@ export const art = {
     executor: residentExecutor,
     inspector: cityInspector,
     archive: archiveKeeper,
+    evidenceCartographer: residentEvidenceCartographer,
+    boundarySkeptic: residentBoundarySkeptic,
+    fieldEthnographer: residentFieldEthnographer,
+    momentumExecutor: residentMomentumExecutor,
+    systemsInspector,
+    reportEditor,
   },
   buildings: [
     buildingTemple,

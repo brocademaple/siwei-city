@@ -141,7 +141,7 @@ export function createOpeningDraft(rawTopic: string, mode: DiscussionMode = 'exp
     type: step.type,
     districtId: districtForType(step.type),
     relation: step.relation,
-    targetIdeaId: index === 0 ? 'idea-core-question' : index === 1 ? 'idea-hypothesis-first-judgement' : 'idea-action-smallest-step',
+    targetIdeaId: targetIdeaForStep(step.type, step.role),
     source: '本地模板',
     respondsTo: index === 0 ? '核心问题' : config.steps[index - 1]?.role,
   }));
@@ -155,8 +155,16 @@ function normalizeTopic(topic: string) {
 }
 
 function buildTurnBody(topic: string, instruction: string, role: string, index: number) {
-  const connectors = ['先把入口打开：', '回应上一位居民：', '把讨论收束一下：'];
+  const connectors = ['先把入口打开：', '回应上一位居民：', '把讨论收束一下：', '最后回到地图：'];
   return `${connectors[index] ?? ''}${instruction} 这一步围绕“${topic}”，由${role}提出，等待你采纳入城或继续让圆桌讨论。`;
+}
+
+function targetIdeaForStep(type: RoundtableTurn['type'], role: RoundtableTurn['role']) {
+  if (type === 'counter' || role === '怀疑者') return 'idea-hypothesis-first-judgement';
+  if (type === 'action' || role === '执行者') return 'idea-action-smallest-step';
+  if (type === 'evidence' && role === '实践者') return 'idea-evidence-gap';
+  if (type === 'hypothesis' || role === '研究者') return 'idea-hypothesis-first-judgement';
+  return 'idea-core-question';
 }
 
 function districtForType(type: RoundtableTurn['type']) {

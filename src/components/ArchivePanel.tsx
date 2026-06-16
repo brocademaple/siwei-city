@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { sampleCases } from '../lib/sampleCases';
 import type { ArchiveDoc, SavedCity } from '../types';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 interface ArchivePanelProps {
   docs: ArchiveDoc[];
@@ -122,7 +123,7 @@ export function ArchivePanel({
           </button>
           <span className="kicker">{kindLabel(activeDoc.kind)}</span>
           <h2>{activeDoc.title}</h2>
-          <pre>{activeDoc.body}</pre>
+          <MarkdownRenderer source={activeDoc.body} />
           <div className="reader-actions">
             <button className="secondary-action" type="button" onClick={() => copyDoc(activeDoc)}>
               复制 Markdown

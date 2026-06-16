@@ -2,7 +2,7 @@ import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => ({
-  base: mode === 'github-pages' ? '/siwei-city/' : '/',
+  base: mode.startsWith('github-pages') ? '/siwei-city/v2/' : '/',
   plugins: [react(), mimoDevProxy(mode)],
 }));
 

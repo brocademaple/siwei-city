@@ -4,7 +4,11 @@
 
 思维城邦是一个把模糊议题转化为结构化思维地图的前端 MVP。它把观点做成建筑，把论证关系做成道路，把多角色建议做成居民来函，把结构诊断做成巡城官令，帮助用户把一次复杂思考收束成三类产物：一张地图、一个下一步行动、一份可导出的报告材料。
 
-在线演示：<https://brocademaple.github.io/siwei-city/>
+在线演示：
+
+- 版本展厅：<https://brocademaple.github.io/siwei-city/>
+- 1.0 迭代回顾：<https://brocademaple.github.io/siwei-city/v1/>
+- 2.0 当前应用：<https://brocademaple.github.io/siwei-city/v2/>
 
 ## 为什么做这个
 
@@ -92,6 +96,8 @@ AI 时代，信息生成和资料整理越来越便宜，但个人真正需要�
 - MVP 产品决策记录：[docs/product-mvp-decisions.md](docs/product-mvp-decisions.md)
 - 流程与美术规划：[docs/mvp-flow-and-art-direction.md](docs/mvp-flow-and-art-direction.md)
 - 美术资产与提示词：[docs/art-direction.md](docs/art-direction.md)
+- 世界观设定：[docs/siwei-city-worldbuilding.md](docs/siwei-city-worldbuilding.md)
+- 版本历史：[docs/version-history.md](docs/version-history.md)
 - 两条思维链路留痕：[docs/trace-runs/README.md](docs/trace-runs/README.md)
 
 ## 快速运行

@@ -8,8 +8,30 @@ export type IdeaSource = '本地模板' | 'AI 生成' | '用户手写';
 export type DiscussionMode = 'explore' | 'decide' | 'act';
 export type ServicePanel = 'walkthrough' | 'roundtable' | 'inspector' | 'archive';
 export type ArchiveKind = 'report' | 'action' | 'roundtable' | 'repair' | 'narrative' | 'case' | 'mechanism';
-export type SceneView = 'city' | 'council';
-export type ResidentId = 'proposer' | 'researcher' | 'skeptic' | 'practitioner' | 'executor' | 'inspector' | 'archive';
+export type BuildingSceneId =
+  | 'council'
+  | 'library'
+  | 'residential'
+  | 'hypothesisHarbor'
+  | 'actionHarbor'
+  | 'contemplationGarden'
+  | 'memoryCemetery'
+  | 'lighthouse';
+export type SceneView = 'city' | BuildingSceneId;
+export type ResidentId =
+  | 'proposer'
+  | 'researcher'
+  | 'skeptic'
+  | 'practitioner'
+  | 'executor'
+  | 'inspector'
+  | 'archive'
+  | 'evidenceCartographer'
+  | 'boundarySkeptic'
+  | 'fieldEthnographer'
+  | 'momentumExecutor'
+  | 'systemsInspector'
+  | 'reportEditor';
 export type ResidentRoleName = AuthorRole | '立题者' | '巡城官' | '卷轴官';
 
 export interface District {
@@ -112,6 +134,9 @@ export interface ResidentProfile {
   roleName: ResidentRoleName;
   title: string;
   responsibility: string;
+  persona: string;
+  tone: string;
+  genderPresentation: 'male' | 'female' | 'neutral';
   commonQuestions: string[];
   promptBrief: string;
   outputContract: string;

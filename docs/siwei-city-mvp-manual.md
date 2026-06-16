@@ -26,6 +26,12 @@
 - `src/assets/art/characters/resident-executor.png`
 - `src/assets/art/characters/city-inspector.png`
 - `src/assets/art/characters/archive-keeper.png`
+- `src/assets/art/characters/resident-evidence-cartographer.png`
+- `src/assets/art/characters/resident-boundary-skeptic.png`
+- `src/assets/art/characters/resident-field-ethnographer.png`
+- `src/assets/art/characters/resident-momentum-executor.png`
+- `src/assets/art/characters/systems-inspector.png`
+- `src/assets/art/characters/report-editor.png`
 
 ## 1. 先把这个 idea 重新说清楚
 
@@ -131,7 +137,7 @@ flowchart LR
 如果只有假设，没有证据和反驳，用户会过早相信自己。
 如果没有行动，讨论会变成漂亮但不能推进的地图。
 
-## 5. 四类居民：把 AI 从回答者变成碰撞者
+## 5. 居民池：把 AI 从回答者变成碰撞者
 
 MVP 里不应该让 AI 扮演一个“万能助手”。更清楚的做法是让它分成四个思维角色。
 
@@ -143,6 +149,23 @@ MVP 里不应该让 AI 扮演一个“万能助手”。更清楚的做法是让
 | 执行者 | 收束行动 | 产出最小下一步 |
 
 这四类角色构成一轮“思维碰撞”的最小班底：
+
+当前实现进一步把“功能角色”和“具体居民人格”拆开。居民池里每个功能角色都有男女不同人格、提示词和输出契约；议会桌第一版只从完整居民池里挑一组代表上桌。这样后续可以做成“本轮议题适合邀请哪几位居民”，而不是永远固定同一队人。
+
+| 具体居民 | 功能角色 | 人设差异 |
+| --- | --- | --- |
+| 证据研究者 | 研究者 | 学院派证据守门人，重来源和指标 |
+| 证据制图师 | 研究者 | 女性角色，把证据分层成地形图 |
+| 反证怀疑者 | 怀疑者 | 站在反方席位找最强反例 |
+| 边界怀疑者 | 怀疑者 | 女性角色，测试边界条件和沉默相关方 |
+| 场景实践者 | 实践者 | 从真实工作台和街巷带回经验 |
+| 现场民族志员 | 实践者 | 女性角色，用观察笔记还原现场 |
+| 行动执行者 | 执行者 | 航线规划式推进，重最小下一步 |
+| 推进执行官 | 执行者 | 女性角色，重节奏、责任人和回滚条件 |
+| 结构巡城官 | 巡城官 | 检查假设、反驳、孤立建筑和回流 |
+| 系统巡检官 | 巡城官 | 女性角色，检查反馈回路和瓶颈 |
+| 卷轴记录官 | 卷轴官 | 归档讨论，生成报告和行动计划 |
+| 报告编辑官 | 卷轴官 | 女性角色，压缩主线、标出未决问题 |
 
 ```mermaid
 sequenceDiagram

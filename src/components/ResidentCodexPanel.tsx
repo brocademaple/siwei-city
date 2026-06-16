@@ -1,14 +1,18 @@
 import { art } from '../assets/art';
-import type { ResidentProfile } from '../types';
+import type { ResidentId, ResidentProfile } from '../types';
 
 interface ResidentCodexPanelProps {
   profile: ResidentProfile | null;
+  profiles: ResidentProfile[];
+  onSelectProfile: (id: ResidentId) => void;
   onEnterCouncil: () => void;
   onClose: () => void;
 }
 
-export function ResidentCodexPanel({ profile, onEnterCouncil, onClose }: ResidentCodexPanelProps) {
+export function ResidentCodexPanel({ profile, profiles, onSelectProfile, onEnterCouncil, onClose }: ResidentCodexPanelProps) {
   if (!profile) return null;
+
+  const relatedProfiles = profiles.filter((item) => item.homeDistrictId === profile.homeDistrictId);
 
   return (
     <aside className="resident-codex-panel" aria-label={`${profile.title} prompt 图鉴`}>
@@ -21,6 +25,29 @@ export function ResidentCodexPanel({ profile, onEnterCouncil, onClose }: Residen
       <span className="kicker">角色图鉴 · {profile.roleName}</span>
       <h2>{profile.title}</h2>
       <p>{profile.responsibility}</p>
+      <div className="profile-traits">
+        <span>{profile.persona}</span>
+        <span>{profile.tone}</span>
+      </div>
+
+      {relatedProfiles.length > 1 && (
+        <div className="codex-roster" aria-label="同建筑居民">
+          {relatedProfiles.map((item) => (
+            <button
+              className={item.id === profile.id ? 'codex-resident-option active' : 'codex-resident-option'}
+              key={item.id}
+              type="button"
+              onClick={() => onSelectProfile(item.id)}
+            >
+              <img src={art.characters[item.assetKey]} alt="" />
+              <span>
+                <strong>{item.title}</strong>
+                <small>{item.roleName} · {item.genderPresentation === 'female' ? '女性角色' : item.genderPresentation === 'male' ? '男性角色' : '中性角色'}</small>
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="codex-block">
         <strong>常用发问</strong>

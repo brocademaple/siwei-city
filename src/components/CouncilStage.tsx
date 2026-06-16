@@ -1,7 +1,8 @@
 import { art } from '../assets/art';
-import { getResidentProfile, residentProfiles } from '../lib/residents';
+import { councilResidentIds, getResidentProfile } from '../lib/residents';
 import { modeLabel } from '../lib/modes';
 import type { ArchiveDoc, DiscussionMode, ResidentId, ResidentProfile, ReviewFinding, RoundtableTurn } from '../types';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 interface CouncilStageProps {
   topic: string;
@@ -20,8 +21,6 @@ interface CouncilStageProps {
   onBackToCity: () => void;
 }
 
-const councilResidentIds: ResidentId[] = ['researcher', 'skeptic', 'practitioner', 'executor', 'inspector', 'archive'];
-
 export function CouncilStage({
   topic,
   mode,
@@ -38,7 +37,7 @@ export function CouncilStage({
   onOpenDoc,
   onBackToCity,
 }: CouncilStageProps) {
-  const activeProfile = getResidentProfile(activeResidentId ?? 'researcher');
+  const activeProfile = getResidentProfile(activeResidentId ?? councilResidentIds[0]);
   const acceptedTurns = turns.filter((turn) => turn.accepted);
   const roleTurns = turns.filter((turn) => turn.role === activeProfile.roleName);
   const reportDoc = docs.find((doc) => doc.id === 'archive-report');
@@ -91,7 +90,7 @@ export function CouncilStage({
       <div className="council-seats" aria-label="议会席位">
         {councilResidentIds.map((id) => {
           const profile = getResidentProfile(id);
-          const count = id === 'inspector' ? findings.length : id === 'archive' ? docs.length : turns.filter((turn) => turn.role === profile.roleName).length;
+          const count = profile.roleName === '巡城官' ? findings.length : profile.roleName === '卷轴官' ? docs.length : turns.filter((turn) => turn.role === profile.roleName).length;
           return (
             <button
               className={activeProfile.id === id ? `council-seat seat-${id} active` : `council-seat seat-${id}`}
@@ -101,8 +100,8 @@ export function CouncilStage({
             >
               <img src={art.characters[profile.assetKey]} alt="" />
               <span>
-                <strong>{profile.roleName}</strong>
-                <small>{count} 条记录</small>
+                <strong>{profile.title}</strong>
+                <small>{profile.roleName} · {count} 条记录</small>
               </span>
             </button>
           );
@@ -160,9 +159,13 @@ function ResidentSeatPanel({
         </span>
       </div>
       <p>{profile.responsibility}</p>
+      <div className="profile-traits">
+        <span>{profile.persona}</span>
+        <span>{profile.tone}</span>
+      </div>
       <div className="prompt-chip">{profile.promptBrief}</div>
 
-      {profile.id === 'inspector' ? (
+      {profile.roleName === '巡城官' ? (
         <div className="seat-list">
           {findings.length === 0 ? (
             <article className="seat-card calm">当前没有明显结构断点。</article>
@@ -179,7 +182,7 @@ function ResidentSeatPanel({
             ))
           )}
         </div>
-      ) : profile.id === 'archive' ? (
+      ) : profile.roleName === '卷轴官' ? (
         <div className="seat-list">
           <div className="archive-shortcuts">
             {reportDocId && <button type="button" onClick={() => onOpenDoc(reportDocId)}>打开报告</button>}
@@ -188,7 +191,7 @@ function ResidentSeatPanel({
           {activeDoc && (
             <article className="seat-card archive-preview">
               <strong>{activeDoc.title}</strong>
-              <pre>{activeDoc.body.slice(0, 900)}</pre>
+              <MarkdownRenderer source={activeDoc.body.slice(0, 1400)} compact />
             </article>
           )}
           {docs.slice(0, 4).map((doc) => (

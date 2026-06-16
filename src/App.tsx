@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CityMap } from './components/CityMap';
+import { BuildingScene } from './components/BuildingScene';
 import { CouncilStage } from './components/CouncilStage';
 import { GuideButton } from './components/GuideButton';
 import { GuideOverlay } from './components/GuideOverlay';
+import { HomeWorldMap } from './components/HomeWorldMap';
 import { IdeaPanel } from './components/IdeaPanel';
 import { ServiceDrawer } from './components/ServiceDrawer';
 import { districts, initialIdeas, initialRoutes, roleContributions, topic } from './data/seed';
@@ -12,9 +13,11 @@ import { nextIdeaPosition } from './lib/layout';
 import { createOpeningDraft } from './lib/opening';
 import { buildReviewFindings } from './lib/review';
 import { requestAiDraft } from './lib/ai';
-import { getResidentProfile, residentProfiles } from './lib/residents';
+import { getDistrictBlueprint } from './lib/districtBlueprints';
+import { getCityBuilding } from './lib/cityBuildings';
+import { councilResidentIds, getResidentProfile, residentProfiles } from './lib/residents';
 import { sampleCases } from './lib/sampleCases';
-import type { ArchiveDoc, DiscussionMode, IdeaNode, ResidentId, ReviewFinding, RoleContribution, RoundtableTurn, Route, RouteRelation, SavedCity, SceneView, ServicePanel, UsageLedger } from './types';
+import type { ArchiveDoc, BuildingSceneId, DiscussionMode, IdeaNode, ResidentId, ReviewFinding, RoleContribution, RoundtableTurn, Route, RouteRelation, SavedCity, SceneView, ServicePanel, UsageLedger } from './types';
 
 const GUIDE_STORAGE_KEY = 'siwei-city-guide-complete';
 const APP_STATE_KEY = 'siwei-city-session-v2';
@@ -82,15 +85,25 @@ function App() {
   const [activePanel, setActivePanel] = useState<ServicePanel>('roundtable');
   const [activeDocId, setActiveDocId] = useState<string | null>('archive-report');
   const [sceneView, setSceneView] = useState<SceneView>('city');
-  const [activeResidentId, setActiveResidentId] = useState<ResidentId | null>('researcher');
-  const [activeCodexResidentId, setActiveCodexResidentId] = useState<ResidentId>('proposer');
+  const [activeResidentId, setActiveResidentId] = useState<ResidentId | null>(councilResidentIds[0]);
+  const [activeCodexResidentId, setActiveCodexResidentId] = useState<ResidentId | null>(null);
+  const [activeBlueprintDistrictId, setActiveBlueprintDistrictId] = useState<string | null>(null);
+  const [scribeCollapsed, setScribeCollapsed] = useState(true);
 
   const findings = useMemo(() => buildReviewFindings(ideas, routes), [ideas, routes]);
   const activeIdea = ideas.find((idea) => idea.id === activePopoverIdeaId) ?? null;
   const archiveDocs: ArchiveDoc[] = useMemo(() => buildArchiveDocs(currentTopic, mode, ideas, routes, findings, turns), [currentTopic, mode, ideas, routes, findings, turns]);
   const acceptedTurnCount = useMemo(() => turns.filter((turn) => turn.accepted).length, [turns]);
   const openingStarted = ledger.calls > 0 || acceptedTurnCount > 0 || (persisted?.currentTopic && persisted.currentTopic !== topic);
-  const activeCodexProfile = useMemo(() => getResidentProfile(activeCodexResidentId), [activeCodexResidentId]);
+  const activeCodexProfile = useMemo(() => (activeCodexResidentId ? getResidentProfile(activeCodexResidentId) : null), [activeCodexResidentId]);
+  const activeBlueprintDistrict = useMemo(
+    () => districts.find((district) => district.id === activeBlueprintDistrictId) ?? null,
+    [activeBlueprintDistrictId],
+  );
+  const activeDistrictBlueprint = useMemo(
+    () => (activeBlueprintDistrictId ? getDistrictBlueprint(activeBlueprintDistrictId) : null),
+    [activeBlueprintDistrictId],
+  );
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -298,7 +311,7 @@ function App() {
     setActivePanel('walkthrough');
     setActiveDocId('archive-report');
     setSceneView('council');
-    setActiveResidentId('archive');
+    setActiveResidentId('reportEditor');
     setAdoptionNotice(`完整讨论已跑通：${opening.topic}`);
   }
 
@@ -306,14 +319,34 @@ function App() {
     const cleanTopic = rawTopic?.trim();
     if (cleanTopic) setCurrentTopic(cleanTopic);
     setSceneView('council');
-    setActiveResidentId(residentId ?? activeResidentId ?? 'researcher');
+    const nextResidentId = residentId && councilResidentIds.includes(residentId) ? residentId : activeResidentId ?? councilResidentIds[0];
+    setActiveResidentId(nextResidentId);
+    setActiveBlueprintDistrictId(null);
+    setActiveCodexResidentId(null);
     setPreviewContribution(null);
     setActivePopoverIdeaId(null);
   }
 
-  function selectDistrictCodex(districtId: string) {
-    const profile = residentProfiles.find((item) => item.homeDistrictId === districtId) ?? getResidentProfile('proposer');
-    setActiveCodexResidentId(profile.id);
+  function openBuildingScene(buildingId: BuildingSceneId) {
+    if (buildingId === 'council') {
+      enterCouncil();
+      return;
+    }
+    setSceneView(buildingId);
+    setActiveBlueprintDistrictId(null);
+    setActiveCodexResidentId(null);
+    setPreviewContribution(null);
+    setActivePopoverIdeaId(null);
+    setDrawerOpen(false);
+  }
+
+  function selectDistrictBlueprint(districtId: string) {
+    if (districtId === 'conflict') {
+      enterCouncil();
+      return;
+    }
+    setActiveBlueprintDistrictId(districtId);
+    setActiveCodexResidentId(null);
     setActivePopoverIdeaId(null);
     setPreviewContribution(null);
   }
@@ -418,7 +451,7 @@ function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className={[scribeCollapsed ? 'app-shell scribe-collapsed' : 'app-shell', sceneView === 'city' ? 'home-shell' : ''].join(' ')}>
       <IdeaPanel
         topic={currentTopic}
         mode={mode}
@@ -438,36 +471,22 @@ function App() {
         sceneView={sceneView}
         onEnterCouncil={enterCouncil}
         onModeChange={setMode}
+        collapsed={scribeCollapsed}
+        onToggleCollapsed={() => setScribeCollapsed((value) => !value)}
       />
       <div className="realm-column">
         <section className="map-workspace">
           {sceneView === 'city' ? (
-            <CityMap
-              districts={districts}
+            <HomeWorldMap
+              topic={currentTopic}
               ideas={ideas}
               routes={routes}
-              selectedIdeaId={selectedIdeaId}
-              routeDraftFromId={routeDraftFromId}
-              activeIdea={activeIdea}
-              previewContribution={previewContribution}
-              relation={relation}
-              acceptedContributionKeys={acceptedContributionKeys}
-              recentAcceptedIdeaId={recentAcceptedIdeaId}
-              activeCodexProfile={activeCodexProfile}
-              onSelectDistrict={selectDistrictCodex}
-              onEnterCouncil={() => enterCouncil(undefined, activeCodexResidentId)}
-              onCloseCodex={() => setActiveCodexResidentId('proposer')}
-              onSelectIdea={selectIdea}
-              onStartRoute={startRoute}
-              onCompleteRoute={completeRoute}
-              onRelationChange={setRelation}
-              onClosePopover={() => {
-                setActivePopoverIdeaId(null);
-                setPreviewContribution(null);
-              }}
-              onAcceptContribution={acceptContribution}
+              turns={turns}
+              findings={findings}
+              onOpenBuilding={openBuildingScene}
+              onOpenScribe={() => setScribeCollapsed(false)}
             />
-          ) : (
+          ) : sceneView === 'council' ? (
             <CouncilStage
               topic={currentTopic}
               mode={mode}
@@ -483,6 +502,19 @@ function App() {
               onDiscussFinding={discussFinding}
               onOpenDoc={openArchiveDoc}
               onBackToCity={() => setSceneView('city')}
+            />
+          ) : (
+            <BuildingScene
+              building={getCityBuilding(sceneView)}
+              topic={currentTopic}
+              ideas={ideas}
+              routes={routes}
+              turns={turns}
+              findings={findings}
+              docs={archiveDocs}
+              onBackToCity={() => setSceneView('city')}
+              onEnterCouncil={() => enterCouncil()}
+              onRunComplete={() => runCompleteDiscussion(currentTopic)}
             />
           )}
           {sceneView === 'city' && (

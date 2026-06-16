@@ -59,6 +59,20 @@
 | 行动码头 | `src/assets/art/districts/district-harbor.png` | 把思考变成实验和回流 |
 | 沉思庭院 | `src/assets/art/districts/district-cloister.png` | 暂存未连接灵感 |
 
+### 场景 Panorama
+
+| 场景 | 文件 | 用途 |
+| --- | --- | --- |
+| 城邦主页 | `src/assets/art/scenes/city-world-panorama.png` | 古希腊城邦世界地图，8 个建筑入口 |
+| 议会大厅 | `src/assets/art/scenes/council-chamber-panorama.png` | 观点碰撞、采纳、巡城、卷轴 |
+| 大图书馆 | `src/assets/art/scenes/grand-library-panorama.png` | 议会记录、报告、历史版本 |
+| 居民区 | `src/assets/art/scenes/residential-quarter-panorama.png` | 居民 prompt、日常 talk、灵感涌现 |
+| 假设码头 | `src/assets/art/scenes/hypothesis-harbor-panorama.png` | 候选问题筛选 |
+| 行动码头 | `src/assets/art/scenes/action-harbor-panorama.png` | 行动远航和阶段性结果 |
+| 沉思庭院 | `src/assets/art/scenes/contemplation-garden-panorama.png` | 慢问题和夜间札记 |
+| 记忆墓园 / 废案馆 | `src/assets/art/scenes/memory-cemetery-panorama.png` | 失败行动、过期判断、放弃假设 |
+| 灯塔 / 巡城塔 | `src/assets/art/scenes/lighthouse-watchtower-panorama.png` | 未闭环诊断和修缮令 |
+
 ### 纹理资产
 
 | 纹理 | 文件 | 用途 |

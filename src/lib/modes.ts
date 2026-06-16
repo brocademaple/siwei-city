@@ -30,6 +30,7 @@ export const discussionModes: DiscussionModeConfig[] = [
       { role: '研究者', type: 'evidence', relation: '支持', title: '寻找可验证材料', instruction: '找出这个议题最需要的证据、案例或观察。' },
       { role: '怀疑者', type: 'counter', relation: '冲突', title: '暴露关键反例', instruction: '指出最容易被忽略的反面和风险。' },
       { role: '实践者', type: 'evidence', relation: '依赖', title: '放回真实场景', instruction: '把议题放进日常工作流或现实情境。' },
+      { role: '执行者', type: 'action', relation: '延伸', title: '标记下一步探索动作', instruction: '把开放探索压成一个最小可执行的搜证动作。' },
     ],
   },
   {
@@ -42,6 +43,7 @@ export const discussionModes: DiscussionModeConfig[] = [
     steps: [
       { role: '研究者', type: 'hypothesis', relation: '支持', title: '提出第一判断', instruction: '形成一个可以被支持或推翻的推荐判断。' },
       { role: '怀疑者', type: 'counter', relation: '冲突', title: '挑战判断风险', instruction: '检查这个判断可能失败的条件。' },
+      { role: '实践者', type: 'evidence', relation: '依赖', title: '校准真实场景', instruction: '把推荐判断放回真实使用场景，找出执行阻力。' },
       { role: '执行者', type: 'action', relation: '延伸', title: '列出取舍与执行条件', instruction: '把判断收束成可执行的选择标准。' },
     ],
   },
@@ -55,6 +57,7 @@ export const discussionModes: DiscussionModeConfig[] = [
     steps: [
       { role: '实践者', type: 'evidence', relation: '依赖', title: '拆出使用场景', instruction: '描述真实场景、阻碍和触发条件。' },
       { role: '执行者', type: 'action', relation: '延伸', title: '给出最小行动', instruction: '设计今天就能完成且能带回反馈的小动作。' },
+      { role: '怀疑者', type: 'counter', relation: '冲突', title: '检查行动失败条件', instruction: '指出这个最小行动可能无效或带来误判的条件。' },
       { role: '研究者', type: 'hypothesis', relation: '回流', title: '定义验证指标', instruction: '说明行动完成后用什么证据判断有效。' },
     ],
   },

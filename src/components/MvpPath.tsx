@@ -21,7 +21,7 @@ export function MvpPath({
   return (
     <section className="mvp-path" aria-label="本轮使用路径">
       <div className="mvp-path-head">
-        <span className="section-title">下一步</span>
+        <span className="section-title">城邦令 · 下一步</span>
         <strong>{nextPrompt(activeStep, findingCount)}</strong>
       </div>
 
@@ -53,8 +53,8 @@ export function MvpPath({
 }
 
 function nextPrompt(activeStep: number, findingCount: number) {
-  if (activeStep === 0) return '输入议题后点击开始。';
-  if (activeStep === 1) return '打开右上角城邦服务，看居民来函。';
-  if (activeStep === 2) return findingCount > 0 ? '到巡城官塔处理缺口。' : '结构清晰，可以进卷轴馆。';
-  return '复制报告，或封存本轮。';
+  if (activeStep === 0) return '在立题台写下问题，点“进入议会”。';
+  if (activeStep === 1) return '到居民席位读来函，采纳有用观点入城。';
+  if (activeStep === 2) return findingCount > 0 ? '去巡城官塔看缺口，按修缮令补一轮。' : '城中脉络已清，进卷轴馆带走报告。';
+  return '进卷轴馆复制报告，或封存本轮城邦。';
 }

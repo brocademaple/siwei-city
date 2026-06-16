@@ -25,6 +25,8 @@ interface IdeaPanelProps {
   sceneView: SceneView;
   onEnterCouncil: (topic: string) => void;
   onModeChange: (mode: DiscussionMode) => void;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
 }
 
 const ideaTypes: IdeaType[] = ['question', 'hypothesis', 'evidence', 'counter', 'action'];
@@ -48,6 +50,8 @@ export function IdeaPanel({
   sceneView,
   onEnterCouncil,
   onModeChange,
+  collapsed,
+  onToggleCollapsed,
 }: IdeaPanelProps) {
   const [forgeOpen, setForgeOpen] = useState(false);
   const [topicDraft, setTopicDraft] = useState(topic);
@@ -88,10 +92,29 @@ export function IdeaPanel({
     onRunComplete(topicDraft);
   }
 
+  if (collapsed) {
+    return (
+      <aside className="scribe-panel collapsed" aria-label="已收起的立题台">
+        <button className="scribe-collapse-toggle" type="button" onClick={onToggleCollapsed} aria-label="展开立题台">
+          展开
+        </button>
+        <div className="scribe-rail-title">
+          <span>立题台</span>
+          <strong>思维城邦</strong>
+        </div>
+      </aside>
+    );
+  }
+
   return (
     <aside className="scribe-panel">
       <header className="scribe-header">
-        <span className="kicker">当前议题</span>
+        <div className="scribe-header-row">
+          <span className="kicker">当前议题</span>
+          <button className="scribe-collapse-toggle" type="button" onClick={onToggleCollapsed} aria-label="收起立题台">
+            收起
+          </button>
+        </div>
         <h1>思维城邦</h1>
       </header>
 

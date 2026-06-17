@@ -9,6 +9,7 @@ const githubBase = '/siwei-city';
 
 const assets = {
   pagesHomeHero: 'pages-home-hero.webp',
+  pagesHomeVideoWebm: 'pages-home-hero-scroll.webm',
   pagesHomeVideo: 'pages-home-hero-scroll.mp4',
   v1Hero: 'hero-city-panorama.png',
   v2Hero: 'city-world-panorama.png',
@@ -29,7 +30,9 @@ const assets = {
   archive: 'district-archive.png',
 };
 
+const pagesHomeVideoWebmSource = 'src/assets/art/videos/pages-home-hero-scroll.webm';
 const pagesHomeVideoSource = 'src/assets/art/videos/pages-home-hero-scroll.mp4';
+const hasPagesHomeVideoWebm = existsSync(join(root, pagesHomeVideoWebmSource));
 const hasPagesHomeVideo = existsSync(join(root, pagesHomeVideoSource));
 
 rmSync(distDir, { recursive: true, force: true });
@@ -41,6 +44,7 @@ execFileSync('node', ['scripts/build-pages-hero.mjs'], {
 });
 
 copyAsset('src/assets/art/optimized/pages-home-hero.webp', assets.pagesHomeHero);
+copyOptionalAsset(pagesHomeVideoWebmSource, assets.pagesHomeVideoWebm);
 copyOptionalAsset(pagesHomeVideoSource, assets.pagesHomeVideo);
 copyAsset('src/assets/art/hero-city-panorama.png', assets.v1Hero);
 copyAsset('src/assets/art/scenes/city-world-panorama.png', assets.v2Hero);
@@ -121,6 +125,7 @@ function renderDefaultV2Page() {
               <figure class="hero-backdrop">
                 <img class="hero-poster" src="${assetPath(assets.pagesHomeHero)}" alt="思维城邦 2.0 场景与居民群像主视觉" />
                 <video class="hero-video" data-scroll-video muted playsinline preload="metadata" poster="${assetPath(assets.pagesHomeHero)}" aria-hidden="true">
+                  ${hasPagesHomeVideoWebm ? `<source src="${assetPath(assets.pagesHomeVideoWebm)}" type="video/webm" />` : ''}
                   ${hasPagesHomeVideo ? `<source src="${assetPath(assets.pagesHomeVideo)}" type="video/mp4" />` : ''}
                 </video>
               </figure>

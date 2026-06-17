@@ -1,10 +1,17 @@
-# Siwei City
+# Siwei City / 思维城邦
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
+![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111111)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=ffffff)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=ffffff)
+![GitHub Pages](https://img.shields.io/badge/Deploy-GitHub%20Pages-222222?logo=githubpages&logoColor=ffffff)
+![Status](https://img.shields.io/badge/Status-MVP-brightgreen)
+![Mimo Proxy](https://img.shields.io/badge/Mimo-Proxy%20Ready-blue)
+
 Siwei City is a front-end MVP for turning fuzzy topics into structured thinking maps. It represents ideas as buildings, reasoning links as roads, role-based suggestions as residents, and structural gaps as city inspection notes.
 
-![Siwei City hero panorama](src/assets/art/hero-city-panorama.png)
+![Siwei City full product panorama](src/assets/art/optimized/pages-home-hero.webp)
 
 ## Live Demo
 

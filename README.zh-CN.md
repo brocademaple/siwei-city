@@ -1,10 +1,17 @@
-# 思维城邦 Siwei City
+# Siwei City / 思维城邦
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
+![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111111)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=ffffff)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=ffffff)
+![GitHub Pages](https://img.shields.io/badge/Deploy-GitHub%20Pages-222222?logo=githubpages&logoColor=ffffff)
+![Status](https://img.shields.io/badge/Status-MVP-brightgreen)
+![Mimo Proxy](https://img.shields.io/badge/Mimo-Proxy%20Ready-blue)
+
 思维城邦是一个把模糊议题转化为结构化思维地图的前端 MVP。它把观点做成建筑，把论证关系做成道路，把多角色建议做成居民来函，把结构诊断做成巡城官令，帮助用户把一次复杂思考收束成三类产物：一张地图、一个下一步行动、一份可导出的报告材料。
 
-![思维城邦主视觉](src/assets/art/hero-city-panorama.png)
+![思维城邦完整产品 panorama](src/assets/art/optimized/pages-home-hero.webp)
 
 ## 在线演示
 

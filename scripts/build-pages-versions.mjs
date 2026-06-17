@@ -107,8 +107,8 @@ function pageShell({ title, description, body }) {
 
 function renderDefaultV2Page() {
   return pageShell({
-    title: '思维城邦 2.0：城邦 Wiki 与世界观导览',
-    description: '思维城邦 Siwei City 2.0 GitHub Pages 展示页：用项目 Wiki 的方式介绍城邦世界观、居民、建筑和行动规则。',
+    title: '思维城邦 2.0：美术资产与设计思路',
+    description: '思维城邦 Siwei City 2.0 GitHub Pages 展示页：展示新的城邦场景、居民角色、美术素材和产品设计思路。',
     body: `
       <main class="page-shell v2-showcase">
         <section class="hero-scroll-stage" data-hero-scroll-stage>
@@ -143,91 +143,48 @@ function renderDefaultV2Page() {
           <i></i>
         </section>
 
-        <section class="wiki-panel scroll-section">
+        <section class="design-panel scroll-section">
           <div class="section-inner">
-            <h2>城邦 Wiki：入会前的世界观</h2>
-            <p>在进入议会机制之前，先用档案页交代这座城如何运转：议题从城门入港，居民在圆桌争辩，行动远航后带回证据。</p>
-            <div class="wiki-layout">
-              <aside class="wiki-nav" aria-label="城邦 Wiki 目录">
-                <a href="#wiki-world">世界概览</a>
-                <a href="#wiki-buildings">建筑制度</a>
-                <a href="#wiki-residents">居民席位</a>
-                <a href="#wiki-voyage">行动远航</a>
-              </aside>
-              <div class="wiki-scroll">
-                <article class="wiki-hero-card" id="wiki-world">
-                  <img src="${assetPath(assets.v2HeroWebp)}" alt="思维城邦沿海世界地图" />
-                  <div>
-                    <span class="wiki-kicker">世界概览</span>
-                    <h3>一座靠海而建的思考城邦</h3>
-                    <p>城邦用空间隐喻组织一次复杂议题：问题入城、观点上桌、行动出航、记录归档。读者先理解城市制度，再看议会如何讨论。</p>
-                  </div>
-                </article>
-                <div class="wiki-card-grid">
-                  <article class="wiki-entry" id="wiki-buildings">
-                    <span class="wiki-kicker">建筑制度</span>
-                    <h3>8 个首版建筑</h3>
-                    <p>冲突议会负责讨论，大图书馆保管卷轴，行动码头承接实验，巡城塔诊断结构缺口。其他建筑只在闭环中承担明确职责。</p>
-                    <dl class="wiki-meta">
-                      <div><dt>核心</dt><dd>冲突议会</dd></div>
-                      <div><dt>记忆</dt><dd>大图书馆</dd></div>
-                      <div><dt>回流</dt><dd>行动码头</dd></div>
-                    </dl>
-                  </article>
-                  <article class="wiki-entry" id="wiki-residents">
-                    <span class="wiki-kicker">居民席位</span>
-                    <h3>人格化的 agent prompt</h3>
-                    <p>居民不是装饰角色。证据制图师、边界怀疑者、现场民族志员和推进执行官分别代表证据、反例、场景和行动。</p>
-                    <ul class="wiki-list">
-                      <li>巡城官只指出结构缺口</li>
-                      <li>卷轴官把本轮讨论整理成文档</li>
-                    </ul>
-                  </article>
-                  <article class="wiki-entry" id="wiki-voyage">
-                    <span class="wiki-kicker">行动远航</span>
-                    <h3>带证据回城</h3>
-                    <p>行动从码头出航，在真实世界执行，再带回阶段性结果。成功经验进入图书馆，失败或过期判断进入废案馆。</p>
-                    <a class="text-link" href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/siwei-city-worldbuilding.md">阅读完整设定</a>
-                  </article>
-                </div>
-              </div>
+            <h2>2.0 的页面逻辑</h2>
+            <p>首页只承担展示和进入当前版本的职责。真正的产品体验从世界地图进入冲突议会，再回到行动和归档。</p>
+            <div class="path-ribbon">
+              <span>世界地图</span>
+              <span>冲突议会</span>
+              <span>居民圆桌</span>
+              <span>巡城诊断</span>
+              <span>行动码头</span>
+              <span>大图书馆</span>
             </div>
           </div>
         </section>
 
-        <section class="archive-board scroll-section" aria-label="城邦档案目录">
-          <div class="archive-layout">
-            <figure class="archive-image">
-              <img src="${assetPath(assets.libraryWebp)}" alt="大图书馆中的城邦档案目录" />
+        <section class="scene-board scroll-section">
+          <figure class="scene-feature">
+            <img src="${assetPath(assets.councilWebp)}" alt="冲突议会场景" />
+            <figcaption>
+              <strong>场景素材</strong>
+              议会大厅成为 2.0 的主舞台，居民发言、观点采纳和修缮令都在这里发生。
+            </figcaption>
+          </figure>
+          <div class="scene-stack">
+            <figure>
+              <img src="${assetPath(assets.harborWebp)}" alt="行动码头场景" />
+              <figcaption><strong>行动码头</strong>把议会结论送到真实行动，再让结果回流。</figcaption>
             </figure>
-            <div class="archive-columns">
-              <article>
-                <span class="wiki-kicker">建筑页</span>
-                <h3>建筑是工作流节点</h3>
-                <p>每座建筑都回答一个问题：用户点击后 5 秒内能做什么，它和议会、图书馆、码头、巡城塔是什么关系。</p>
-              </article>
-              <article>
-                <span class="wiki-kicker">人物页</span>
-                <h3>居民有席位和职责</h3>
-                <p>读者先知道谁会发言、谁负责质疑、谁压缩行动，再进入下一屏的议会讨论逻辑。</p>
-              </article>
-              <article>
-                <span class="wiki-kicker">规则页</span>
-                <h3>采纳后才会入城</h3>
-                <p>居民可以提出观点，用户决定是否采纳。只有被采纳的观点会成为城邦沉淀，并进入巡城、行动和归档。</p>
-              </article>
-              <article>
-                <span class="wiki-kicker">远航页</span>
-                <h3>行动不是待办清单</h3>
-                <p>行动被描述成一次远航：出航、航行、返航、归档。这个规则让结果回流成为世界观的一部分。</p>
-              </article>
-            </div>
+            <figure>
+              <img src="${assetPath(assets.libraryWebp)}" alt="大图书馆场景" />
+              <figcaption><strong>大图书馆</strong>负责卷轴报告、历史沉淀和版本回看。</figcaption>
+            </figure>
+            <figure>
+              <img src="${assetPath(assets.gardenWebp)}" alt="居民圆桌花园场景" />
+              <figcaption><strong>居民圆桌</strong>让不同职责的 agent 有可辨识的席位。</figcaption>
+            </figure>
           </div>
         </section>
 
         <section class="asset-board scroll-section">
           <div class="section-inner">
-            <h2>居民图鉴</h2>
+            <h2>人物素材</h2>
             <p>角色图像对应议会席位。读者在看见发言机制之前，先知道每位居民代表哪一种思考职责。</p>
             <div class="asset-grid character-grid">
               <figure><img src="${assetPath(assets.researcherWebp)}" alt="研究者居民角色" /><figcaption>研究者</figcaption></figure>
@@ -240,19 +197,19 @@ function renderDefaultV2Page() {
 
         <section class="worldview scroll-section">
           <div class="section-inner">
-            <h2>下一屏进入议会机制</h2>
+            <h2>设计思路</h2>
             <div class="principle-grid">
               <article>
-                <h3>先介绍世界</h3>
+                <h3>世界地图先行</h3>
                 <p>第一页负责建立城邦、人物和建筑语义，让读者知道自己即将进入什么制度。</p>
               </article>
               <article>
-                <h3>再展开议会</h3>
-                <p>议会讨论逻辑放到下一屏：居民怎样发言、观点怎样被采纳、修缮令怎样触发。</p>
+                <h3>议会成为主舞台</h3>
+                <p>居民发言、采纳、修缮令和卷轴报告集中发生，避免多个面板同时争夺注意力。</p>
               </article>
               <article>
-                <h3>最后回到闭环</h3>
-                <p>采纳后的观点继续流向巡城诊断、行动码头和大图书馆，形成可回看的思考路径。</p>
+                <h3>素材服务机制</h3>
+                <p>建筑、场景和角色分别对应议题路径、工作流节点和 agent 职责。</p>
               </article>
             </div>
             <a class="text-link" href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/version-history.md">阅读版本历史</a>

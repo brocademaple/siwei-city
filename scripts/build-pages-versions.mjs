@@ -126,13 +126,18 @@ function renderDefaultV2Page() {
                 <img class="hero-poster" src="${assetPath(assets.pagesHomeHero)}" alt="思维城邦 2.0 场景与居民群像主视觉" />
                 ${
                   hasPagesHomeVideoWebm || hasPagesHomeVideo
-                    ? `<video class="hero-video" autoplay loop muted playsinline preload="auto" poster="${assetPath(assets.pagesHomeHero)}" aria-hidden="true">
+                    ? `<video class="hero-video" data-hero-video autoplay loop muted playsinline preload="auto" poster="${assetPath(assets.pagesHomeHero)}" aria-hidden="true">
                   ${hasPagesHomeVideoWebm ? `<source src="${assetPath(assets.pagesHomeVideoWebm)}" type="video/webm" />` : ''}
                   ${hasPagesHomeVideo ? `<source src="${assetPath(assets.pagesHomeVideo)}" type="video/mp4" />` : ''}
                 </video>`
                     : ''
                 }
               </figure>
+              ${
+                hasPagesHomeVideoWebm || hasPagesHomeVideo
+                  ? `<button class="hero-sound-toggle" type="button" data-hero-sound-toggle aria-pressed="false">开启原声</button>`
+                  : ''
+              }
               <div class="hero-copy">
                 <span class="eyebrow">当前主版本</span>
                 <h1>思维城邦 2.0</h1>
@@ -311,7 +316,7 @@ function renderDefaultV2Page() {
           </div>
         </section>
       </main>
-      <script>${wikiTabsScript()}</script>
+      <script>${heroSoundScript()}${wikiTabsScript()}</script>
     `,
   });
 }
@@ -383,6 +388,36 @@ function renderV1Page() {
       </main>
     `,
   });
+}
+
+function heroSoundScript() {
+  return `
+    (() => {
+      const video = document.querySelector('[data-hero-video]');
+      const button = document.querySelector('[data-hero-sound-toggle]');
+      if (!video || !button) return;
+
+      const setActive = (active) => {
+        button.textContent = active ? '关闭原声' : '开启原声';
+        button.setAttribute('aria-pressed', String(active));
+      };
+
+      setActive(false);
+      button.addEventListener('click', async () => {
+        const shouldPlaySound = video.muted;
+        video.muted = !shouldPlaySound;
+        video.volume = shouldPlaySound ? 0.72 : 0;
+        try {
+          await video.play();
+          setActive(shouldPlaySound);
+        } catch {
+          video.muted = true;
+          video.volume = 0;
+          setActive(false);
+        }
+      });
+    })();
+  `;
 }
 
 function wikiTabsScript() {
@@ -536,6 +571,31 @@ function sharedCss() {
     }
     .hero-video {
       opacity: 1;
+    }
+    .hero-sound-toggle {
+      position: absolute;
+      right: clamp(18px, 3vw, 34px);
+      bottom: clamp(18px, 3vw, 34px);
+      z-index: 2;
+      min-height: 42px;
+      padding: 0 15px;
+      border: 1px solid rgba(255, 245, 221, 0.32);
+      border-radius: 999px;
+      background: rgba(28, 19, 12, 0.68);
+      color: #fff5dd;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 900;
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
+      cursor: pointer;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .hero-sound-toggle:hover,
+    .hero-sound-toggle:focus-visible {
+      outline: none;
+      border-color: rgba(255, 245, 221, 0.58);
+      background: rgba(122, 82, 37, 0.76);
     }
     .hero-scroll-stage {
       min-height: 100dvh;
@@ -1044,6 +1104,11 @@ function sharedCss() {
       .scroll-section {
         min-height: 76dvh;
       }
+      .hero-sound-toggle {
+        right: auto;
+        left: 18px;
+        bottom: 18px;
+      }
       .wiki-nav {
         position: static;
         grid-template-columns: 1fr 1fr;
@@ -1068,6 +1133,9 @@ function sharedCss() {
         scroll-snap-type: none;
       }
       .hero-video {
+        display: none;
+      }
+      .hero-sound-toggle {
         display: none;
       }
     }

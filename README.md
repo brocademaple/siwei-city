@@ -1,162 +1,177 @@
-# 思维城邦 Siwei City
+# Siwei City
 
-![思维城邦主视觉](src/assets/art/hero-city-panorama.png)
+[English](README.md) | [简体中文](README.zh-CN.md)
 
-思维城邦是一个把模糊议题转化为结构化思维地图的前端 MVP。它把观点做成建筑，把论证关系做成道路，把多角色建议做成居民来函，把结构诊断做成巡城官令，帮助用户把一次复杂思考收束成三类产物：一张地图、一个下一步行动、一份可导出的报告材料。
+Siwei City is a front-end MVP for turning fuzzy topics into structured thinking maps. It represents ideas as buildings, reasoning links as roads, role-based suggestions as residents, and structural gaps as city inspection notes.
 
-在线演示：
+![Siwei City hero panorama](src/assets/art/hero-city-panorama.png)
 
-- 2.0 默认入口：<https://brocademaple.github.io/siwei-city/>
-- 2.0 显式路径：<https://brocademaple.github.io/siwei-city/v2/>
-- 1.0 迭代日志：<https://brocademaple.github.io/siwei-city/v1/>（只在 GitHub Pages 中保留，用于记录早期美术资产和地图编排思路）
+## Live Demo
 
-## 为什么做这个
+- 2.0 default entry: <https://brocademaple.github.io/siwei-city/>
+- 2.0 explicit path: <https://brocademaple.github.io/siwei-city/v2/>
+- 1.0 iteration log: <https://brocademaple.github.io/siwei-city/v1/>
 
-AI 时代，信息生成和资料整理越来越便宜，但个人真正需要沉淀的并不是更多答案，而是：
+The 1.0 page is kept on GitHub Pages as an archive of early visual assets and map-layout decisions.
 
-- 问题如何演化。
-- 判断依赖哪些证据。
-- 哪些反驳还没处理。
-- 哪个行动能带回新证据。
-- 一轮讨论如何转化成可复用报告。
+## Why It Exists
 
-思维城邦用空间化界面把这些结构显性化，让用户不是“收藏 AI 答案”，而是在维护自己的判断系统。
+AI makes it cheap to generate answers and collect references. The harder work is keeping a personal judgment system alive:
 
-默认测试议题：
+- How did the question evolve?
+- Which evidence supports the judgment?
+- Which objections are still unresolved?
+- What smallest action can bring back new evidence?
+- Can one discussion become a reusable report?
 
-> AI 时代，个人应该如何重建自己的知识管理系统？
+Siwei City makes those structures visible. The goal is not to collect more AI output. The goal is to help a user maintain a map of questions, assumptions, evidence, counterarguments, actions, and reusable notes.
 
-## 当前完成度
+Default test topic:
 
-这个仓库已经是可运行、可部署的前端原型：
+> In the AI era, how should an individual rebuild their knowledge management system?
 
-- Vite + React + TypeScript 单页应用。
-- panorama 城邦地图、观点建筑、道路关系和地图内弹窗。
-- 立题台：输入模糊议题后生成问题、假设、证据缺口、反驳和行动。
-- 建筑工坊：手动新增五类观点节点。
-- 角色席位：实践者、研究者、怀疑者、执行者提供模拟 agent 建议；点击只预览，采纳后才入城。
-- 巡城官令：诊断缺证据假设、未处理反驳、孤立观点和未闭环行动。
-- 三种固定讨论模式：探索、决策、行动。
-- 城邦账簿：展示本轮是否使用 AI、调用次数、token 和估算费用。
-- 地图内服务建筑：居民席位、巡城官塔、卷轴馆。
-- 卷轴馆 Markdown 导出：报告、行动计划、圆桌记录、巡城修缮记录。
-- 卷轴馆案例馆藏：内置 4 个高质量演示议题，可一键载入城邦。
-- 当前会话恢复：刷新或重新打开同一浏览器时，会恢复上次城邦。
-- 新开一轮：从恢复提示中清空当前轮次，回到干净起点。
-- 历史城邦：把不同议题保存为本地项目档案，新开一轮不会清掉历史卷轴。
-- 新手指引和常驻 MVP 任务线。
-- 自有美术资产接入，包含城市主视觉、建筑、城区和纹理。
-- GitHub Pages 自动部署配置。
+## Fast Demo Path
 
-## 产品闭环
+1. Open the 2.0 demo.
+2. Keep the default topic, or write a fuzzy topic of your own.
+3. Enter the conflict council.
+4. Run the full council discussion.
+5. Review how four residents turn the topic into questions, evidence, objections, and actions.
+6. Open the inspector to see structural gaps.
+7. Open the archive hall to copy or download the generated report.
+8. Refresh the page and confirm the city restores the last local session.
+9. Start a new round and confirm archived cities remain available.
+
+## Current Capabilities
+
+### Thinking Workspace
+
+- Vite + React + TypeScript single-page app.
+- Topic input with three discussion modes: explore, decide, and act.
+- Opening draft generation for questions, assumptions, evidence gaps, objections, and actions.
+- Guided first-run experience and a persistent MVP task path.
+
+### Council And Residents
+
+- A conflict council scene for the main discussion workflow.
+- Role-based residents: practitioner, researcher, skeptic, and executor.
+- Resident suggestions are previewed first, then added to the city only after user acceptance.
+- Resident codex with role profile, prompt summary, and output contract.
+
+### City Map And Routes
+
+- Panorama city map with idea buildings, semantic districts, roads, and in-map popovers.
+- Manual workshop for adding five kinds of idea nodes.
+- Road creation between buildings with support, conflict, dependency, extension, and feedback relations.
+- Service buildings embedded in the map: resident seats, inspection tower, and archive hall.
+
+### Review And Archive
+
+- City inspection rules for unsupported assumptions, unresolved objections, isolated ideas, and unclosed actions.
+- Markdown export for reports, action plans, council records, and inspection notes.
+- Built-in sample archive with four high-quality demo topics.
+- Public trace docs for two complete thinking-chain runs.
+
+### Persistence And Deployment
+
+- Current session restore through browser localStorage.
+- New round action that resets the active city without deleting historical archives.
+- Historical cities saved as local project snapshots.
+- First-party art assets for the city, buildings, districts, textures, scenes, and characters.
+- GitHub Actions deployment to GitHub Pages.
+
+## Product Loop
 
 ```text
-输入材料
-  -> 开局推演
-  -> 观点建筑
-  -> 居民建议
-  -> 采纳入城
-  -> 铺设道路
-  -> 巡城官令
-  -> 下一步行动 / 报告材料
+Input material
+  -> Opening draft
+  -> Idea buildings
+  -> Resident suggestions
+  -> Accepted contributions
+  -> Reasoning roads
+  -> City inspection
+  -> Next action / report material
 ```
 
-核心设计原则：系统可以建议，但不自动替用户改地图。居民来函只预览，巡城官令只提示问题，最终判断权始终留给用户。
+Core principle: the system can suggest, inspect, and summarize, but the user keeps final judgment. Resident letters only preview changes. Inspection notes only point out issues. The map changes when the user accepts the next move.
 
-## 2.0 演示话术
-
-2.0 版可以这样演示：先输入一个模糊议题，进入冲突议会并召开完整议会，四位居民会把问题、证据、反驳和行动沉淀成地图建筑，巡城官指出结构缺口，卷轴馆生成可复制或下载的报告。此时刷新页面，城邦会从浏览器本地会话中恢复，主页显示“已恢复上次城邦”；如果要重新开始，点击“新开一轮”，当前轮次会回到默认干净状态。已经在卷轴馆“封存当前城邦”的历史卷轴仍然保留，可以继续回看或重新打开。
-
-## 前端与设计亮点
-
-- **空间化认知界面**：不做普通列表或卡片墙，而是用城邦地图表达推理结构。
-- **地图内操作闭环**：点击建筑即可查看铭文、设置道路起点、建立关系。
-- **角色化 AI 入口**：agent 不是聊天框，而是有职责分工的居民席位。
-- **可解释巡检规则**：诊断逻辑独立在 `src/lib/review.ts`，后续可直接扩展测试。
-- **生成式美术工程化**：正式素材集中在 `src/assets/art/`，并提供绿幕残留检测。
-- **可部署交付**：GitHub Actions 自动构建并发布到 GitHub Pages。
-
-## 美术资产
-
-当前版本已接入三类正式资产：
-
-| 类型 | 目录 | 用途 |
-| --- | --- | --- |
-| 城邦主视觉 | `src/assets/art/hero-city-panorama.png` | 应用主工作区背景和产品介绍第一视觉 |
-| 建筑资产 | `src/assets/art/buildings/` | 地图上的观点节点 |
-| 城区资产 | `src/assets/art/districts/` | 问题、证据、假设、冲突、行动等语义区域 |
-| 纹理资产 | `src/assets/art/textures/` | 面板、印章、羊皮纸、青铜和地图质感 |
-
-更多资产说明和提示词见：[docs/current/art-direction.md](docs/current/art-direction.md)。
-
-## 项目阅读路径
-
-- 图文 MVP 说明书：[docs/current/siwei-city-mvp-manual.md](docs/current/siwei-city-mvp-manual.md)
-- 当前进度与 PRD：[docs/current/project-status-prd.md](docs/current/project-status-prd.md)
-- 世界观设定：[docs/current/siwei-city-worldbuilding.md](docs/current/siwei-city-worldbuilding.md)
-- 居民圆桌机制设计：[docs/current/roundtable-mechanism.md](docs/current/roundtable-mechanism.md)
-- 版本历史：[docs/current/version-history.md](docs/current/version-history.md)
-- 1.0 旧版材料归档：[docs/archive-v1/](docs/archive-v1/)（不作为正式项目入口）
-- 后续规划与候选想法：[docs/planning/](docs/planning/)
-- 两条思维链路留痕：[docs/trace-runs/README.md](docs/trace-runs/README.md)
-
-## 快速运行
+## Run Locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-如果 PowerShell 拦截 `npm.ps1`，改用：
+Then open:
+
+```text
+http://127.0.0.1:5173/
+```
+
+If PowerShell blocks `npm.ps1`, use:
 
 ```bash
 npm.cmd install
 npm.cmd run dev
 ```
 
-生产构建：
+Production build:
 
 ```bash
 npm run build
 ```
 
-GitHub Pages 构建：
+GitHub Pages build:
 
 ```bash
 npm run build:pages
 ```
 
-素材检测：
-
-```bash
-npm run check:assets
-```
-
-生成两条完整思维链路留痕：
+Generate two complete thinking-chain traces:
 
 ```bash
 npm run trace:thinking
 ```
 
-## Mimo API 代理
+## Validation
 
-前端不会保存 Mimo API Key。真实 AI 推演通过 Vercel Serverless Function 代理：
+Run the release-oriented smoke test:
+
+```bash
+npm run test:smoke
+```
+
+Build the GitHub Pages gallery and version paths:
+
+```bash
+npm run build:pages
+```
+
+Check generated art assets for visible green-screen remnants:
+
+```bash
+npm run check:assets
+```
+
+## Mimo API Proxy
+
+The front end does not store a Mimo API key. Real AI reasoning goes through a Vercel Serverless Function proxy:
 
 ```text
 api/mimo/chat.ts
 ```
 
-Vercel 环境变量：
+Vercel environment variables:
 
 ```text
-MIMO_API_KEY=你的 Mimo Key
+MIMO_API_KEY=your Mimo key
 MIMO_BASE_URL=https://token-plan-cn.xiaomimimo.com/v1
 MIMO_MODEL=mimo-v2.5-pro
 MIMO_INPUT_PRICE_CNY_PER_1K=0
 MIMO_OUTPUT_PRICE_CNY_PER_1K=0
 ```
 
-前端环境变量：
+Front-end environment variables:
 
 ```text
 VITE_MIMO_PROXY_URL=/api/mimo/chat
@@ -164,10 +179,10 @@ VITE_MIMO_INPUT_PRICE_CNY_PER_1K=0
 VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K=0
 ```
 
-本地开发可以直接在 `.env.local` 中配置：
+For local development, place the full config in `.env.local`:
 
 ```text
-MIMO_API_KEY=你的完整专属 API key
+MIMO_API_KEY=your full private API key
 MIMO_BASE_URL=https://token-plan-cn.xiaomimimo.com/v1
 MIMO_MODEL=mimo-v2.5-pro
 MIMO_INPUT_PRICE_CNY_PER_1K=0
@@ -177,82 +192,97 @@ VITE_MIMO_INPUT_PRICE_CNY_PER_1K=0
 VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K=0
 ```
 
-最小本地验证步骤：
+Minimal local verification:
 
 ```bash
 npm run dev
 ```
 
-另开一个终端：
+In another terminal:
 
 ```bash
 npm run verify:mimo
 ```
 
-如果 Vite 自动切到了其他端口，把终端里显示的地址传给脚本：
+If Vite switches to another port, pass the actual local URL:
 
 ```bash
 npm run verify:mimo -- --url=http://127.0.0.1:5174/api/mimo/chat
 ```
 
-验证脚本会打本地 `/api/mimo/chat` 代理，确认三件事：
+The verification script checks:
 
-- 真实 Mimo 响应包含可解析的 `choices[0].message.content` JSON。
-- `usage.prompt_tokens`、`usage.completion_tokens`、`usage.total_tokens` 完整返回。
-- 本地校验错误返回稳定结构：`error.type/message/status/retryable`。
+- The real Mimo response contains parseable `choices[0].message.content` JSON.
+- `usage.prompt_tokens`, `usage.completion_tokens`, and `usage.total_tokens` are present.
+- Local validation errors return a stable `error.type/message/status/retryable` shape.
 
-如果要验证已部署的 Vercel function：
+To verify a deployed Vercel function:
 
 ```bash
-npm run verify:mimo -- --url=https://你的域名/api/mimo/chat
+npm run verify:mimo -- --url=https://your-domain/api/mimo/chat
 ```
 
-如果代理未配置或上游不可用，产品会自动回退到本地模板，并在“城邦账簿”中显示可操作的回退原因。若 Mimo 没有返回完整 usage，产品仍会展示 AI 内容，但账簿会标记 `usage 估算`。
+If the proxy is not configured or the upstream service is unavailable, the product falls back to local templates and shows the reason in the city ledger. If Mimo does not return complete usage data, the product still shows AI content and marks ledger costs as estimated.
 
-## 目录结构
+## Project Structure
 
 ```text
 src/
-  App.tsx                  # 应用状态和主流程编排
-  components/              # 地图、弹窗、左侧面板、服务抽屉、卷轴馆、新手指引
-  data/seed.ts             # 默认议题、城区、初始观点、早期角色建议
-  lib/                     # 开局推演、讨论模式、AI 代理调用、归档、样例馆藏、巡检
-  assets/art/              # 前端正式引用的美术资产
-  assets/generated/        # 生成母图与切片记录
+  App.tsx                  # Application state and main workflow orchestration
+  components/              # Map, popovers, panels, service drawer, archive, guide
+  data/seed.ts             # Default topic, districts, initial ideas, early role suggestions
+  lib/                     # Opening draft, modes, AI proxy call, archive, samples, review
+  assets/art/              # Production art assets referenced by the front end
+  assets/generated/        # Generated source images and slicing records
 docs/
-  current/                 # 2.0 当前说明书、PRD、世界观、机制说明
-  archive-v1/              # 1.0 旧版产品、美术和测试材料归档
-  planning/                # 后续建筑、居民日常 talk、长期 roadmap
-  trace-runs/              # 两条思维链路留痕
+  current/                 # 2.0 manual, PRD, worldbuilding, mechanism docs
+  archive-v1/              # 1.0 product, art, and test archive
+  planning/                # Future buildings, resident daily talk, long-term roadmap
+  trace-runs/              # Two complete thinking-chain traces
 scripts/
   slice-assets.mjs
   check-green-artifacts.mjs
   optimize-art-assets.mjs
+  build-pages-versions.mjs
+  smoke-test.mjs
 .github/workflows/
-  deploy-pages.yml         # GitHub Pages 自动部署
+  deploy-pages.yml         # GitHub Pages deployment
 ```
 
-## 下一步规划
+## Documentation
 
-### P0：真实 Mimo 联调
+- Illustrated MVP manual: [docs/current/siwei-city-mvp-manual.md](docs/current/siwei-city-mvp-manual.md)
+- Current progress and PRD: [docs/current/project-status-prd.md](docs/current/project-status-prd.md)
+- Worldbuilding: [docs/current/siwei-city-worldbuilding.md](docs/current/siwei-city-worldbuilding.md)
+- Resident roundtable mechanism: [docs/current/roundtable-mechanism.md](docs/current/roundtable-mechanism.md)
+- Version history: [docs/current/version-history.md](docs/current/version-history.md)
+- Art direction: [docs/current/art-direction.md](docs/current/art-direction.md)
+- Project orientation: [docs/current/project-orientation.md](docs/current/project-orientation.md)
+- 1.0 archive: [docs/archive-v1/](docs/archive-v1/)
+- Planning notes: [docs/planning/](docs/planning/)
+- Thinking-chain traces: [docs/trace-runs/README.md](docs/trace-runs/README.md)
 
-已补可复跑联调路径：`npm run verify:mimo` 会校验 OpenAI-compatible content、usage 返回、错误结构和费用估算。
+## Roadmap
 
-### P1：多轮居民互相引用
+### P0: Real Mimo Integration
 
-让每位居民必须引用上一轮发言或某座建筑，再生成回应和建议道路。
+The repeatable verification path is already in place through `npm run verify:mimo`. It checks OpenAI-compatible content, usage data, error shape, and cost estimation.
 
-### P2：道路解释
+### P1: Multi-round Resident References
 
-给每条道路增加“为什么成立”的解释，提升推理透明度和报告质量。
+Each resident should reference a previous turn or a city building before producing the next response and suggested road.
 
-### P3：专属服务建筑资产
+### P2: Road Explanations
 
-为居民席位、巡城官塔、卷轴馆、蜡板任务卡生成更贴合世界观的新美术素材。
+Each road should explain why the relation holds, improving reasoning transparency and report quality.
 
-## 关键假设
+### P3: Dedicated Service Building Assets
 
-- 首版先验证 Web 桌面端交互闭环，不做移动端和多人协作。
-- 如果未配置 Mimo/Vercel，产品会清楚回退到本地模板。
-- 用户保留最终判断权，系统只辅助发现结构和提出建议。
-- 当前会话和历史城邦先存在浏览器 localStorage，账号同步后续再做。
+Generate more specific art for resident seats, the inspection tower, the archive hall, and task cards.
+
+## Key Assumptions
+
+- The first version focuses on desktop web interaction, without mobile optimization or multi-user collaboration.
+- If Mimo or Vercel is not configured, the product clearly falls back to local templates.
+- The user keeps final judgment. The system helps find structure and propose next moves.
+- Current sessions and historical cities live in browser localStorage until account sync is added.

@@ -52,32 +52,35 @@ export async function requestAiDraft(topic: string, mode: DiscussionMode, ideas:
       body: JSON.stringify({ messages }),
     });
     const text = await response.text();
-    const payload = text ? JSON.parse(text) : {};
+    const payload = parseJsonResponse(text, 'Mimo 代理返回了非 JSON 内容');
     if (!response.ok) {
-      throw new Error(payload.error ?? `Mimo proxy failed: ${response.status}`);
+      throw new Error(formatProxyError(payload, response.status));
     }
     const content = payload.choices?.[0]?.message?.content;
-    const parsed = JSON.parse(content);
-    const usage = payload.usage ?? {};
-    const inputTokens = Number(usage.prompt_tokens ?? estimateTokens(JSON.stringify(messages)));
-    const outputTokens = Number(usage.completion_tokens ?? estimateTokens(content ?? ''));
+    if (typeof content !== 'string' || content.trim().length === 0) {
+      throw new Error('Mimo 返回成功状态，但 choices[0].message.content 为空，已使用本地模板。');
+    }
+    const parsed = parseJsonResponse(content, 'Mimo 返回内容不是合法 JSON，已使用本地模板。');
+    const usageResult = readUsage(payload, messages, content);
     return {
       draft: parsed,
       ledger: {
         engine: 'AI 推演',
         status: 'ready',
         calls: 1,
-        inputTokens,
-        outputTokens,
-        estimatedCostCny: estimateCost(inputTokens, outputTokens),
+        inputTokens: usageResult.inputTokens,
+        outputTokens: usageResult.outputTokens,
+        estimatedCostCny: usageResult.estimatedCostCny,
+        usageSource: usageResult.source,
+        usageWarning: usageResult.warning,
       },
     };
   } catch (error) {
     const message =
       error instanceof SyntaxError
-        ? 'Mimo 代理未返回 JSON；当前可能还未部署 Vercel /api/mimo/chat，已使用本地模板。'
+        ? withFallbackSuffix(error.message)
         : error instanceof TypeError
-          ? 'Mimo 代理暂不可达；已使用本地模板。'
+          ? '无法连接 Mimo 代理，请确认 Vite dev server 或 Vercel function 可访问；已使用本地模板。'
           : error instanceof Error
             ? error.message
             : 'AI 推演不可用，已回退到本地模板。';
@@ -89,10 +92,62 @@ export async function requestAiDraft(topic: string, mode: DiscussionMode, ideas:
         inputTokens: estimateTokens(JSON.stringify(messages)),
         outputTokens: 0,
         estimatedCostCny: 0,
+        usageSource: 'estimated',
         lastError: message,
       },
     };
   }
+}
+
+function withFallbackSuffix(message: string) {
+  return message.includes('已使用本地模板') ? message : `${message}，已使用本地模板。`;
+}
+
+function parseJsonResponse(text: string, fallbackMessage: string) {
+  try {
+    return text ? JSON.parse(text) : {};
+  } catch {
+    throw new SyntaxError(fallbackMessage);
+  }
+}
+
+function formatProxyError(payload: any, status: number) {
+  const error = payload?.error;
+  if (typeof error === 'string') return `${error}，已使用本地模板。`;
+  if (error?.type === 'config_error') return `${error.message}。请在 .env.local 或 Vercel 中配置 MIMO_API_KEY，已使用本地模板。`;
+  if (error?.type === 'validation_error') return `${error.message}，已使用本地模板。`;
+  if (error?.type === 'upstream_error') {
+    const retryHint = error.retryable ? '稍后重试或检查 Mimo 服务状态' : '请检查 API Key、模型名和额度';
+    return `Mimo 上游请求失败（${error.status ?? status}）：${error.message}。${retryHint}，已使用本地模板。`;
+  }
+  if (error?.type === 'network_error') return `Mimo 代理请求上游失败：${error.message}，已使用本地模板。`;
+  return `Mimo proxy failed: ${status}，已使用本地模板。`;
+}
+
+function readUsage(payload: any, messages: unknown[], content: string) {
+  const providerUsage = payload.usage ?? {};
+  const diagnosticUsage = payload.diagnostics?.usage ?? {};
+  const providerInputTokens = readTokenCount(providerUsage.prompt_tokens);
+  const providerOutputTokens = readTokenCount(providerUsage.completion_tokens);
+  const diagnosticInputTokens = readTokenCount(diagnosticUsage.promptTokens);
+  const diagnosticOutputTokens = readTokenCount(diagnosticUsage.completionTokens);
+  const inputTokens = providerInputTokens ?? diagnosticInputTokens ?? estimateTokens(JSON.stringify(messages));
+  const outputTokens = providerOutputTokens ?? diagnosticOutputTokens ?? estimateTokens(content);
+  const hasProviderUsage = providerInputTokens !== undefined && providerOutputTokens !== undefined;
+  const proxyCost = readTokenCount(payload.diagnostics?.cost?.estimatedCostCny);
+
+  return {
+    inputTokens,
+    outputTokens,
+    estimatedCostCny: proxyCost ?? estimateCost(inputTokens, outputTokens),
+    source: hasProviderUsage ? ('provider' as const) : ('estimated' as const),
+    warning: hasProviderUsage ? undefined : 'Mimo 未返回完整 usage，账簿用本地字符估算 token 和费用。',
+  };
+}
+
+function readTokenCount(value: unknown) {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : undefined;
 }
 
 function estimateTokens(text: string) {

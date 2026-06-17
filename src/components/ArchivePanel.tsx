@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { sampleCases } from '../lib/sampleCases';
 import type { ArchiveDoc, SavedCity } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
@@ -33,6 +33,12 @@ export function ArchivePanel({
   const caseDocs = useMemo(() => docs.filter((doc) => doc.kind === 'case'), [docs]);
   const traceDocs = useMemo(() => docs.filter((doc) => doc.kind === 'trace'), [docs]);
 
+  useEffect(() => {
+    if (!activeDoc) return;
+    const nextShelf = shelfForKind(activeDoc.kind);
+    setShelf((current) => (current === nextShelf ? current : nextShelf));
+  }, [activeDoc]);
+
   function downloadDoc(doc: ArchiveDoc) {
     const blob = new Blob([doc.body], { type: 'text/markdown;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -57,10 +63,27 @@ export function ArchivePanel({
       <div className="archive-shelves" aria-label="卷轴馆分区">
         {shelfButton('current', '本轮卷轴', shelf, setShelf)}
         {shelfButton('cases', '案例馆藏', shelf, setShelf)}
-        {shelfButton('traces', '链路留痕', shelf, setShelf)}
+        {shelfButton('traces', '公开链路', shelf, setShelf)}
         {shelfButton('history', '历史城邦', shelf, setShelf)}
         {shelfButton('product', '产品叙事', shelf, setShelf)}
       </div>
+
+      {traceDocs.length > 0 && (
+        <article className="trace-entry-card">
+          <span>公开思维链路留痕</span>
+          <strong>最近两条完整链路已入馆</strong>
+          <p>直接阅读输入、公开推理步骤、居民回应、采纳动作、巡城检查和最终输出；不包含模型私有逐字内部思维。</p>
+          <button
+            type="button"
+            onClick={() => {
+              setShelf('traces');
+              onOpenDoc(traceDocs[0].id);
+            }}
+          >
+            阅读最近链路
+          </button>
+        </article>
+      )}
 
       {shelf === 'current' && (
         <>
@@ -97,7 +120,12 @@ export function ArchivePanel({
         </div>
       )}
 
-      {shelf === 'traces' && <DocList docs={traceDocs} activeDocId={activeDocId} onOpenDoc={onOpenDoc} />}
+      {shelf === 'traces' && (
+        <>
+          <p className="trace-shelf-note">最近两条完整链路来自 docs/trace-runs/latest-two-chain-runs.*，按生成顺序保留公开可审计记录。</p>
+          <DocList docs={traceDocs} activeDocId={activeDocId} onOpenDoc={onOpenDoc} />
+        </>
+      )}
 
       {shelf === 'history' && (
         <div className="history-library">
@@ -148,6 +176,13 @@ function shelfButton(shelf: ArchiveShelf, label: string, active: ArchiveShelf, s
       {label}
     </button>
   );
+}
+
+function shelfForKind(kind: ArchiveDoc['kind']): ArchiveShelf {
+  if (kind === 'trace') return 'traces';
+  if (kind === 'case') return 'cases';
+  if (kind === 'narrative' || kind === 'mechanism') return 'product';
+  return 'current';
 }
 
 function DocList({ docs, activeDocId, onOpenDoc }: { docs: ArchiveDoc[]; activeDocId: string | null; onOpenDoc: (id: string) => void }) {

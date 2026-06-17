@@ -17,7 +17,8 @@ export function LedgerBar({ ledger, mode }: LedgerBarProps) {
       <span>输入 {ledger.inputTokens}</span>
       <span>输出 {ledger.outputTokens}</span>
       <span>约 ¥{ledger.estimatedCostCny.toFixed(4)}</span>
-      {ledger.lastError && <em title={ledger.lastError}>AI 代理暂不可用，已使用本地模板。</em>}
+      {ledger.usageSource === 'estimated' && !ledger.lastError && <em title={ledger.usageWarning}>usage 估算</em>}
+      {ledger.lastError && <em title={ledger.lastError}>{ledger.lastError}</em>}
     </section>
   );
 }

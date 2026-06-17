@@ -8,9 +8,10 @@ const checks = [
   ['src/components/HomeWorldMap.tsx', ['进入冲突议会', 'world-marker-brief', 'onResetSession']],
   ['src/components/CouncilStage.tsx', ['召集居民发言', '先采纳右侧发言', '查看卷轴报告']],
   ['src/lib/traceRunDocs.ts', ['latest-two-chain-runs.json', '居民回应', '采纳动作', '巡城结果', '下一步行动']],
-  ['src/components/ArchivePanel.tsx', ['链路留痕', "doc.kind === 'trace'"]],
-  ['dist/index.html', ['/siwei-city/v1/', '/siwei-city/v2/', 'version-assets']],
-  ['dist/v1/index.html', ['/siwei-city/v2/', 'Version 1.0']],
+  ['src/components/ArchivePanel.tsx', ['公开思维链路留痕', '阅读最近链路', "doc.kind === 'trace'", "setShelf('traces')"]],
+  ['src/styles.css', ['.home-shell .service-drawer.open', 'calc(100vw - 24px)', '.trace-entry-card']],
+  ['dist/index.html', ['/siwei-city/v2/', '思维城邦 2.0', '新的美术素材', '设计思路']],
+  ['dist/v1/index.html', ['/siwei-city/v2/', 'Version 1.0 Iteration Log', '美术资产与编排思路']],
   ['dist/v2/index.html', ['/siwei-city/v2/assets/']],
 ];
 
@@ -54,18 +55,53 @@ for (const [file, needles] of checks) {
 
 for (const docLink of currentDocLinks) {
   assertIncludes('README.md', docLink);
-  assertIncludes('dist/index.html', `blob/main/${docLink}`);
 }
 
-assertIncludes('dist/index.html', '/siwei-city/v1/');
+const traceData = JSON.parse(readFileSync(join(root, 'docs/trace-runs/latest-two-chain-runs.json'), 'utf8'));
+if (!Array.isArray(traceData.traces) || traceData.traces.length !== 2) {
+  throw new Error('Smoke test expected docs/trace-runs/latest-two-chain-runs.json to contain exactly two traces');
+}
+
+for (const trace of traceData.traces) {
+  for (const field of ['id', 'topic', 'mode', 'outputName', 'audience', 'keyAssumption']) {
+    if (!trace[field]) {
+      throw new Error(`Smoke test missing trace field "${field}"`);
+    }
+  }
+  if (!Array.isArray(trace.chain) || trace.chain.length < 6) {
+    throw new Error(`Smoke test expected a complete chain for trace: ${trace.id}`);
+  }
+  if (!Array.isArray(trace.turns) || !trace.turns.some((turn) => turn.accepted)) {
+    throw new Error(`Smoke test expected accepted resident turns for trace: ${trace.id}`);
+  }
+  if (!trace.review?.beforeAcceptance || !trace.review?.afterAcceptance) {
+    throw new Error(`Smoke test expected review checkpoints for trace: ${trace.id}`);
+  }
+  if (!trace.finalOutputs?.reportSummary || !trace.finalOutputs?.nextAction) {
+    throw new Error(`Smoke test expected final outputs for trace: ${trace.id}`);
+  }
+}
+
 assertIncludes('dist/index.html', '/siwei-city/v2/');
+assertIncludes('dist/index.html', '当前主版本');
+assertIncludes('dist/index.html', '新的美术素材');
+assertIncludes('dist/index.html', '冲突议会');
+assertNotIncludes('dist/index.html', '/siwei-city/v1/');
+assertNotIncludes('dist/index.html', '版本展厅');
+assertNotIncludes('dist/index.html', 'window.location.replace');
 assertIncludes('dist/v1/index.html', '/siwei-city/v2/');
 assertIncludes('dist/v1/index.html', '/siwei-city/');
 
 const v2Bundle = readBundle('dist/v2/assets');
-for (const needle of ['版本展厅', '1.0 回顾', '/siwei-city', '/v1/', '链路留痕', '我想做一个面向独居女性的夜间安全产品', '我想判断一个 AI 简历工具值不值得做']) {
+for (const needle of ['公开思维链路留痕', '阅读最近链路', '我想做一个面向独居女性的夜间安全产品', '我想判断一个 AI 简历工具值不值得做']) {
   if (!v2Bundle.includes(needle)) {
     throw new Error(`Smoke test missing "${needle}" in dist/v2/assets bundle`);
+  }
+}
+
+for (const needle of ['1.0 回顾', '/v1/']) {
+  if (v2Bundle.includes(needle)) {
+    throw new Error(`Smoke test unexpectedly found "${needle}" in dist/v2/assets bundle`);
   }
 }
 
@@ -102,6 +138,17 @@ function assertIncludes(file, needle) {
   const body = readFileSync(filePath, 'utf8');
   if (!body.includes(needle)) {
     throw new Error(`Smoke test missing "${needle}" in ${file}`);
+  }
+}
+
+function assertNotIncludes(file, needle) {
+  const filePath = join(root, file);
+  if (!existsSync(filePath)) {
+    throw new Error(`Smoke test missing file: ${file}`);
+  }
+  const body = readFileSync(filePath, 'utf8');
+  if (body.includes(needle)) {
+    throw new Error(`Smoke test unexpectedly found "${needle}" in ${file}`);
   }
 }
 

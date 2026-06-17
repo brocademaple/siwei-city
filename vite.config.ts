@@ -19,7 +19,7 @@ function mimoDevProxy(mode: string): Plugin {
         }
 
         if (request.method !== 'POST') {
-          sendJson(response, 405, { error: 'Method not allowed' });
+          sendJson(response, 405, buildError('validation_error', 'Method not allowed', 405, false));
           return;
         }
 
@@ -28,12 +28,18 @@ function mimoDevProxy(mode: string): Plugin {
         const model = env.MIMO_MODEL ?? 'mimo-v2.5-pro';
 
         if (!apiKey || apiKey.includes('replace-with')) {
-          sendJson(response, 501, { error: 'MIMO_API_KEY is not configured in .env.local' });
+          sendJson(response, 501, buildError('config_error', 'MIMO_API_KEY is not configured in .env.local', 501, false));
           return;
         }
 
         try {
           const body = JSON.parse(await readRequestBody(request));
+          const validationError = validateMimoRequestBody(body);
+          if (validationError) {
+            sendJson(response, 400, buildError('validation_error', validationError, 400, false));
+            return;
+          }
+
           const upstream = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
             method: 'POST',
             headers: {
@@ -47,18 +53,108 @@ function mimoDevProxy(mode: string): Plugin {
               messages: body.messages,
             }),
           });
-          const payload = await upstream.json();
+          const payload = await readUpstreamJson(upstream);
           if (!upstream.ok) {
-            sendJson(response, upstream.status, { error: payload.error?.message ?? 'Mimo request failed', raw: payload });
+            sendJson(
+              response,
+              upstream.status,
+              buildError(
+                'upstream_error',
+                getUpstreamErrorMessage(payload) ?? 'Mimo request failed',
+                upstream.status,
+                upstream.status === 408 || upstream.status === 429 || upstream.status >= 500,
+                payload,
+              ),
+            );
             return;
           }
-          sendJson(response, 200, payload);
+          sendJson(response, 200, withMimoDiagnostics(payload, model, env));
         } catch (error) {
-          sendJson(response, 500, { error: error instanceof Error ? error.message : 'Unknown Mimo proxy error' });
+          sendJson(response, 500, buildError('network_error', error instanceof Error ? error.message : 'Unknown Mimo proxy error', 500, true));
         }
       });
     },
   };
+}
+
+function validateMimoRequestBody(body: any) {
+  if (!body || !Array.isArray(body.messages) || body.messages.length === 0) {
+    return 'Request body must include a non-empty messages array';
+  }
+  const invalidMessage = body.messages.find((message: any) => !message || typeof message.role !== 'string' || typeof message.content !== 'string');
+  return invalidMessage ? 'Every message must include string role and content fields' : undefined;
+}
+
+async function readUpstreamJson(upstream: Response) {
+  const text = await upstream.text();
+  if (!text) return {};
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { rawText: text };
+  }
+}
+
+function getUpstreamErrorMessage(payload: any) {
+  if (typeof payload?.error === 'string') return payload.error;
+  if (typeof payload?.error?.message === 'string') return payload.error.message;
+  if (typeof payload?.message === 'string') return payload.message;
+  return undefined;
+}
+
+function buildError(type: string, message: string, status: number, retryable: boolean, raw?: unknown) {
+  return {
+    error: {
+      type,
+      message,
+      status,
+      retryable,
+    },
+    ...(raw ? { raw } : {}),
+  };
+}
+
+function withMimoDiagnostics(payload: any, model: string, env: Record<string, string>) {
+  const usage = payload?.usage ?? {};
+  const promptTokens = readTokenCount(usage.prompt_tokens);
+  const completionTokens = readTokenCount(usage.completion_tokens);
+  const totalTokens = readTokenCount(usage.total_tokens) ?? (promptTokens !== undefined && completionTokens !== undefined ? promptTokens + completionTokens : undefined);
+  const usageWarnings = [
+    promptTokens === undefined ? 'missing prompt_tokens' : undefined,
+    completionTokens === undefined ? 'missing completion_tokens' : undefined,
+    totalTokens === undefined ? 'missing total_tokens' : undefined,
+  ].filter(Boolean);
+  const inputPrice = Number(env.MIMO_INPUT_PRICE_CNY_PER_1K ?? env.VITE_MIMO_INPUT_PRICE_CNY_PER_1K ?? 0);
+  const outputPrice = Number(env.MIMO_OUTPUT_PRICE_CNY_PER_1K ?? env.VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K ?? 0);
+  const estimatedCostCny =
+    promptTokens === undefined || completionTokens === undefined
+      ? undefined
+      : Number(((promptTokens / 1000) * inputPrice + (completionTokens / 1000) * outputPrice).toFixed(4));
+
+  return {
+    ...payload,
+    diagnostics: {
+      provider: 'mimo',
+      model: payload?.model ?? model,
+      usage: {
+        source: usageWarnings.length ? 'missing_or_partial' : 'provider',
+        promptTokens,
+        completionTokens,
+        totalTokens,
+        warnings: usageWarnings,
+      },
+      cost: {
+        inputPriceCnyPer1K: inputPrice,
+        outputPriceCnyPer1K: outputPrice,
+        estimatedCostCny,
+      },
+    },
+  };
+}
+
+function readTokenCount(value: unknown) {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : undefined;
 }
 
 function readRequestBody(request: import('node:http').IncomingMessage) {

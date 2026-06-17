@@ -10,7 +10,16 @@ const githubBase = '/siwei-city';
 const assets = {
   v1Hero: 'hero-city-panorama.png',
   v2Hero: 'city-world-panorama.png',
+  v2HeroWebp: 'city-world-panorama.webp',
   council: 'council-chamber-panorama.png',
+  councilWebp: 'council-chamber-panorama.webp',
+  libraryWebp: 'grand-library-panorama.webp',
+  actionHarborWebp: 'action-harbor-panorama.webp',
+  lighthouseWebp: 'lighthouse-watchtower-panorama.webp',
+  researcherWebp: 'resident-researcher.webp',
+  skepticWebp: 'resident-skeptic.webp',
+  executorWebp: 'resident-executor.webp',
+  inspectorWebp: 'city-inspector.webp',
   library: 'building-library.png',
   councilBuilding: 'building-council.png',
   harbor: 'building-harbor-gate.png',
@@ -23,7 +32,16 @@ mkdirSync(assetDir, { recursive: true });
 
 copyAsset('src/assets/art/hero-city-panorama.png', assets.v1Hero);
 copyAsset('src/assets/art/scenes/city-world-panorama.png', assets.v2Hero);
+copyAsset('src/assets/art/optimized/scenes/city-world-panorama.webp', assets.v2HeroWebp);
 copyAsset('src/assets/art/scenes/council-chamber-panorama.png', assets.council);
+copyAsset('src/assets/art/optimized/scenes/council-chamber-panorama.webp', assets.councilWebp);
+copyAsset('src/assets/art/optimized/scenes/grand-library-panorama.webp', assets.libraryWebp);
+copyAsset('src/assets/art/optimized/scenes/action-harbor-panorama.webp', assets.actionHarborWebp);
+copyAsset('src/assets/art/optimized/scenes/lighthouse-watchtower-panorama.webp', assets.lighthouseWebp);
+copyAsset('src/assets/art/optimized/characters/resident-researcher.webp', assets.researcherWebp);
+copyAsset('src/assets/art/optimized/characters/resident-skeptic.webp', assets.skepticWebp);
+copyAsset('src/assets/art/optimized/characters/resident-executor.webp', assets.executorWebp);
+copyAsset('src/assets/art/optimized/characters/city-inspector.webp', assets.inspectorWebp);
 copyAsset('src/assets/art/buildings/building-library.png', assets.library);
 copyAsset('src/assets/art/buildings/building-council.png', assets.councilBuilding);
 copyAsset('src/assets/art/buildings/building-harbor-gate.png', assets.harbor);
@@ -35,7 +53,7 @@ execFileSync('npx', ['vite', 'build', '--mode', 'github-pages', '--outDir', 'dis
   stdio: 'inherit',
 });
 
-writeHtml('index.html', renderHomePage());
+writeHtml('index.html', renderDefaultV2Page());
 writeHtml('v1/index.html', renderV1Page());
 
 function copyAsset(source, targetName) {
@@ -52,14 +70,14 @@ function assetPath(name) {
   return `${githubBase}/version-assets/${name}`;
 }
 
-function pageShell({ title, body }) {
+function pageShell({ title, description, body }) {
   return `<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#211812" />
-    <meta name="description" content="思维城邦 Siwei City 版本展厅：保留 1.0 迭代回顾，并进入 2.0 古希腊城邦议会主舞台。" />
+    <meta name="description" content="${description}" />
     <title>${title}</title>
     <style>${sharedCss()}</style>
   </head>
@@ -69,54 +87,92 @@ function pageShell({ title, body }) {
 </html>`;
 }
 
-function renderHomePage() {
+function renderDefaultV2Page() {
   return pageShell({
-    title: '思维城邦版本展厅',
+    title: '思维城邦 2.0：美术资产与设计思路',
+    description: '思维城邦 Siwei City 2.0 GitHub Pages 展示页：展示新的城邦场景、居民角色、美术素材和产品设计思路。',
     body: `
-      <main class="page-shell">
+      <main class="page-shell v2-showcase">
+        <nav class="top-nav">
+          <strong>思维城邦 2.0</strong>
+        </nav>
+
         <section class="hero split-hero">
           <div class="hero-copy">
-            <span class="eyebrow">Siwei City Version Gallery</span>
-            <h1>思维城邦</h1>
-            <p>从 1.0 的“观点建筑地图”，推进到 2.0 的“古希腊城邦议会”。这里保留产品迭代痕迹，也给新版体验一个清晰入口。</p>
+            <span class="eyebrow">当前主版本</span>
+            <h1>思维城邦 2.0</h1>
+            <p>把模糊议题推进到议会讨论、采纳入城、巡城诊断和卷轴归档。</p>
             <div class="hero-actions">
-              <a class="primary" href="${githubBase}/v2/">进入 2.0 议会主舞台</a>
-              <a class="secondary" href="${githubBase}/v1/">查看 1.0 迭代回顾</a>
+              <a class="primary" href="${githubBase}/v2/">进入 2.0 应用</a>
+              <a class="secondary" href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/art-direction.md">阅读美术说明</a>
             </div>
           </div>
-          <figure class="hero-art">
-            <img src="${assetPath(assets.v2Hero)}" alt="思维城邦 2.0 古希腊世界地图" />
+          <figure class="hero-art showcase-hero-art">
+            <img src="${assetPath(assets.v2HeroWebp)}" alt="思维城邦 2.0 世界地图主视觉" />
           </figure>
         </section>
 
-        <section class="version-grid" aria-label="版本入口">
-          <article class="version-card">
-            <span>Version 1.0</span>
-            <h2>观点建筑地图</h2>
-            <p>1.0 验证了核心隐喻：把问题、假设、证据、反驳和行动放进一张城邦地图，用建筑和道路记录思考过程。</p>
-            <img src="${assetPath(assets.v1Hero)}" alt="思维城邦 1.0 panorama" />
-            <a href="${githubBase}/v1/">进入 1.0 展厅</a>
-          </article>
-          <article class="version-card highlighted">
-            <span>Version 2.0</span>
-            <h2>议会主舞台</h2>
-            <p>2.0 锁定 MVP 主线：从冲突议会开局，居民发言，用户采纳，巡城塔诊断，行动码头远航，大图书馆归档。</p>
-            <img src="${assetPath(assets.council)}" alt="思维城邦 2.0 议会大厅" />
-            <a href="${githubBase}/v2/">打开 2.0 应用</a>
-          </article>
+        <section class="design-panel">
+          <h2>2.0 的页面逻辑</h2>
+          <p>首页只承担展示和进入当前版本的职责。真正的产品体验从世界地图进入冲突议会，再回到行动和归档。</p>
+          <div class="path-ribbon">
+            <span>世界地图</span>
+            <span>冲突议会</span>
+            <span>居民圆桌</span>
+            <span>巡城诊断</span>
+            <span>行动码头</span>
+            <span>大图书馆</span>
+          </div>
+        </section>
+
+        <section class="scene-board">
+          <figure class="scene-feature">
+            <img src="${assetPath(assets.councilWebp)}" alt="冲突议会场景" />
+            <figcaption>
+              <strong>冲突议会</strong>
+              <span>把反驳、证据、行动和采纳集中到主舞台，降低首次使用的路径压力。</span>
+            </figcaption>
+          </figure>
+          <div class="scene-stack">
+            <figure>
+              <img src="${assetPath(assets.libraryWebp)}" alt="大图书馆归档场景" />
+              <figcaption>大图书馆承接报告、链路留痕和历史城邦。</figcaption>
+            </figure>
+            <figure>
+              <img src="${assetPath(assets.actionHarborWebp)}" alt="行动码头场景" />
+              <figcaption>行动码头把讨论结果推向实验和回流。</figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <section class="asset-board">
+          <h2>新的美术素材</h2>
+          <p>2.0 新增场景 panorama 和居民角色，让产品从地图工具升级为有舞台、有席位、有职责分工的思考世界。</p>
+          <div class="asset-grid character-grid">
+            <figure><img src="${assetPath(assets.researcherWebp)}" alt="研究者居民角色" /><figcaption>研究者</figcaption></figure>
+            <figure><img src="${assetPath(assets.skepticWebp)}" alt="怀疑者居民角色" /><figcaption>怀疑者</figcaption></figure>
+            <figure><img src="${assetPath(assets.executorWebp)}" alt="执行者居民角色" /><figcaption>执行者</figcaption></figure>
+            <figure><img src="${assetPath(assets.inspectorWebp)}" alt="巡城官角色" /><figcaption>巡城官</figcaption></figure>
+          </div>
         </section>
 
         <section class="worldview">
-          <span class="eyebrow">Worldbuilding as Product Design</span>
-          <h2>世界观不是装饰，是产品结构</h2>
-          <p>8 座建筑对应一次议题闭环的 8 个阶段：冲突议会、大图书馆、居民区、假设码头、行动码头、沉思庭院、记忆墓园 / 废案馆、灯塔 / 巡城塔。未想清楚的新建筑先留在 PRD 和世界观文档里，不挤进产品 UI。</p>
-          <div class="pill-row">
-            <a href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/siwei-city-mvp-manual.md">MVP 说明书</a>
-            <a href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/siwei-city-worldbuilding.md">世界观文档</a>
-            <a href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/project-status-prd.md">当前 PRD</a>
-            <a href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/roundtable-mechanism.md">圆桌机制</a>
-            <a href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/version-history.md">版本历史</a>
+          <h2>设计思路</h2>
+          <div class="principle-grid">
+            <article>
+              <h3>世界地图先行</h3>
+              <p>2.0 首页展示 8 个明确建筑入口，让用户先理解城邦职责，再进入具体讨论。</p>
+            </article>
+            <article>
+              <h3>议会成为主舞台</h3>
+              <p>居民发言、采纳、修缮令和卷轴报告集中发生，避免多个面板同时争夺注意力。</p>
+            </article>
+            <article>
+              <h3>素材服务机制</h3>
+              <p>建筑、场景和角色不是装饰，它们分别对应议题路径、工作流节点和 agent 职责。</p>
+            </article>
           </div>
+          <a class="text-link" href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/version-history.md">阅读版本历史</a>
         </section>
       </main>
     `,
@@ -125,18 +181,19 @@ function renderHomePage() {
 
 function renderV1Page() {
   return pageShell({
-    title: '思维城邦 1.0 迭代回顾',
+    title: '思维城邦 1.0 迭代日志',
+    description: '思维城邦 Siwei City 1.0 迭代日志：记录旧版美术资产、地图编排思路和升级到 2.0 的原因，正式项目默认进入 2.0 当前应用。',
     body: `
       <main class="page-shell">
         <nav class="top-nav">
-          <a href="${githubBase}/">版本展厅</a>
+          <a href="${githubBase}/">返回默认入口</a>
           <a href="${githubBase}/v2/">进入 2.0</a>
         </nav>
         <section class="hero">
           <div class="hero-copy">
-            <span class="eyebrow">Version 1.0 Archive</span>
-            <h1>1.0：把观点变成建筑</h1>
-            <p>这是思维城邦最早跑通的产品假设：复杂思考可以被空间化。问题、证据、假设、反驳和行动各自落成建筑，观点之间用道路连接。</p>
+            <span class="eyebrow">Version 1.0 Iteration Log</span>
+            <h1>1.0：观点建筑地图</h1>
+            <p>这页只作为 GitHub Pages 里的迭代记录保留，用来说明早期美术资产、地图编排和产品假设。正式项目入口已经收敛到 2.0。</p>
           </div>
           <figure class="hero-art">
             <img src="${assetPath(assets.v1Hero)}" alt="思维城邦 1.0 城邦地图" />
@@ -151,19 +208,24 @@ function renderV1Page() {
           </article>
           <article>
             <span>02</span>
+            <h2>形成地图编排</h2>
+            <p>旧版采用 panorama 主视觉、建筑切片、城区底纹和道路关系来组织信息：建筑承载观点，城区暗示职能，道路解释观点之间为什么相连。</p>
+          </article>
+          <article>
+            <span>03</span>
             <h2>保留角色雏形</h2>
             <p>研究者、实践者、怀疑者、执行者作为早期 agent 来函入口出现。它们还没有完整人格和席位，但已经验证了多视角碰撞的必要性。</p>
           </article>
           <article>
-            <span>03</span>
+            <span>04</span>
             <h2>暴露升级问题</h2>
             <p>随着建筑和卡片增多，主页变得拥挤，用户很难知道第一步该做什么。2.0 因此把主页改成世界地图，把核心操作集中到冲突议会。</p>
           </article>
         </section>
 
         <section class="asset-board">
-          <h2>1.0 保留资产</h2>
-          <p>这些旧素材不删除，它们是产品迭代过程的一部分，也能继续服务说明书、案例展示和后续回顾页。</p>
+          <h2>美术资产与编排思路</h2>
+          <p>旧素材不进入正式应用主线，但会作为版本迭代证据保留在 Pages 日志里，方便回看早期视觉方向和信息组织方式。</p>
           <div class="asset-grid">
             <figure><img src="${assetPath(assets.councilBuilding)}" alt="旧版议会建筑" /><figcaption>观点建筑</figcaption></figure>
             <figure><img src="${assetPath(assets.library)}" alt="旧版图书馆建筑" /><figcaption>归档隐喻</figcaption></figure>
@@ -174,11 +236,11 @@ function renderV1Page() {
 
         <section class="worldview">
           <span class="eyebrow">Why 2.0</span>
-          <h2>从地图原型到议会主舞台</h2>
-          <p>1.0 证明了“城邦地图”有表达力；2.0 进一步明确了可用路径：首页只回答点哪里开始，议会只回答下一步做什么，其他建筑只回答它在闭环中负责哪一段。</p>
+          <h2>从迭代记录回到正式项目</h2>
+          <p>1.0 的结论是“空间化有记忆点，但入口负担太重”。2.0 继承城邦隐喻，把正式体验改为更直接的路径：首页只回答点哪里开始，议会只回答下一步做什么，其他建筑只回答闭环职责。</p>
           <div class="hero-actions">
             <a class="primary" href="${githubBase}/v2/">进入 2.0</a>
-            <a class="secondary" href="${githubBase}/">回版本展厅</a>
+            <a class="secondary" href="${githubBase}/">返回默认入口</a>
           </div>
         </section>
       </main>
@@ -219,8 +281,15 @@ function sharedCss() {
     }
     .top-nav {
       display: flex;
+      align-items: center;
       justify-content: flex-end;
       gap: 10px;
+    }
+    .top-nav strong {
+      margin-right: auto;
+      color: rgba(255, 250, 232, 0.92);
+      font-size: 15px;
+      letter-spacing: 0;
     }
     .top-nav a,
     .pill-row a {
@@ -234,6 +303,8 @@ function sharedCss() {
       text-decoration: none;
     }
     .hero,
+    .design-panel,
+    .scene-board,
     .version-card,
     .worldview,
     .timeline article,
@@ -323,11 +394,74 @@ function sharedCss() {
       background: #211812;
     }
     .hero-art img,
-    .version-card img {
+    .version-card img,
+    .scene-board img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
+    }
+    .design-panel {
+      display: grid;
+      gap: 16px;
+      padding: clamp(20px, 4vw, 38px);
+    }
+    .path-ribbon {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .path-ribbon span {
+      display: grid;
+      min-height: 48px;
+      place-items: center;
+      padding: 8px;
+      border: 1px solid rgba(40, 91, 130, 0.22);
+      border-radius: 10px;
+      background: rgba(255, 253, 242, 0.52);
+      color: #3d2b1d;
+      font-size: 14px;
+      font-weight: 900;
+      text-align: center;
+    }
+    .scene-board {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 14px;
+      padding: 14px;
+    }
+    .scene-board figure {
+      min-height: 0;
+      margin: 0;
+      overflow: hidden;
+      border-radius: 12px;
+      background: rgba(255, 253, 242, 0.5);
+    }
+    .scene-feature {
+      display: grid;
+      grid-template-rows: minmax(320px, 1fr) auto;
+    }
+    .scene-stack {
+      display: grid;
+      gap: 14px;
+    }
+    .scene-stack figure {
+      display: grid;
+      grid-template-rows: 190px auto;
+    }
+    .scene-board figcaption {
+      display: grid;
+      gap: 6px;
+      padding: 14px;
+      color: #57412b;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.55;
+      text-align: left;
+    }
+    .scene-board figcaption strong {
+      color: var(--ink);
+      font-size: 18px;
     }
     .version-grid {
       display: grid;
@@ -383,6 +517,38 @@ function sharedCss() {
       object-fit: contain;
       filter: drop-shadow(0 14px 16px rgba(33, 22, 12, 0.2));
     }
+    .character-grid img {
+      height: 178px;
+    }
+    .principle-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.95fr 0.95fr;
+      gap: 12px;
+    }
+    .principle-grid article {
+      display: grid;
+      gap: 8px;
+      padding: 18px;
+      border-radius: 12px;
+      background: rgba(255, 253, 242, 0.5);
+    }
+    .principle-grid h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 20px;
+      line-height: 1.2;
+    }
+    .principle-grid p {
+      font-size: 15px;
+      line-height: 1.64;
+    }
+    .text-link {
+      width: fit-content;
+      color: var(--lapis);
+      font-weight: 900;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
+    }
     figcaption {
       color: #57412b;
       font-size: 13px;
@@ -392,7 +558,10 @@ function sharedCss() {
       .hero,
       .version-grid,
       .timeline,
-      .asset-grid {
+      .asset-grid,
+      .path-ribbon,
+      .scene-board,
+      .principle-grid {
         grid-template-columns: 1fr;
       }
       .hero {

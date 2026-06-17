@@ -6,9 +6,9 @@
 
 在线演示：
 
-- 版本展厅：<https://brocademaple.github.io/siwei-city/>
-- 1.0 迭代回顾：<https://brocademaple.github.io/siwei-city/v1/>
-- 2.0 当前应用：<https://brocademaple.github.io/siwei-city/v2/>
+- 2.0 默认入口：<https://brocademaple.github.io/siwei-city/>
+- 2.0 显式路径：<https://brocademaple.github.io/siwei-city/v2/>
+- 1.0 迭代日志：<https://brocademaple.github.io/siwei-city/v1/>（只在 GitHub Pages 中保留，用于记录早期美术资产和地图编排思路）
 
 ## 为什么做这个
 
@@ -96,7 +96,7 @@ AI 时代，信息生成和资料整理越来越便宜，但个人真正需要�
 - 世界观设定：[docs/current/siwei-city-worldbuilding.md](docs/current/siwei-city-worldbuilding.md)
 - 居民圆桌机制设计：[docs/current/roundtable-mechanism.md](docs/current/roundtable-mechanism.md)
 - 版本历史：[docs/current/version-history.md](docs/current/version-history.md)
-- 1.0 和旧版材料归档：[docs/archive-v1/](docs/archive-v1/)
+- 1.0 旧版材料归档：[docs/archive-v1/](docs/archive-v1/)（不作为正式项目入口）
 - 后续规划与候选想法：[docs/planning/](docs/planning/)
 - 两条思维链路留痕：[docs/trace-runs/README.md](docs/trace-runs/README.md)
 
@@ -152,6 +152,8 @@ Vercel 环境变量：
 MIMO_API_KEY=你的 Mimo Key
 MIMO_BASE_URL=https://token-plan-cn.xiaomimimo.com/v1
 MIMO_MODEL=mimo-v2.5-pro
+MIMO_INPUT_PRICE_CNY_PER_1K=0
+MIMO_OUTPUT_PRICE_CNY_PER_1K=0
 ```
 
 前端环境变量：
@@ -168,12 +170,44 @@ VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K=0
 MIMO_API_KEY=你的完整专属 API key
 MIMO_BASE_URL=https://token-plan-cn.xiaomimimo.com/v1
 MIMO_MODEL=mimo-v2.5-pro
+MIMO_INPUT_PRICE_CNY_PER_1K=0
+MIMO_OUTPUT_PRICE_CNY_PER_1K=0
 VITE_MIMO_PROXY_URL=/api/mimo/chat
 VITE_MIMO_INPUT_PRICE_CNY_PER_1K=0
 VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K=0
 ```
 
-如果代理未配置，产品会自动回退到本地模板，并在“城邦账簿”中显示回退原因。
+最小本地验证步骤：
+
+```bash
+npm run dev
+```
+
+另开一个终端：
+
+```bash
+npm run verify:mimo
+```
+
+如果 Vite 自动切到了其他端口，把终端里显示的地址传给脚本：
+
+```bash
+npm run verify:mimo -- --url=http://127.0.0.1:5174/api/mimo/chat
+```
+
+验证脚本会打本地 `/api/mimo/chat` 代理，确认三件事：
+
+- 真实 Mimo 响应包含可解析的 `choices[0].message.content` JSON。
+- `usage.prompt_tokens`、`usage.completion_tokens`、`usage.total_tokens` 完整返回。
+- 本地校验错误返回稳定结构：`error.type/message/status/retryable`。
+
+如果要验证已部署的 Vercel function：
+
+```bash
+npm run verify:mimo -- --url=https://你的域名/api/mimo/chat
+```
+
+如果代理未配置或上游不可用，产品会自动回退到本地模板，并在“城邦账簿”中显示可操作的回退原因。若 Mimo 没有返回完整 usage，产品仍会展示 AI 内容，但账簿会标记 `usage 估算`。
 
 ## 目录结构
 
@@ -187,7 +221,7 @@ src/
   assets/generated/        # 生成母图与切片记录
 docs/
   current/                 # 2.0 当前说明书、PRD、世界观、机制说明
-  archive-v1/              # 1.0 与旧版产品/美术/测试材料
+  archive-v1/              # 1.0 旧版产品、美术和测试材料归档
   planning/                # 后续建筑、居民日常 talk、长期 roadmap
   trace-runs/              # 两条思维链路留痕
 scripts/
@@ -202,7 +236,7 @@ scripts/
 
 ### P0：真实 Mimo 联调
 
-用真实 Mimo API 校验 OpenAI-compatible 协议、usage 返回、错误结构和费用估算。
+已补可复跑联调路径：`npm run verify:mimo` 会校验 OpenAI-compatible content、usage 返回、错误结构和费用估算。
 
 ### P1：多轮居民互相引用
 

@@ -3197,6 +3197,48 @@ textarea {
   color: var(--lapis);
 }
 
+.trace-entry-card {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  border: 1px solid rgba(40, 91, 130, 0.28);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(255, 253, 242, 0.86), rgba(224, 238, 232, 0.72));
+  color: #342719;
+}
+
+.trace-entry-card span,
+.trace-shelf-note {
+  color: var(--lapis);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.trace-entry-card strong {
+  font-size: 14px;
+}
+
+.trace-entry-card p,
+.trace-shelf-note {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.trace-entry-card p {
+  color: #5a4634;
+  font-size: 12px;
+}
+
+.trace-entry-card button {
+  min-height: 32px;
+  border: 1px solid rgba(40, 91, 130, 0.32);
+  border-radius: 8px;
+  background: rgba(40, 91, 130, 0.14);
+  color: var(--lapis);
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .archive-save {
   display: grid;
   gap: 3px;
@@ -4054,6 +4096,18 @@ textarea {
     width: 58px;
     max-width: 58px;
     padding: 8px 6px;
+  }
+
+  .home-shell .service-drawer.open {
+    width: min(340px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+    max-height: 76dvh;
+    padding: 12px;
+  }
+
+  .home-shell .service-drawer.open .drawer-tabs,
+  .home-shell .service-drawer.open .archive-shelves {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .service-drawer:not(.open) {

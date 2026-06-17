@@ -109,6 +109,8 @@ export interface UsageLedger {
   inputTokens: number;
   outputTokens: number;
   estimatedCostCny: number;
+  usageSource?: 'provider' | 'estimated';
+  usageWarning?: string;
   lastError?: string;
 }
 

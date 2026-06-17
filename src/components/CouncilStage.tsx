@@ -42,6 +42,7 @@ export function CouncilStage({
   const roleTurns = turns.filter((turn) => turn.role === activeProfile.roleName);
   const reportDoc = docs.find((doc) => doc.id === 'archive-report');
   const actionDoc = docs.find((doc) => doc.id === 'archive-action');
+  const traceDoc = docs.find((doc) => doc.kind === 'trace');
   const hasAcceptedTurns = acceptedTurns.length > 0;
   const stageHint = hasAcceptedTurns
     ? `已采纳 ${acceptedTurns.length} 条观点，可以查看卷轴或继续采纳。`
@@ -128,6 +129,7 @@ export function CouncilStage({
         docs={docs}
         reportDocId={reportDoc?.id}
         actionDocId={actionDoc?.id}
+        traceDocId={traceDoc?.id}
         activeDoc={docs.find((doc) => doc.id === activeDocId)}
         onAcceptTurn={onAcceptTurn}
         onDiscussFinding={onDiscussFinding}
@@ -144,6 +146,7 @@ interface ResidentSeatPanelProps {
   docs: ArchiveDoc[];
   reportDocId?: string;
   actionDocId?: string;
+  traceDocId?: string;
   activeDoc?: ArchiveDoc;
   onAcceptTurn: (turn: RoundtableTurn) => void;
   onDiscussFinding: (finding: ReviewFinding) => void;
@@ -157,6 +160,7 @@ function ResidentSeatPanel({
   docs,
   reportDocId,
   actionDocId,
+  traceDocId,
   activeDoc,
   onAcceptTurn,
   onDiscussFinding,
@@ -206,6 +210,7 @@ function ResidentSeatPanel({
           <div className="archive-shortcuts">
             {reportDocId && <button type="button" onClick={() => onOpenDoc(reportDocId)}>打开报告</button>}
             {actionDocId && <button type="button" onClick={() => onOpenDoc(actionDocId)}>打开行动计划</button>}
+            {traceDocId && <button type="button" onClick={() => onOpenDoc(traceDocId)}>公开思维链路留痕</button>}
           </div>
           {activeDoc && (
             <article className="seat-card archive-preview">

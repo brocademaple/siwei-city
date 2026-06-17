@@ -22,7 +22,6 @@ import type { ArchiveDoc, BuildingSceneId, DiscussionMode, IdeaNode, ResidentId,
 const GUIDE_STORAGE_KEY = 'siwei-city-guide-complete';
 const APP_STATE_KEY = 'siwei-city-session-v2';
 const CITY_HISTORY_KEY = 'siwei-city-history-v1';
-const pagesBasePath = import.meta.env.BASE_URL.startsWith('/siwei-city') ? '/siwei-city' : '';
 
 const initialLedger: UsageLedger = {
   engine: '本地模板',
@@ -484,10 +483,6 @@ function App() {
 
   return (
     <div className={[scribeCollapsed ? 'app-shell scribe-collapsed' : 'app-shell', sceneView === 'city' ? 'home-shell' : ''].join(' ')}>
-      <nav className="version-return-nav" aria-label="版本展厅导航">
-        <a href={`${pagesBasePath}/`}>版本展厅</a>
-        <a href={`${pagesBasePath}/v1/`}>1.0 回顾</a>
-      </nav>
       <IdeaPanel
         topic={currentTopic}
         mode={mode}
@@ -573,7 +568,7 @@ function App() {
             onPreviewTurn={previewResidentContribution}
             onFocusFinding={focusFinding}
             onDiscussFinding={discussFinding}
-            onOpenDoc={setActiveDocId}
+            onOpenDoc={openArchiveDoc}
             onCloseDoc={() => setActiveDocId(null)}
             onSaveCity={saveCurrentCity}
             onLoadCity={loadSavedCity}

@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const root = process.cwd();
@@ -9,6 +9,7 @@ const githubBase = '/siwei-city';
 
 const assets = {
   pagesHomeHero: 'pages-home-hero.webp',
+  pagesHomeVideo: 'pages-home-hero-scroll.mp4',
   v1Hero: 'hero-city-panorama.png',
   v2Hero: 'city-world-panorama.png',
   v2HeroWebp: 'city-world-panorama.webp',
@@ -28,6 +29,9 @@ const assets = {
   archive: 'district-archive.png',
 };
 
+const pagesHomeVideoSource = 'src/assets/art/videos/pages-home-hero-scroll.mp4';
+const hasPagesHomeVideo = existsSync(join(root, pagesHomeVideoSource));
+
 rmSync(distDir, { recursive: true, force: true });
 mkdirSync(assetDir, { recursive: true });
 
@@ -37,6 +41,7 @@ execFileSync('node', ['scripts/build-pages-hero.mjs'], {
 });
 
 copyAsset('src/assets/art/optimized/pages-home-hero.webp', assets.pagesHomeHero);
+copyOptionalAsset(pagesHomeVideoSource, assets.pagesHomeVideo);
 copyAsset('src/assets/art/hero-city-panorama.png', assets.v1Hero);
 copyAsset('src/assets/art/scenes/city-world-panorama.png', assets.v2Hero);
 copyAsset('src/assets/art/optimized/scenes/city-world-panorama.webp', assets.v2HeroWebp);
@@ -65,6 +70,12 @@ writeHtml('v1/index.html', renderV1Page());
 
 function copyAsset(source, targetName) {
   copyFileSync(join(root, source), join(assetDir, targetName));
+}
+
+function copyOptionalAsset(source, targetName) {
+  const sourcePath = join(root, source);
+  if (!existsSync(sourcePath)) return;
+  copyFileSync(sourcePath, join(assetDir, targetName));
 }
 
 function writeHtml(relativePath, html) {
@@ -96,92 +107,159 @@ function pageShell({ title, description, body }) {
 
 function renderDefaultV2Page() {
   return pageShell({
-    title: '思维城邦 2.0：美术资产与设计思路',
-    description: '思维城邦 Siwei City 2.0 GitHub Pages 展示页：展示新的城邦场景、居民角色、美术素材和产品设计思路。',
+    title: '思维城邦 2.0：城邦 Wiki 与世界观导览',
+    description: '思维城邦 Siwei City 2.0 GitHub Pages 展示页：用项目 Wiki 的方式介绍城邦世界观、居民、建筑和行动规则。',
     body: `
       <main class="page-shell v2-showcase">
-        <nav class="top-nav">
-          <strong>思维城邦 2.0</strong>
-        </nav>
+        <section class="hero-scroll-stage" data-hero-scroll-stage>
+          <div class="hero-pin">
+            <nav class="top-nav hero-nav">
+              <strong>思维城邦 2.0</strong>
+            </nav>
 
-        <section class="hero site-hero">
-          <figure class="hero-backdrop">
-            <img src="${assetPath(assets.pagesHomeHero)}" alt="思维城邦 2.0 场景与居民群像主视觉" />
-          </figure>
-          <div class="hero-copy">
-            <span class="eyebrow">当前主版本</span>
-            <h1>思维城邦 2.0</h1>
-            <p>把模糊议题推进到议会讨论、采纳入城、巡城诊断和卷轴归档。</p>
-            <div class="hero-actions">
-              <a class="primary" href="${githubBase}/v2/">进入 2.0 应用</a>
-              <a class="secondary" href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/art-direction.md">阅读美术说明</a>
+            <section class="hero site-hero" aria-label="思维城邦 2.0 首页主视觉">
+              <figure class="hero-backdrop">
+                <img class="hero-poster" src="${assetPath(assets.pagesHomeHero)}" alt="思维城邦 2.0 场景与居民群像主视觉" />
+                <video class="hero-video" data-scroll-video muted playsinline preload="metadata" poster="${assetPath(assets.pagesHomeHero)}" aria-hidden="true">
+                  ${hasPagesHomeVideo ? `<source src="${assetPath(assets.pagesHomeVideo)}" type="video/mp4" />` : ''}
+                </video>
+              </figure>
+              <div class="hero-copy">
+                <span class="eyebrow">当前主版本</span>
+                <h1>思维城邦 2.0</h1>
+                <p>把模糊议题推进到议会讨论、采纳入城、巡城诊断和卷轴归档。</p>
+                <div class="hero-actions">
+                  <a class="primary" href="${githubBase}/v2/">进入 2.0 应用</a>
+                  <a class="secondary" href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/art-direction.md">阅读美术说明</a>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="scroll-divider" aria-hidden="true">
+          <i></i>
+          <i></i>
+          <i></i>
+        </section>
+
+        <section class="wiki-panel scroll-section">
+          <div class="section-inner">
+            <h2>城邦 Wiki：入会前的世界观</h2>
+            <p>在进入议会机制之前，先用档案页交代这座城如何运转：议题从城门入港，居民在圆桌争辩，行动远航后带回证据。</p>
+            <div class="wiki-layout">
+              <aside class="wiki-nav" aria-label="城邦 Wiki 目录">
+                <a href="#wiki-world">世界概览</a>
+                <a href="#wiki-buildings">建筑制度</a>
+                <a href="#wiki-residents">居民席位</a>
+                <a href="#wiki-voyage">行动远航</a>
+              </aside>
+              <div class="wiki-scroll">
+                <article class="wiki-hero-card" id="wiki-world">
+                  <img src="${assetPath(assets.v2HeroWebp)}" alt="思维城邦沿海世界地图" />
+                  <div>
+                    <span class="wiki-kicker">世界概览</span>
+                    <h3>一座靠海而建的思考城邦</h3>
+                    <p>城邦用空间隐喻组织一次复杂议题：问题入城、观点上桌、行动出航、记录归档。读者先理解城市制度，再看议会如何讨论。</p>
+                  </div>
+                </article>
+                <div class="wiki-card-grid">
+                  <article class="wiki-entry" id="wiki-buildings">
+                    <span class="wiki-kicker">建筑制度</span>
+                    <h3>8 个首版建筑</h3>
+                    <p>冲突议会负责讨论，大图书馆保管卷轴，行动码头承接实验，巡城塔诊断结构缺口。其他建筑只在闭环中承担明确职责。</p>
+                    <dl class="wiki-meta">
+                      <div><dt>核心</dt><dd>冲突议会</dd></div>
+                      <div><dt>记忆</dt><dd>大图书馆</dd></div>
+                      <div><dt>回流</dt><dd>行动码头</dd></div>
+                    </dl>
+                  </article>
+                  <article class="wiki-entry" id="wiki-residents">
+                    <span class="wiki-kicker">居民席位</span>
+                    <h3>人格化的 agent prompt</h3>
+                    <p>居民不是装饰角色。证据制图师、边界怀疑者、现场民族志员和推进执行官分别代表证据、反例、场景和行动。</p>
+                    <ul class="wiki-list">
+                      <li>巡城官只指出结构缺口</li>
+                      <li>卷轴官把本轮讨论整理成文档</li>
+                    </ul>
+                  </article>
+                  <article class="wiki-entry" id="wiki-voyage">
+                    <span class="wiki-kicker">行动远航</span>
+                    <h3>带证据回城</h3>
+                    <p>行动从码头出航，在真实世界执行，再带回阶段性结果。成功经验进入图书馆，失败或过期判断进入废案馆。</p>
+                    <a class="text-link" href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/siwei-city-worldbuilding.md">阅读完整设定</a>
+                  </article>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <section class="design-panel">
-          <h2>2.0 的页面逻辑</h2>
-          <p>首页只承担展示和进入当前版本的职责。真正的产品体验从世界地图进入冲突议会，再回到行动和归档。</p>
-          <div class="path-ribbon">
-            <span>世界地图</span>
-            <span>冲突议会</span>
-            <span>居民圆桌</span>
-            <span>巡城诊断</span>
-            <span>行动码头</span>
-            <span>大图书馆</span>
-          </div>
-        </section>
-
-        <section class="scene-board">
-          <figure class="scene-feature">
-            <img src="${assetPath(assets.councilWebp)}" alt="冲突议会场景" />
-            <figcaption>
-              <strong>冲突议会</strong>
-              <span>把反驳、证据、行动和采纳集中到主舞台，降低首次使用的路径压力。</span>
-            </figcaption>
-          </figure>
-          <div class="scene-stack">
-            <figure>
-              <img src="${assetPath(assets.libraryWebp)}" alt="大图书馆归档场景" />
-              <figcaption>大图书馆承接报告、链路留痕和历史城邦。</figcaption>
+        <section class="archive-board scroll-section" aria-label="城邦档案目录">
+          <div class="archive-layout">
+            <figure class="archive-image">
+              <img src="${assetPath(assets.libraryWebp)}" alt="大图书馆中的城邦档案目录" />
             </figure>
-            <figure>
-              <img src="${assetPath(assets.actionHarborWebp)}" alt="行动码头场景" />
-              <figcaption>行动码头把讨论结果推向实验和回流。</figcaption>
-            </figure>
+            <div class="archive-columns">
+              <article>
+                <span class="wiki-kicker">建筑页</span>
+                <h3>建筑是工作流节点</h3>
+                <p>每座建筑都回答一个问题：用户点击后 5 秒内能做什么，它和议会、图书馆、码头、巡城塔是什么关系。</p>
+              </article>
+              <article>
+                <span class="wiki-kicker">人物页</span>
+                <h3>居民有席位和职责</h3>
+                <p>读者先知道谁会发言、谁负责质疑、谁压缩行动，再进入下一屏的议会讨论逻辑。</p>
+              </article>
+              <article>
+                <span class="wiki-kicker">规则页</span>
+                <h3>采纳后才会入城</h3>
+                <p>居民可以提出观点，用户决定是否采纳。只有被采纳的观点会成为城邦沉淀，并进入巡城、行动和归档。</p>
+              </article>
+              <article>
+                <span class="wiki-kicker">远航页</span>
+                <h3>行动不是待办清单</h3>
+                <p>行动被描述成一次远航：出航、航行、返航、归档。这个规则让结果回流成为世界观的一部分。</p>
+              </article>
+            </div>
           </div>
         </section>
 
-        <section class="asset-board">
-          <h2>新的美术素材</h2>
-          <p>2.0 新增场景 panorama 和居民角色，让产品从地图工具升级为有舞台、有席位、有职责分工的思考世界。</p>
-          <div class="asset-grid character-grid">
-            <figure><img src="${assetPath(assets.researcherWebp)}" alt="研究者居民角色" /><figcaption>研究者</figcaption></figure>
-            <figure><img src="${assetPath(assets.skepticWebp)}" alt="怀疑者居民角色" /><figcaption>怀疑者</figcaption></figure>
-            <figure><img src="${assetPath(assets.executorWebp)}" alt="执行者居民角色" /><figcaption>执行者</figcaption></figure>
-            <figure><img src="${assetPath(assets.inspectorWebp)}" alt="巡城官角色" /><figcaption>巡城官</figcaption></figure>
+        <section class="asset-board scroll-section">
+          <div class="section-inner">
+            <h2>居民图鉴</h2>
+            <p>角色图像对应议会席位。读者在看见发言机制之前，先知道每位居民代表哪一种思考职责。</p>
+            <div class="asset-grid character-grid">
+              <figure><img src="${assetPath(assets.researcherWebp)}" alt="研究者居民角色" /><figcaption>研究者</figcaption></figure>
+              <figure><img src="${assetPath(assets.skepticWebp)}" alt="怀疑者居民角色" /><figcaption>怀疑者</figcaption></figure>
+              <figure><img src="${assetPath(assets.executorWebp)}" alt="执行者居民角色" /><figcaption>执行者</figcaption></figure>
+              <figure><img src="${assetPath(assets.inspectorWebp)}" alt="巡城官角色" /><figcaption>巡城官</figcaption></figure>
+            </div>
           </div>
         </section>
 
-        <section class="worldview">
-          <h2>设计思路</h2>
-          <div class="principle-grid">
-            <article>
-              <h3>世界地图先行</h3>
-              <p>2.0 首页展示 8 个明确建筑入口，让用户先理解城邦职责，再进入具体讨论。</p>
-            </article>
-            <article>
-              <h3>议会成为主舞台</h3>
-              <p>居民发言、采纳、修缮令和卷轴报告集中发生，避免多个面板同时争夺注意力。</p>
-            </article>
-            <article>
-              <h3>素材服务机制</h3>
-              <p>建筑、场景和角色不是装饰，它们分别对应议题路径、工作流节点和 agent 职责。</p>
-            </article>
+        <section class="worldview scroll-section">
+          <div class="section-inner">
+            <h2>下一屏进入议会机制</h2>
+            <div class="principle-grid">
+              <article>
+                <h3>先介绍世界</h3>
+                <p>第一页负责建立城邦、人物和建筑语义，让读者知道自己即将进入什么制度。</p>
+              </article>
+              <article>
+                <h3>再展开议会</h3>
+                <p>议会讨论逻辑放到下一屏：居民怎样发言、观点怎样被采纳、修缮令怎样触发。</p>
+              </article>
+              <article>
+                <h3>最后回到闭环</h3>
+                <p>采纳后的观点继续流向巡城诊断、行动码头和大图书馆，形成可回看的思考路径。</p>
+              </article>
+            </div>
+            <a class="text-link" href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/version-history.md">阅读版本历史</a>
           </div>
-          <a class="text-link" href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/version-history.md">阅读版本历史</a>
         </section>
       </main>
+      <script>${scrollVideoScript()}</script>
     `,
   });
 }
@@ -255,6 +333,78 @@ function renderV1Page() {
   });
 }
 
+function scrollVideoScript() {
+  return `
+    (() => {
+      const stage = document.querySelector('[data-hero-scroll-stage]');
+      const video = document.querySelector('[data-scroll-video]');
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (!stage || !video || !video.querySelector('source') || reduce.matches) return;
+
+      let duration = 0;
+      let frame = 0;
+      let active = false;
+      const clamp = (value) => Math.min(1, Math.max(0, value));
+
+      const update = () => {
+        frame = 0;
+        if (!active || !duration) return;
+        const rect = stage.getBoundingClientRect();
+        const travel = Math.max(stage.offsetHeight - window.innerHeight, 1);
+        const progress = clamp(-rect.top / travel);
+        const nextTime = progress * duration;
+        if (Math.abs(video.currentTime - nextTime) > 0.035) {
+          video.currentTime = nextTime;
+        }
+        frame = window.requestAnimationFrame(update);
+      };
+
+      const schedule = () => {
+        if (!active || frame) return;
+        frame = window.requestAnimationFrame(update);
+      };
+
+      const start = () => {
+        if (active) return;
+        active = true;
+        schedule();
+      };
+
+      const stop = () => {
+        active = false;
+        if (!frame) return;
+        window.cancelAnimationFrame(frame);
+        frame = 0;
+      };
+
+      const ready = () => {
+        duration = Number.isFinite(video.duration) ? video.duration : 0;
+        video.pause();
+        video.parentElement?.classList.add('video-ready');
+        if ('IntersectionObserver' in window) {
+          const observer = new IntersectionObserver(([entry]) => {
+            if (entry?.isIntersecting) {
+              start();
+            } else {
+              stop();
+            }
+          });
+          observer.observe(stage);
+        } else {
+          start();
+        }
+      };
+
+      video.addEventListener('loadedmetadata', ready, { once: true });
+      video.addEventListener('error', () => {
+        duration = 0;
+        video.parentElement?.classList.remove('video-ready');
+      });
+      window.addEventListener('resize', schedule);
+    })();
+  `;
+}
+
 function sharedCss() {
   return `
     :root {
@@ -269,6 +419,10 @@ function sharedCss() {
       --ink: #2f2319;
       --muted: #6d5843;
       --shadow: 0 24px 64px rgba(23, 15, 8, 0.32);
+    }
+    html {
+      scroll-behavior: smooth;
+      scroll-snap-type: y proximity;
     }
     * { box-sizing: border-box; }
     body {
@@ -285,6 +439,11 @@ function sharedCss() {
       width: min(1320px, calc(100% - 32px));
       margin: 0 auto;
       padding: 28px 0 42px;
+    }
+    .v2-showcase {
+      display: block;
+      width: 100%;
+      padding: 0 0 56px;
     }
     .top-nav {
       display: flex;
@@ -311,7 +470,9 @@ function sharedCss() {
     }
     .hero,
     .design-panel,
+    .wiki-panel,
     .scene-board,
+    .archive-board,
     .version-card,
     .worldview,
     .timeline article,
@@ -336,7 +497,10 @@ function sharedCss() {
       position: relative;
       isolation: isolate;
       grid-template-columns: 1fr;
-      min-height: min(760px, calc(100dvh - 92px));
+      width: min(1720px, calc(100vw - 48px));
+      min-height: min(900px, calc(100dvh - 118px));
+      margin: 0 auto;
+      border-radius: 24px;
       background: #211812;
     }
     .site-hero::after {
@@ -355,11 +519,43 @@ function sharedCss() {
       margin: 0;
       background: #211812;
     }
-    .hero-backdrop img {
+    .hero-poster,
+    .hero-video {
+      position: absolute;
+      inset: 0;
       display: block;
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+    .hero-video {
+      opacity: 0;
+      transition: opacity 360ms ease;
+    }
+    .hero-backdrop.video-ready .hero-video {
+      opacity: 1;
+    }
+    .hero-backdrop.video-ready .hero-poster {
+      opacity: 0;
+    }
+    .hero-scroll-stage {
+      min-height: 220dvh;
+      background:
+        radial-gradient(circle at 50% 8%, rgba(226, 194, 126, 0.24), transparent 34rem),
+        linear-gradient(180deg, #251a12 0%, #160f0a 72%, #211812 100%);
+      scroll-snap-align: start;
+    }
+    .hero-pin {
+      position: sticky;
+      top: 0;
+      display: grid;
+      align-content: center;
+      min-height: 100dvh;
+      padding: 28px 0 42px;
+    }
+    .hero-nav {
+      width: min(1720px, calc(100vw - 48px));
+      margin: 0 auto 18px;
     }
     .hero-copy {
       display: grid;
@@ -370,7 +566,7 @@ function sharedCss() {
     .site-hero .hero-copy {
       width: min(620px, 100%);
       min-height: inherit;
-      padding: clamp(28px, 6vw, 80px);
+      padding: clamp(34px, 7vw, 96px);
     }
     .site-hero .eyebrow {
       color: #d6e5ef;
@@ -455,7 +651,9 @@ function sharedCss() {
     }
     .hero-art img,
     .version-card img,
-    .scene-board img {
+    .scene-board img,
+    .wiki-hero-card img,
+    .archive-image img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -465,6 +663,160 @@ function sharedCss() {
       display: grid;
       gap: 16px;
       padding: clamp(20px, 4vw, 38px);
+    }
+    .wiki-panel {
+      display: grid;
+      gap: 18px;
+      padding: clamp(20px, 4vw, 42px);
+    }
+    .wiki-panel > .section-inner > p {
+      max-width: 760px;
+    }
+    .wiki-layout {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .wiki-nav {
+      position: sticky;
+      top: 24px;
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid rgba(40, 91, 130, 0.2);
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(255, 253, 242, 0.7), rgba(232, 211, 166, 0.58));
+    }
+    .wiki-nav a {
+      padding: 11px 12px;
+      border-radius: 9px;
+      color: #3d2b1d;
+      font-size: 14px;
+      font-weight: 900;
+      text-decoration: none;
+    }
+    .wiki-nav a:hover,
+    .wiki-nav a:focus-visible {
+      outline: none;
+      background: rgba(40, 91, 130, 0.13);
+      color: var(--lapis);
+    }
+    .wiki-scroll {
+      display: grid;
+      gap: 14px;
+    }
+    .wiki-hero-card {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.95fr) 1fr;
+      min-height: 300px;
+      margin: 0;
+      overflow: hidden;
+      border: 1px solid rgba(114, 76, 35, 0.22);
+      border-radius: 12px;
+      background: rgba(255, 253, 242, 0.54);
+    }
+    .wiki-hero-card div {
+      display: grid;
+      align-content: center;
+      gap: 10px;
+      padding: clamp(20px, 4vw, 34px);
+    }
+    .wiki-kicker {
+      color: var(--lapis);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+    .wiki-hero-card h3,
+    .wiki-entry h3,
+    .archive-columns h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(21px, 2vw, 28px);
+      line-height: 1.18;
+    }
+    .wiki-hero-card p,
+    .wiki-entry p,
+    .archive-columns p {
+      font-size: 15px;
+      line-height: 1.68;
+    }
+    .wiki-card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .wiki-entry {
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      min-height: 260px;
+      padding: 18px;
+      border: 1px solid rgba(40, 91, 130, 0.18);
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(255, 253, 242, 0.66), rgba(233, 214, 174, 0.5)),
+        repeating-linear-gradient(0deg, rgba(86, 118, 71, 0.04), rgba(86, 118, 71, 0.04) 1px, transparent 1px, transparent 24px);
+    }
+    .wiki-meta {
+      display: grid;
+      gap: 8px;
+      margin: 2px 0 0;
+    }
+    .wiki-meta div {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+    .wiki-meta dt,
+    .wiki-meta dd {
+      margin: 0;
+      color: #57412b;
+      font-size: 13px;
+      font-weight: 900;
+    }
+    .wiki-meta dt {
+      color: var(--lapis);
+    }
+    .wiki-list {
+      display: grid;
+      gap: 7px;
+      margin: 0;
+      padding-left: 18px;
+      color: #57412b;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.55;
+    }
+    .scroll-divider {
+      display: flex;
+      justify-content: center;
+      gap: 13px;
+      min-height: 24dvh;
+      padding: 9dvh 0 7dvh;
+      background: linear-gradient(180deg, #160f0a, #211812);
+      scroll-snap-align: start;
+    }
+    .scroll-divider i {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 245, 221, 0.56);
+      box-shadow: 0 0 28px rgba(255, 221, 148, 0.32);
+    }
+    .scroll-section {
+      width: min(1320px, calc(100% - 32px));
+      min-height: 86dvh;
+      margin: 0 auto 28px;
+      align-content: center;
+      scroll-snap-align: start;
+    }
+    .scroll-section .section-inner {
+      display: grid;
+      gap: 16px;
     }
     .path-ribbon {
       display: grid;
@@ -522,6 +874,35 @@ function sharedCss() {
     .scene-board figcaption strong {
       color: var(--ink);
       font-size: 18px;
+    }
+    .archive-board {
+      padding: 14px;
+    }
+    .archive-layout {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 14px;
+      min-height: 620px;
+    }
+    .archive-image {
+      margin: 0;
+      overflow: hidden;
+      border-radius: 12px;
+      background: rgba(255, 253, 242, 0.54);
+    }
+    .archive-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .archive-columns article {
+      display: grid;
+      align-content: start;
+      gap: 9px;
+      padding: 18px;
+      border: 1px solid rgba(114, 76, 35, 0.2);
+      border-radius: 12px;
+      background: rgba(255, 253, 242, 0.56);
     }
     .version-grid {
       display: grid;
@@ -621,17 +1002,58 @@ function sharedCss() {
       .asset-grid,
       .path-ribbon,
       .scene-board,
-      .principle-grid {
+      .principle-grid,
+      .wiki-layout,
+      .wiki-hero-card,
+      .wiki-card-grid,
+      .archive-layout,
+      .archive-columns {
         grid-template-columns: 1fr;
       }
       .hero {
         min-height: auto;
       }
       .site-hero {
+        width: calc(100vw - 32px);
         min-height: 720px;
+      }
+      .hero-scroll-stage {
+        min-height: 185dvh;
+      }
+      .hero-pin {
+        padding: 22px 0 32px;
+      }
+      .hero-nav {
+        width: calc(100vw - 32px);
+      }
+      .scroll-section {
+        min-height: 76dvh;
+      }
+      .wiki-nav {
+        position: static;
+        grid-template-columns: 1fr 1fr;
+      }
+      .wiki-hero-card {
+        min-height: 0;
+      }
+      .wiki-hero-card img,
+      .archive-image img {
+        min-height: 230px;
+      }
+      .archive-layout {
+        min-height: 0;
       }
       .hero-art {
         min-height: 280px;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+        scroll-snap-type: none;
+      }
+      .hero-video {
+        display: none;
       }
     }
   `;

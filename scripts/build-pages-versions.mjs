@@ -107,8 +107,8 @@ function pageShell({ title, description, body }) {
 
 function renderDefaultV2Page() {
   return pageShell({
-    title: '思维城邦 2.0：美术资产与设计思路',
-    description: '思维城邦 Siwei City 2.0 GitHub Pages 展示页：展示新的城邦场景、居民角色、美术素材和产品设计思路。',
+    title: '思维城邦 2.0：城邦 Wiki 与世界观导览',
+    description: '思维城邦 Siwei City 2.0 GitHub Pages 展示页：用项目 Wiki 的方式介绍城邦世界观、居民、建筑和行动规则。',
     body: `
       <main class="page-shell v2-showcase">
         <section class="hero-scroll-stage" data-hero-scroll-stage>
@@ -143,42 +143,128 @@ function renderDefaultV2Page() {
           <i></i>
         </section>
 
-        <section class="design-panel scroll-section">
+        <section class="wiki-panel scroll-section" data-wiki-tabs>
           <div class="section-inner">
-            <h2>2.0 的页面逻辑</h2>
-            <p>首页只承担展示和进入当前版本的职责。真正的产品体验从世界地图进入冲突议会，再回到行动和归档。</p>
-            <div class="path-ribbon">
-              <span>世界地图</span>
-              <span>冲突议会</span>
-              <span>居民圆桌</span>
-              <span>巡城诊断</span>
-              <span>行动码头</span>
-              <span>大图书馆</span>
+            <h2>城邦 Wiki：入会前的世界观</h2>
+            <p>在进入议会机制之前，先用档案页交代这座城如何运转：议题从城门入港，居民在圆桌争辩，行动远航后带回证据。</p>
+            <div class="wiki-layout">
+              <div class="wiki-nav" role="tablist" aria-label="城邦 Wiki 目录">
+                <button class="active" type="button" role="tab" aria-selected="true" aria-controls="wiki-world" data-wiki-tab="world">世界概览</button>
+                <button type="button" role="tab" aria-selected="false" aria-controls="wiki-buildings" data-wiki-tab="buildings">建筑制度</button>
+                <button type="button" role="tab" aria-selected="false" aria-controls="wiki-residents" data-wiki-tab="residents">居民席位</button>
+                <button type="button" role="tab" aria-selected="false" aria-controls="wiki-voyage" data-wiki-tab="voyage">行动远航</button>
+              </div>
+              <div class="wiki-scroll">
+                <article class="wiki-panel-content active" id="wiki-world" role="tabpanel" data-wiki-panel="world">
+                  <div class="wiki-hero-card">
+                    <img src="${assetPath(assets.v2HeroWebp)}" alt="思维城邦沿海世界地图" />
+                    <div>
+                      <span class="wiki-kicker">世界概览</span>
+                      <h3>一座靠海而建的思考城邦</h3>
+                      <p>城邦用空间隐喻组织一次复杂议题：问题入城、观点上桌、行动出航、记录归档。读者先理解城市制度，再看议会如何讨论。</p>
+                    </div>
+                  </div>
+                  <div class="wiki-card-grid">
+                    <article class="wiki-entry">
+                      <span class="wiki-kicker">议题入城</span>
+                      <h3>问题先获得位置</h3>
+                      <p>模糊议题先被放到城邦地图里，读者能看到它即将进入哪条讨论路径。</p>
+                    </article>
+                    <article class="wiki-entry">
+                      <span class="wiki-kicker">观点上桌</span>
+                      <h3>争辩发生在圆桌</h3>
+                      <p>居民按职责提出证据、反例、场景和行动建议，用户决定哪些观点可以入城。</p>
+                    </article>
+                    <article class="wiki-entry">
+                      <span class="wiki-kicker">记录归档</span>
+                      <h3>每轮都留下卷轴</h3>
+                      <p>被采纳的观点会进入巡城诊断、行动远航和图书馆归档，成为可回看的路径。</p>
+                    </article>
+                  </div>
+                </article>
+                <article class="wiki-panel-content" id="wiki-buildings" role="tabpanel" data-wiki-panel="buildings" hidden>
+                  <div class="wiki-hero-card">
+                    <img src="${assetPath(assets.libraryWebp)}" alt="大图书馆中的建筑制度档案" />
+                    <div>
+                      <span class="wiki-kicker">建筑制度</span>
+                      <h3>8 个首版建筑</h3>
+                      <p>每座建筑都对应一次议题闭环中的固定职责。它们不是装饰点位，而是用户理解产品流程的城市语法。</p>
+                    </div>
+                  </div>
+                  <div class="wiki-card-grid">
+                    <article class="wiki-entry">
+                      <span class="wiki-kicker">核心</span>
+                      <h3>冲突议会</h3>
+                      <p>负责圆桌讨论、观点碰撞和采纳判断，是正式产品体验的主舞台。</p>
+                    </article>
+                    <article class="wiki-entry">
+                      <span class="wiki-kicker">记忆</span>
+                      <h3>大图书馆</h3>
+                      <p>保管卷轴报告、历史城邦、行动计划和本轮讨论记录。</p>
+                    </article>
+                    <article class="wiki-entry">
+                      <span class="wiki-kicker">回流</span>
+                      <h3>行动码头</h3>
+                      <p>承接最小行动，把讨论结果送入真实世界，再等待证据返航。</p>
+                    </article>
+                  </div>
+                </article>
+                <article class="wiki-panel-content" id="wiki-residents" role="tabpanel" data-wiki-panel="residents" hidden>
+                  <div class="wiki-hero-card">
+                    <img src="${assetPath(assets.councilWebp)}" alt="冲突议会中的居民席位" />
+                    <div>
+                      <span class="wiki-kicker">居民席位</span>
+                      <h3>人格化的 agent prompt</h3>
+                      <p>居民不是装饰角色。证据制图师、边界怀疑者、现场民族志员和推进执行官分别代表证据、反例、场景和行动。</p>
+                    </div>
+                  </div>
+                  <div class="wiki-card-grid">
+                    <article class="wiki-entry">
+                      <span class="wiki-kicker">证据</span>
+                      <h3>证据制图师</h3>
+                      <p>区分轶事、案例、数据和指标，补齐议题的证据地形。</p>
+                    </article>
+                    <article class="wiki-entry">
+                      <span class="wiki-kicker">反例</span>
+                      <h3>边界怀疑者</h3>
+                      <p>寻找失败边界、沉默相关方和可能推翻当前判断的反例。</p>
+                    </article>
+                    <article class="wiki-entry">
+                      <span class="wiki-kicker">行动</span>
+                      <h3>推进执行官</h3>
+                      <p>把被采纳的观点压缩成最小可逆行动和下一次回看的指标。</p>
+                    </article>
+                  </div>
+                </article>
+                <article class="wiki-panel-content" id="wiki-voyage" role="tabpanel" data-wiki-panel="voyage" hidden>
+                  <div class="wiki-hero-card">
+                    <img src="${assetPath(assets.actionHarborWebp)}" alt="行动码头远航场景" />
+                    <div>
+                      <span class="wiki-kicker">行动远航</span>
+                      <h3>带证据回城</h3>
+                      <p>行动从码头出航，在真实世界执行，再带回阶段性结果。成功经验进入图书馆，失败或过期判断进入废案馆。</p>
+                    </div>
+                  </div>
+                  <div class="wiki-card-grid">
+                    <article class="wiki-entry">
+                      <span class="wiki-kicker">出航</span>
+                      <h3>形成最小行动</h3>
+                      <p>议会先明确要验证什么、谁来做、何时回看，以及最小成功证据。</p>
+                    </article>
+                    <article class="wiki-entry">
+                      <span class="wiki-kicker">返航</span>
+                      <h3>带回阶段结果</h3>
+                      <p>行动不是待办勾选，而是把真实世界里的证据、失败原因或新问题带回城里。</p>
+                    </article>
+                    <article class="wiki-entry">
+                      <span class="wiki-kicker">归档</span>
+                      <h3>进入图书馆或废案馆</h3>
+                      <p>有效经验沉淀为卷轴；失败假设也会被保存，避免下次重复走同一条路。</p>
+                    </article>
+                  </div>
+                </article>
+              </div>
             </div>
-          </div>
-        </section>
-
-        <section class="scene-board scroll-section">
-          <figure class="scene-feature">
-            <img src="${assetPath(assets.councilWebp)}" alt="冲突议会场景" />
-            <figcaption>
-              <strong>场景素材</strong>
-              议会大厅成为 2.0 的主舞台，居民发言、观点采纳和修缮令都在这里发生。
-            </figcaption>
-          </figure>
-          <div class="scene-stack">
-            <figure>
-              <img src="${assetPath(assets.harborWebp)}" alt="行动码头场景" />
-              <figcaption><strong>行动码头</strong>把议会结论送到真实行动，再让结果回流。</figcaption>
-            </figure>
-            <figure>
-              <img src="${assetPath(assets.libraryWebp)}" alt="大图书馆场景" />
-              <figcaption><strong>大图书馆</strong>负责卷轴报告、历史沉淀和版本回看。</figcaption>
-            </figure>
-            <figure>
-              <img src="${assetPath(assets.gardenWebp)}" alt="居民圆桌花园场景" />
-              <figcaption><strong>居民圆桌</strong>让不同职责的 agent 有可辨识的席位。</figcaption>
-            </figure>
           </div>
         </section>
 
@@ -216,7 +302,7 @@ function renderDefaultV2Page() {
           </div>
         </section>
       </main>
-      <script>${scrollVideoScript()}</script>
+      <script>${scrollVideoScript()}${wikiTabsScript()}</script>
     `,
   });
 }
@@ -358,6 +444,32 @@ function scrollVideoScript() {
         video.parentElement?.classList.remove('video-ready');
       });
       window.addEventListener('resize', schedule);
+    })();
+  `;
+}
+
+function wikiTabsScript() {
+  return `
+    (() => {
+      const root = document.querySelector('[data-wiki-tabs]');
+      if (!root) return;
+      const tabs = Array.from(root.querySelectorAll('[data-wiki-tab]'));
+      const panels = Array.from(root.querySelectorAll('[data-wiki-panel]'));
+      const activate = (target) => {
+        tabs.forEach((tab) => {
+          const selected = tab.dataset.wikiTab === target;
+          tab.classList.toggle('active', selected);
+          tab.setAttribute('aria-selected', String(selected));
+        });
+        panels.forEach((panel) => {
+          const selected = panel.dataset.wikiPanel === target;
+          panel.classList.toggle('active', selected);
+          panel.hidden = !selected;
+        });
+      };
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => activate(tab.dataset.wikiTab));
+      });
     })();
   `;
 }
@@ -646,23 +758,39 @@ function sharedCss() {
       background:
         linear-gradient(180deg, rgba(255, 253, 242, 0.7), rgba(232, 211, 166, 0.58));
     }
-    .wiki-nav a {
+    .wiki-nav button {
+      appearance: none;
+      border: 0;
       padding: 11px 12px;
       border-radius: 9px;
+      background: transparent;
       color: #3d2b1d;
+      font: inherit;
       font-size: 14px;
       font-weight: 900;
-      text-decoration: none;
+      text-align: left;
+      cursor: pointer;
     }
-    .wiki-nav a:hover,
-    .wiki-nav a:focus-visible {
+    .wiki-nav button:hover,
+    .wiki-nav button:focus-visible,
+    .wiki-nav button.active {
       outline: none;
       background: rgba(40, 91, 130, 0.13);
       color: var(--lapis);
     }
+    .wiki-nav button.active {
+      box-shadow: inset 3px 0 0 rgba(40, 91, 130, 0.45);
+    }
     .wiki-scroll {
       display: grid;
       gap: 14px;
+    }
+    .wiki-panel-content {
+      display: grid;
+      gap: 14px;
+    }
+    .wiki-panel-content[hidden] {
+      display: none;
     }
     .wiki-hero-card {
       display: grid;

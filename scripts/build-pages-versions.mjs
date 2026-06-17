@@ -8,6 +8,7 @@ const assetDir = join(distDir, 'version-assets');
 const githubBase = '/siwei-city';
 
 const assets = {
+  pagesHomeHero: 'pages-home-hero.webp',
   v1Hero: 'hero-city-panorama.png',
   v2Hero: 'city-world-panorama.png',
   v2HeroWebp: 'city-world-panorama.webp',
@@ -30,6 +31,12 @@ const assets = {
 rmSync(distDir, { recursive: true, force: true });
 mkdirSync(assetDir, { recursive: true });
 
+execFileSync('node', ['scripts/build-pages-hero.mjs'], {
+  cwd: root,
+  stdio: 'inherit',
+});
+
+copyAsset('src/assets/art/optimized/pages-home-hero.webp', assets.pagesHomeHero);
 copyAsset('src/assets/art/hero-city-panorama.png', assets.v1Hero);
 copyAsset('src/assets/art/scenes/city-world-panorama.png', assets.v2Hero);
 copyAsset('src/assets/art/optimized/scenes/city-world-panorama.webp', assets.v2HeroWebp);
@@ -97,7 +104,10 @@ function renderDefaultV2Page() {
           <strong>思维城邦 2.0</strong>
         </nav>
 
-        <section class="hero split-hero">
+        <section class="hero site-hero">
+          <figure class="hero-backdrop">
+            <img src="${assetPath(assets.pagesHomeHero)}" alt="思维城邦 2.0 场景与居民群像主视觉" />
+          </figure>
           <div class="hero-copy">
             <span class="eyebrow">当前主版本</span>
             <h1>思维城邦 2.0</h1>
@@ -107,9 +117,6 @@ function renderDefaultV2Page() {
               <a class="secondary" href="https://github.com/brocademaple/siwei-city/blob/main/docs/current/art-direction.md">阅读美术说明</a>
             </div>
           </div>
-          <figure class="hero-art showcase-hero-art">
-            <img src="${assetPath(assets.v2HeroWebp)}" alt="思维城邦 2.0 世界地图主视觉" />
-          </figure>
         </section>
 
         <section class="design-panel">
@@ -275,7 +282,7 @@ function sharedCss() {
     .page-shell {
       display: grid;
       gap: 24px;
-      width: min(1180px, calc(100% - 32px));
+      width: min(1320px, calc(100% - 32px));
       margin: 0 auto;
       padding: 28px 0 42px;
     }
@@ -325,11 +332,60 @@ function sharedCss() {
     .split-hero {
       min-height: 580px;
     }
+    .site-hero {
+      position: relative;
+      isolation: isolate;
+      grid-template-columns: 1fr;
+      min-height: min(760px, calc(100dvh - 92px));
+      background: #211812;
+    }
+    .site-hero::after {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        linear-gradient(90deg, rgba(20, 13, 8, 0.76), rgba(20, 13, 8, 0.28) 42%, rgba(20, 13, 8, 0.18)),
+        linear-gradient(180deg, rgba(20, 13, 8, 0.14), rgba(20, 13, 8, 0.62));
+      content: "";
+    }
+    .hero-backdrop {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      margin: 0;
+      background: #211812;
+    }
+    .hero-backdrop img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
     .hero-copy {
       display: grid;
       align-content: center;
       gap: 16px;
       padding: clamp(24px, 5vw, 58px);
+    }
+    .site-hero .hero-copy {
+      width: min(620px, 100%);
+      min-height: inherit;
+      padding: clamp(28px, 6vw, 80px);
+    }
+    .site-hero .eyebrow {
+      color: #d6e5ef;
+      text-shadow: 0 2px 18px rgba(0, 0, 0, 0.38);
+    }
+    .site-hero h1 {
+      max-width: 8ch;
+      color: #fff5dd;
+      font-size: clamp(52px, 8vw, 104px);
+      text-shadow: 0 14px 42px rgba(0, 0, 0, 0.44);
+    }
+    .site-hero p {
+      max-width: 24rem;
+      color: rgba(255, 248, 225, 0.92);
+      text-shadow: 0 8px 28px rgba(0, 0, 0, 0.42);
     }
     .eyebrow,
     .version-card span,
@@ -386,6 +442,10 @@ function sharedCss() {
       border: 1px solid rgba(119, 83, 45, 0.28);
       background: rgba(255, 253, 242, 0.7);
       color: #5b4025;
+    }
+    .site-hero .secondary {
+      border-color: rgba(255, 245, 221, 0.34);
+      background: rgba(255, 248, 225, 0.82);
     }
     .hero-art {
       position: relative;
@@ -566,6 +626,9 @@ function sharedCss() {
       }
       .hero {
         min-height: auto;
+      }
+      .site-hero {
+        min-height: 720px;
       }
       .hero-art {
         min-height: 280px;

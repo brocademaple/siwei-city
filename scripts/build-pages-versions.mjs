@@ -124,10 +124,14 @@ function renderDefaultV2Page() {
             <section class="hero site-hero" aria-label="思维城邦 2.0 首页主视觉">
               <figure class="hero-backdrop">
                 <img class="hero-poster" src="${assetPath(assets.pagesHomeHero)}" alt="思维城邦 2.0 场景与居民群像主视觉" />
-                <video class="hero-video" data-scroll-video muted playsinline preload="metadata" poster="${assetPath(assets.pagesHomeHero)}" aria-hidden="true">
+                ${
+                  hasPagesHomeVideoWebm || hasPagesHomeVideo
+                    ? `<video class="hero-video" autoplay loop muted playsinline preload="auto" poster="${assetPath(assets.pagesHomeHero)}" aria-hidden="true">
                   ${hasPagesHomeVideoWebm ? `<source src="${assetPath(assets.pagesHomeVideoWebm)}" type="video/webm" />` : ''}
                   ${hasPagesHomeVideo ? `<source src="${assetPath(assets.pagesHomeVideo)}" type="video/mp4" />` : ''}
-                </video>
+                </video>`
+                    : ''
+                }
               </figure>
               <div class="hero-copy">
                 <span class="eyebrow">当前主版本</span>
@@ -307,7 +311,7 @@ function renderDefaultV2Page() {
           </div>
         </section>
       </main>
-      <script>${scrollVideoScript()}${wikiTabsScript()}</script>
+      <script>${wikiTabsScript()}</script>
     `,
   });
 }
@@ -379,78 +383,6 @@ function renderV1Page() {
       </main>
     `,
   });
-}
-
-function scrollVideoScript() {
-  return `
-    (() => {
-      const stage = document.querySelector('[data-hero-scroll-stage]');
-      const video = document.querySelector('[data-scroll-video]');
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-      if (!stage || !video || !video.querySelector('source') || reduce.matches) return;
-
-      let duration = 0;
-      let frame = 0;
-      let active = false;
-      const clamp = (value) => Math.min(1, Math.max(0, value));
-
-      const update = () => {
-        frame = 0;
-        if (!active || !duration) return;
-        const rect = stage.getBoundingClientRect();
-        const travel = Math.max(stage.offsetHeight - window.innerHeight, 1);
-        const progress = clamp(-rect.top / travel);
-        const nextTime = progress * duration;
-        if (Math.abs(video.currentTime - nextTime) > 0.035) {
-          video.currentTime = nextTime;
-        }
-        frame = window.requestAnimationFrame(update);
-      };
-
-      const schedule = () => {
-        if (!active || frame) return;
-        frame = window.requestAnimationFrame(update);
-      };
-
-      const start = () => {
-        if (active) return;
-        active = true;
-        schedule();
-      };
-
-      const stop = () => {
-        active = false;
-        if (!frame) return;
-        window.cancelAnimationFrame(frame);
-        frame = 0;
-      };
-
-      const ready = () => {
-        duration = Number.isFinite(video.duration) ? video.duration : 0;
-        video.pause();
-        video.parentElement?.classList.add('video-ready');
-        if ('IntersectionObserver' in window) {
-          const observer = new IntersectionObserver(([entry]) => {
-            if (entry?.isIntersecting) {
-              start();
-            } else {
-              stop();
-            }
-          });
-          observer.observe(stage);
-        } else {
-          start();
-        }
-      };
-
-      video.addEventListener('loadedmetadata', ready, { once: true });
-      video.addEventListener('error', () => {
-        duration = 0;
-        video.parentElement?.classList.remove('video-ready');
-      });
-      window.addEventListener('resize', schedule);
-    })();
-  `;
 }
 
 function wikiTabsScript() {
@@ -603,17 +535,10 @@ function sharedCss() {
       object-fit: cover;
     }
     .hero-video {
-      opacity: 0;
-      transition: opacity 360ms ease;
-    }
-    .hero-backdrop.video-ready .hero-video {
       opacity: 1;
     }
-    .hero-backdrop.video-ready .hero-poster {
-      opacity: 0;
-    }
     .hero-scroll-stage {
-      min-height: 220dvh;
+      min-height: 100dvh;
       background:
         radial-gradient(circle at 50% 8%, rgba(226, 194, 126, 0.24), transparent 34rem),
         linear-gradient(180deg, #251a12 0%, #160f0a 72%, #211812 100%);
@@ -1108,7 +1033,7 @@ function sharedCss() {
         min-height: 720px;
       }
       .hero-scroll-stage {
-        min-height: 185dvh;
+        min-height: 100dvh;
       }
       .hero-pin {
         padding: 22px 0 32px;

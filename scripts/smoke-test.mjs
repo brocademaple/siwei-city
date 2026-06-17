@@ -10,7 +10,7 @@ const checks = [
   ['src/lib/traceRunDocs.ts', ['latest-two-chain-runs.json', '居民回应', '采纳动作', '巡城结果', '下一步行动']],
   ['src/components/ArchivePanel.tsx', ['公开思维链路留痕', '阅读最近链路', "doc.kind === 'trace'", "setShelf('traces')"]],
   ['src/styles.css', ['.home-shell .service-drawer.open', 'calc(100vw - 24px)', '.trace-entry-card']],
-  ['dist/index.html', ['/siwei-city/v2/', 'pages-home-hero.webp', 'pages-home-hero-scroll.webm', 'pages-home-hero-scroll.mp4', 'data-scroll-video', 'hero-scroll-stage', 'data-wiki-tab', '思维城邦 2.0', '城邦 Wiki', '建筑制度', '居民席位', '行动远航']],
+  ['dist/index.html', ['/siwei-city/v2/', 'pages-home-hero.webp', 'pages-home-hero-scroll.webm', 'pages-home-hero-scroll.mp4', 'autoplay', 'loop', 'preload="auto"', 'hero-scroll-stage', 'data-wiki-tab', '思维城邦 2.0', '城邦 Wiki', '建筑制度', '居民席位', '行动远航']],
   ['dist/v1/index.html', ['/siwei-city/v2/', 'Version 1.0 Iteration Log', '美术资产与编排思路']],
   ['dist/v2/index.html', ['/siwei-city/v2/assets/']],
 ];

@@ -42,6 +42,33 @@ import textureSeal from './art/textures/texture-seal.png';
 import textureStone from './art/textures/texture-stone.png';
 import textureVellum from './art/textures/texture-vellum.png';
 
+import homeArrowCouncil from './art/home-onboarding/arrow-council.png';
+import homeBuildingHalo from './art/home-onboarding/building-halo.png';
+import homeCoachBubble from './art/home-onboarding/coach-bubble.png';
+import homeCoachCopy from './art/home-onboarding/coach-copy.png';
+import homeLabelCurrentTopic from './art/home-onboarding/label-current-topic.png';
+import homeLabelGraveyard from './art/home-onboarding/label-graveyard.png';
+import homeLabelLibrary from './art/home-onboarding/label-library.png';
+import homeLabelLighthouse from './art/home-onboarding/label-lighthouse.png';
+import homeLabelProgress from './art/home-onboarding/label-progress.png';
+import homeLabelRecommended from './art/home-onboarding/label-recommended.png';
+import homeLabelService from './art/home-onboarding/label-service.png';
+import homeMarkerCard from './art/home-onboarding/marker-card.webp';
+import homeMarkerCardPrimary from './art/home-onboarding/marker-card-primary.webp';
+import homeMarkerLabelActionHarbor from './art/home-onboarding/marker-labels/marker-label-action-harbor.png';
+import homeMarkerLabelContemplationGarden from './art/home-onboarding/marker-labels/marker-label-contemplation-garden.png';
+import homeMarkerLabelCouncil from './art/home-onboarding/marker-labels/marker-label-council.png';
+import homeMarkerLabelHypothesisHarbor from './art/home-onboarding/marker-labels/marker-label-hypothesis-harbor.png';
+import homeMarkerLabelLibrary from './art/home-onboarding/marker-labels/marker-label-library.png';
+import homeMarkerLabelLighthouse from './art/home-onboarding/marker-labels/marker-label-lighthouse.png';
+import homeMarkerLabelMemoryCemetery from './art/home-onboarding/marker-labels/marker-label-memory-cemetery.png';
+import homeMarkerLabelResidential from './art/home-onboarding/marker-labels/marker-label-residential.png';
+import homePrimaryButton from './art/home-onboarding/primary-button.webp';
+import homeProgressPanel from './art/home-onboarding/progress-panel.webp';
+import homeSecondaryButton from './art/home-onboarding/secondary-button.webp';
+import homeServiceRail from './art/home-onboarding/service-rail.webp';
+import homeTopicPanel from './art/home-onboarding/topic-panel.webp';
+
 export const art = {
   heroCity,
   scenes: {
@@ -91,5 +118,35 @@ export const art = {
     seal: textureSeal,
     stone: textureStone,
     vellum: textureVellum,
+  },
+  homeOnboarding: {
+    arrowCouncil: homeArrowCouncil,
+    buildingHalo: homeBuildingHalo,
+    coachBubble: homeCoachBubble,
+    coachCopy: homeCoachCopy,
+    labelCurrentTopic: homeLabelCurrentTopic,
+    labelGraveyard: homeLabelGraveyard,
+    labelLibrary: homeLabelLibrary,
+    labelLighthouse: homeLabelLighthouse,
+    labelProgress: homeLabelProgress,
+    labelRecommended: homeLabelRecommended,
+    labelService: homeLabelService,
+    markerCard: homeMarkerCard,
+    markerCardPrimary: homeMarkerCardPrimary,
+    markerLabels: {
+      actionHarbor: homeMarkerLabelActionHarbor,
+      contemplationGarden: homeMarkerLabelContemplationGarden,
+      council: homeMarkerLabelCouncil,
+      hypothesisHarbor: homeMarkerLabelHypothesisHarbor,
+      library: homeMarkerLabelLibrary,
+      lighthouse: homeMarkerLabelLighthouse,
+      memoryCemetery: homeMarkerLabelMemoryCemetery,
+      residential: homeMarkerLabelResidential,
+    },
+    primaryButton: homePrimaryButton,
+    progressPanel: homeProgressPanel,
+    secondaryButton: homeSecondaryButton,
+    serviceRail: homeServiceRail,
+    topicPanel: homeTopicPanel,
   },
 };

@@ -257,6 +257,7 @@ function App() {
     setActivePanel('roundtable');
     setActiveDocId('archive-report');
     setSceneView('council');
+    setScribeCollapsed(true);
   }
 
   function runCompleteDiscussion(rawTopic: string) {
@@ -313,6 +314,7 @@ function App() {
     setActiveDocId('archive-report');
     setSceneView('council');
     setActiveResidentId('reportEditor');
+    setScribeCollapsed(true);
     setAdoptionNotice(`完整讨论已跑通：${opening.topic}`);
   }
 
@@ -350,6 +352,7 @@ function App() {
     const cleanTopic = rawTopic?.trim();
     if (cleanTopic) setCurrentTopic(cleanTopic);
     setSceneView('council');
+    setScribeCollapsed(true);
     const nextResidentId = residentId && councilResidentIds.includes(residentId) ? residentId : activeResidentId ?? councilResidentIds[0];
     setActiveResidentId(nextResidentId);
     setActiveBlueprintDistrictId(null);
@@ -482,7 +485,15 @@ function App() {
   }
 
   return (
-    <div className={[scribeCollapsed ? 'app-shell scribe-collapsed' : 'app-shell', sceneView === 'city' ? 'home-shell' : ''].join(' ')}>
+    <div
+      className={[
+        scribeCollapsed ? 'app-shell scribe-collapsed' : 'app-shell',
+        sceneView === 'city' ? 'home-shell' : '',
+        guideOpen ? 'guide-open' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
       <IdeaPanel
         topic={currentTopic}
         mode={mode}
@@ -597,8 +608,11 @@ function App() {
         <GuideOverlay
           step={guideStep}
           onStepChange={setGuideStep}
-          onClose={() => setGuideOpen(false)}
-          onFinish={finishGuide}
+          onClose={finishGuide}
+          onFinish={() => {
+            finishGuide();
+            enterCouncil();
+          }}
         />
       )}
     </div>

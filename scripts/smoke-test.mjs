@@ -5,7 +5,7 @@ const root = process.cwd();
 
 const checks = [
   ['src/lib/cityBuildings.ts', ['council', 'library', 'residential', 'hypothesisHarbor', 'actionHarbor', 'contemplationGarden', 'memoryCemetery', 'lighthouse']],
-  ['src/components/HomeWorldMap.tsx', ['进入冲突议会', 'world-marker-brief', 'onResetSession']],
+  ['src/components/HomeWorldMap.tsx', ['从冲突议会开始', 'world-marker-label', 'markerLabels', 'onResetSession']],
   ['src/components/CouncilStage.tsx', ['召集居民发言', '先采纳右侧发言', '查看卷轴报告']],
   ['src/lib/traceRunDocs.ts', ['latest-two-chain-runs.json', '居民回应', '采纳动作', '巡城结果', '下一步行动']],
   ['src/components/ArchivePanel.tsx', ['公开思维链路留痕', '阅读最近链路', "doc.kind === 'trace'", "setShelf('traces')"]],

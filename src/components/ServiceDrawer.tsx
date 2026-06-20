@@ -1,6 +1,7 @@
 import { ArchivePanel } from './ArchivePanel';
 import { InfoHint } from './InfoHint';
 import { ProcessPanel } from './ProcessPanel';
+import { art } from '../assets/art';
 import type { ArchiveDoc, ReviewFinding, RoundtableTurn, SavedCity, ServicePanel } from '../types';
 import type { DiscussionMode, IdeaNode, Route } from '../types';
 
@@ -53,10 +54,17 @@ export function ServiceDrawer({
 }: ServiceDrawerProps) {
   return (
     <aside className={open ? 'city-log service-drawer open' : 'city-log service-drawer'} data-guide="log">
-      <button className="drawer-toggle" type="button" onClick={onToggle} aria-label={open ? '收起城邦服务' : '打开城邦服务'}>
+      <button
+        className="drawer-toggle"
+        style={!open ? { backgroundImage: `url(${art.homeOnboarding.serviceRail})` } : undefined}
+        type="button"
+        onClick={onToggle}
+        aria-label={open ? '收起城邦服务' : '打开城邦服务'}
+      >
         <span className="drawer-icon" aria-hidden="true">
           巡
         </span>
+        {!open && <img className="drawer-service-label" src={art.homeOnboarding.labelService} alt="" aria-hidden="true" />}
         <b>{open ? '收起' : '城邦服务'}</b>
         <small>居民 · 巡城 · 卷轴</small>
       </button>
@@ -197,9 +205,9 @@ export function ServiceDrawer({
 function helperCopy(panel: ServicePanel) {
   const map: Record<ServicePanel, { step: string; title: string; body: string }> = {
     walkthrough: {
-      step: '城邦令',
+      step: '本轮路径',
       title: '看本轮修城路线',
-      body: '从立题、居民来函、巡城修缮到卷轴报告，按顺序检查本轮进展。',
+      body: '从议会开局、居民来函、巡城修缮到卷轴报告，按顺序检查本轮进展。',
     },
     roundtable: {
       step: '居民席',

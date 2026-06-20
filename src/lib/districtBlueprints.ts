@@ -13,7 +13,7 @@ export const districtBlueprints: DistrictBlueprint[] = [
     districtId: 'questions',
     moduleName: '立题与问题澄清',
     purpose: '把用户的一团困惑压成可进入议会讨论的议题，并保留原始语境。',
-    secondaryPage: '立题台内页：原始问题、核心问题、讨论目标、未澄清边界。',
+    secondaryPage: '议题设置内页：原始问题、核心问题、讨论目标、未澄清边界。',
     interaction: '用户编辑问题后，可选择探索、决策或行动模式；系统生成进入议会前的开题铭文。',
     artDirection: '开阔广场、讲坛、石碑、公告栏和围观居民，突出“问题被公开立案”。',
     assetIdeas: ['广场全景背景', '立题讲坛建筑', '问题石碑图标', '主持人半身像'],

@@ -60,7 +60,7 @@ export function ProcessPanel({
           <i>1</i>
           <div>
             <strong>输入议题</strong>
-            <p>议题进入立题台，并选择 {modeLabel(mode)}。</p>
+            <p>议题送入冲突议会，并选择 {modeLabel(mode)}。</p>
           </div>
         </li>
         <li>

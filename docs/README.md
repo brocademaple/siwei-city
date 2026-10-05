@@ -18,6 +18,8 @@
 
 ## 当前文档
 
+- [Open-source landscape and project audit (2026-10-05)](current/open-source-review-2026-10-05.md)：英文调研、最新进度、发布证据和后续验收门；[个人飞书文档](https://my.feishu.cn/docx/H5kmdCrCVoHtjcxwWYoct6EZnQg)。
+
 | 文档 | 作用 | 何时使用 |
 | --- | --- | --- |
 | [project-orientation.md](current/project-orientation.md) | 项目接手说明 | 隔一段时间回来、交给别人继续开发、快速定位代码 |

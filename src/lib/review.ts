@@ -25,6 +25,9 @@ export function buildReviewFindings(ideas: IdeaNode[], routes: Route[]): ReviewF
       targetIds: unsupportedHypotheses.map((idea) => idea.id),
       repairAction: '下一步：请研究者补充案例、观察或引用，再把证据道路铺回假设。',
       suggestedRole: '研究者',
+      gapType: 'evidence',
+      suggestedProtocol: 'topics',
+      suggestedMove: 'evidence',
     });
   }
 
@@ -41,6 +44,9 @@ export function buildReviewFindings(ideas: IdeaNode[], routes: Route[]): ReviewF
       targetIds: unresolvedCounters.map((idea) => idea.id),
       repairAction: '下一步：请怀疑者说明反驳影响哪些判断，再决定回应、转向或保留风险。',
       suggestedRole: '怀疑者',
+      gapType: 'counter',
+      suggestedProtocol: 'elenchus',
+      suggestedMove: 'counterexample',
     });
   }
 
@@ -57,6 +63,9 @@ export function buildReviewFindings(ideas: IdeaNode[], routes: Route[]): ReviewF
       targetIds: isolatedIdeas.map((idea) => idea.id),
       repairAction: '下一步：给孤立观点选择一个起点或终点，补上支持、冲突、依赖或延伸道路。',
       suggestedRole: '实践者',
+      gapType: 'definition',
+      suggestedProtocol: 'naming',
+      suggestedMove: 'definition',
     });
   }
 
@@ -73,6 +82,9 @@ export function buildReviewFindings(ideas: IdeaNode[], routes: Route[]): ReviewF
       targetIds: openActions.map((idea) => idea.id),
       repairAction: '下一步：请执行者把行动拆成最小实验，并定义完成后要带回的证据。',
       suggestedRole: '执行者',
+      gapType: 'action_condition',
+      suggestedProtocol: 'analogy',
+      suggestedMove: 'action',
     });
   }
 

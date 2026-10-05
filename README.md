@@ -7,7 +7,7 @@
 ![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=ffffff)
 ![GitHub Pages](https://img.shields.io/badge/Deploy-GitHub%20Pages-222222?logo=githubpages&logoColor=ffffff)
 ![Status](https://img.shields.io/badge/Status-MVP-brightgreen)
-![Mimo Proxy](https://img.shields.io/badge/Mimo-Proxy%20Ready-blue)
+![AI Gateway Proxy](https://img.shields.io/badge/AI%20Gateway-Proxy%20Ready-blue)
 
 Siwei City is a front-end MVP for turning fuzzy topics into structured thinking maps. It represents ideas as buildings, reasoning links as roads, role-based suggestions as residents, and structural gaps as city inspection notes.
 
@@ -160,9 +160,9 @@ Check generated art assets for visible green-screen remnants:
 npm run check:assets
 ```
 
-## Mimo API Proxy
+## AI Gateway Proxy
 
-The front end does not store a Mimo API key. Real AI reasoning goes through a Vercel Serverless Function proxy:
+The front end does not store an API key. Real AI reasoning goes through a Vercel Serverless Function proxy:
 
 ```text
 api/mimo/chat.ts
@@ -171,9 +171,9 @@ api/mimo/chat.ts
 Vercel environment variables:
 
 ```text
-MIMO_API_KEY=your Mimo key
-MIMO_BASE_URL=https://token-plan-cn.xiaomimimo.com/v1
-MIMO_MODEL=mimo-v2.5-pro
+MIMO_API_KEY=your AI gateway key
+MIMO_BASE_URL=https://ops-ai-gateway.yc345.tv/v1
+MIMO_MODEL=deepseek-v4-flash
 MIMO_INPUT_PRICE_CNY_PER_1K=0
 MIMO_OUTPUT_PRICE_CNY_PER_1K=0
 ```
@@ -190,8 +190,8 @@ For local development, place the full config in `.env.local`:
 
 ```text
 MIMO_API_KEY=your full private API key
-MIMO_BASE_URL=https://token-plan-cn.xiaomimimo.com/v1
-MIMO_MODEL=mimo-v2.5-pro
+MIMO_BASE_URL=https://ops-ai-gateway.yc345.tv/v1
+MIMO_MODEL=deepseek-v4-flash
 MIMO_INPUT_PRICE_CNY_PER_1K=0
 MIMO_OUTPUT_PRICE_CNY_PER_1K=0
 VITE_MIMO_PROXY_URL=/api/mimo/chat
@@ -208,28 +208,28 @@ npm run dev
 In another terminal:
 
 ```bash
-npm run verify:mimo
+npm run verify:ai-gateway
 ```
 
 If Vite switches to another port, pass the actual local URL:
 
 ```bash
-npm run verify:mimo -- --url=http://127.0.0.1:5174/api/mimo/chat
+npm run verify:ai-gateway -- --url=http://127.0.0.1:5174/api/mimo/chat
 ```
 
 The verification script checks:
 
-- The real Mimo response contains parseable `choices[0].message.content` JSON.
+- The real AI gateway response contains parseable `choices[0].message.content` JSON.
 - `usage.prompt_tokens`, `usage.completion_tokens`, and `usage.total_tokens` are present.
 - Local validation errors return a stable `error.type/message/status/retryable` shape.
 
 To verify a deployed Vercel function:
 
 ```bash
-npm run verify:mimo -- --url=https://your-domain/api/mimo/chat
+npm run verify:ai-gateway -- --url=https://your-domain/api/mimo/chat
 ```
 
-If the proxy is not configured or the upstream service is unavailable, the product falls back to local templates and shows the reason in the city ledger. If Mimo does not return complete usage data, the product still shows AI content and marks ledger costs as estimated.
+If the proxy is not configured or the upstream service is unavailable, the product falls back to local templates and shows the reason in the city ledger. If the AI gateway does not return complete usage data, the product still shows AI content and marks ledger costs as estimated.
 
 ## Project Structure
 
@@ -258,10 +258,14 @@ scripts/
 
 ## Documentation
 
+- Documentation index: [docs/README.md](docs/README.md)
 - Illustrated MVP manual: [docs/current/siwei-city-mvp-manual.md](docs/current/siwei-city-mvp-manual.md)
 - Current progress and PRD: [docs/current/project-status-prd.md](docs/current/project-status-prd.md)
 - Worldbuilding: [docs/current/siwei-city-worldbuilding.md](docs/current/siwei-city-worldbuilding.md)
 - Resident roundtable mechanism: [docs/current/roundtable-mechanism.md](docs/current/roundtable-mechanism.md)
+- Cultural debate background: [docs/current/cultural-debate-background.md](docs/current/cultural-debate-background.md)
+- Reference sources index: [docs/current/reference-sources.md](docs/current/reference-sources.md)
+- Agent runtime and SQL storage: [docs/current/agent-runtime-and-storage.md](docs/current/agent-runtime-and-storage.md)
 - Version history: [docs/current/version-history.md](docs/current/version-history.md)
 - Art direction: [docs/current/art-direction.md](docs/current/art-direction.md)
 - Project orientation: [docs/current/project-orientation.md](docs/current/project-orientation.md)
@@ -271,9 +275,9 @@ scripts/
 
 ## Roadmap
 
-### P0: Real Mimo Integration
+### P0: Real AI Gateway Integration
 
-The repeatable verification path is already in place through `npm run verify:mimo`. It checks OpenAI-compatible content, usage data, error shape, and cost estimation.
+The repeatable verification path is already in place through `npm run verify:ai-gateway`. It checks OpenAI-compatible content, usage data, error shape, and cost estimation.
 
 ### P1: Multi-round Resident References
 
@@ -290,6 +294,6 @@ Generate more specific art for resident seats, the inspection tower, the archive
 ## Key Assumptions
 
 - The first version focuses on desktop web interaction, without mobile optimization or multi-user collaboration.
-- If Mimo or Vercel is not configured, the product clearly falls back to local templates.
+- If the AI gateway or Vercel is not configured, the product clearly falls back to local templates.
 - The user keeps final judgment. The system helps find structure and propose next moves.
 - Current sessions and historical cities live in browser localStorage until account sync is added.

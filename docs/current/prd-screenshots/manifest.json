@@ -1,0 +1,162 @@
+[
+  {
+    "name": "00_onboarding_guide_initial_overlay",
+    "description": "首次打开：新手指引首屏浮层",
+    "file": "00_onboarding_guide_initial_overlay.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "01_home_world_map_default",
+    "description": "主页世界地图：默认状态",
+    "file": "01_home_world_map_default.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "02_home_world_map_scribe_open",
+    "description": "主页世界地图：展开议题设置",
+    "file": "02_home_world_map_scribe_open.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "03_council_stage_initial",
+    "description": "冲突议会：初始状态",
+    "file": "03_council_stage_initial.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "04_council_stage_complete_demo",
+    "description": "冲突议会：完成本轮演示后",
+    "file": "04_council_stage_complete_demo.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "05_home_service_drawer_01_walkthrough",
+    "description": "主页服务抽屉：全过程",
+    "file": "05_home_service_drawer_01_walkthrough.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "06_home_service_drawer_02_roundtable",
+    "description": "主页服务抽屉：居民席位",
+    "file": "06_home_service_drawer_02_roundtable.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "07_home_service_drawer_03_inspector",
+    "description": "主页服务抽屉：巡城官塔",
+    "file": "07_home_service_drawer_03_inspector.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "08_home_service_drawer_04_archive",
+    "description": "主页服务抽屉：卷轴馆",
+    "file": "08_home_service_drawer_04_archive.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "09_building_01_grand_library",
+    "description": "建筑页：大图书馆",
+    "file": "09_building_01_grand_library.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "10_building_02_residential_quarter",
+    "description": "建筑页：居民区",
+    "file": "10_building_02_residential_quarter.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "11_building_03_hypothesis_harbor",
+    "description": "建筑页：假设码头",
+    "file": "11_building_03_hypothesis_harbor.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "12_building_04_action_harbor",
+    "description": "建筑页：行动码头",
+    "file": "12_building_04_action_harbor.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "13_building_05_contemplation_garden",
+    "description": "建筑页：沉思庭院",
+    "file": "13_building_05_contemplation_garden.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "14_building_06_memory_cemetery",
+    "description": "建筑页：记忆墓园 / 废案馆",
+    "file": "14_building_06_memory_cemetery.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  {
+    "name": "15_building_07_lighthouse_watchtower",
+    "description": "建筑页：灯塔 / 巡城塔",
+    "file": "15_building_07_lighthouse_watchtower.png",
+    "url": "http://127.0.0.1:5173/",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  }
+]

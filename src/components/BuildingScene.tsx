@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { art } from '../assets/art';
 import type { CityBuilding } from '../lib/cityBuildings';
 import { residentProfiles } from '../lib/residents';
-import type { ArchiveDoc, BuildingActionTarget, IdeaNode, ReviewFinding, Route, RoundtableTurn } from '../types';
+import { argumentMoveLabel, protocolLabel } from '../lib/protocols';
+import type { ArchiveDoc, BuildingActionTarget, BuildingSceneId, DiscussionRecord, DiscussionRecordStatus, IdeaNode, ReviewFinding, Route, RoundtableTurn } from '../types';
+import { DiscussionRecordLibrary } from './DiscussionRecordLibrary';
 
 interface BuildingSceneProps {
   building: CityBuilding;
@@ -12,7 +14,10 @@ interface BuildingSceneProps {
   turns: RoundtableTurn[];
   findings: ReviewFinding[];
   docs: ArchiveDoc[];
+  discussionRecords: DiscussionRecord[];
+  onDiscussionRecordStatusChange: (status: DiscussionRecordStatus, id: string) => void;
   onBackToCity: () => void;
+  onOpenBuilding: (id: BuildingSceneId) => void;
   onEnterCouncil: () => void;
   onRunComplete: () => void;
 }
@@ -25,17 +30,21 @@ export function BuildingScene({
   turns,
   findings,
   docs,
+  discussionRecords,
+  onDiscussionRecordStatusChange,
   onBackToCity,
+  onOpenBuilding,
   onEnterCouncil,
   onRunComplete,
 }: BuildingSceneProps) {
   const [activeTarget, setActiveTarget] = useState<BuildingActionTarget>(building.primaryActionTarget);
   const isCouncil = building.id === 'council';
+  const isLibrary = building.id === 'library';
   const primaryLabel = building.id === 'council' ? '召开完整议会' : building.primaryAction;
 
   return (
     <main
-      className={`building-scene building-${building.id}${isCouncil ? '' : ' building-layout'}`}
+      className={`building-scene building-${building.id}${isCouncil || isLibrary ? '' : ' building-layout'}${isLibrary ? ' building-library-workspace' : ''}`}
       style={{
         backgroundImage: `linear-gradient(180deg, rgba(28, 18, 10, 0.08), rgba(28, 18, 10, 0.58)), url(${art.scenes[building.sceneAssetKey]})`,
       }}
@@ -45,13 +54,27 @@ export function BuildingScene({
         <button type="button" onClick={onBackToCity}>
           ← 返回城邦
         </button>
-        {isCouncil && <span>{building.name}</span>}
-        <button type="button" onClick={onEnterCouncil}>
-          去议会
-        </button>
+        {(isCouncil || isLibrary) && <span>{building.name}</span>}
+        {isLibrary ? (
+          <div className="building-jump-links" aria-label="关联建筑">
+            <button type="button" onClick={onEnterCouncil}>冲突议会</button>
+            <button type="button" onClick={() => onOpenBuilding('actionHarbor')}>行动码头</button>
+          </div>
+        ) : (
+          <button type="button" onClick={onEnterCouncil}>去议会</button>
+        )}
       </header>
 
-      {isCouncil ? (
+      {isLibrary ? (
+        <section className="library-workspace" aria-label="大图书馆讨论记录">
+          <DiscussionRecordLibrary
+            records={discussionRecords}
+            onStatusChange={(id, status) => onDiscussionRecordStatusChange(status, id)}
+            title="讨论记录"
+            description={null}
+          />
+        </section>
+      ) : isCouncil ? (
         <>
           <section className="building-hero-panel" style={{ backgroundImage: `url(${art.homeOnboarding.topicPanel})` }}>
             <BuildingPanelHead
@@ -75,6 +98,8 @@ export function BuildingScene({
               turns={turns}
               findings={findings}
               docs={docs}
+              discussionRecords={discussionRecords}
+              onDiscussionRecordStatusChange={onDiscussionRecordStatusChange}
             />
           </section>
         </>
@@ -100,6 +125,8 @@ export function BuildingScene({
                 turns={turns}
                 findings={findings}
                 docs={docs}
+                discussionRecords={discussionRecords}
+                onDiscussionRecordStatusChange={onDiscussionRecordStatusChange}
               />
             </div>
           </aside>
@@ -158,9 +185,11 @@ interface SceneContentProps {
   turns: RoundtableTurn[];
   findings: ReviewFinding[];
   docs: ArchiveDoc[];
+  discussionRecords: DiscussionRecord[];
+  onDiscussionRecordStatusChange: (status: DiscussionRecordStatus, id: string) => void;
 }
 
-function SceneContent({ building, topic, ideas, routes, turns, findings, docs }: SceneContentProps) {
+function SceneContent({ building, topic, ideas, routes, turns, findings, docs, discussionRecords, onDiscussionRecordStatusChange }: SceneContentProps) {
   const acceptedTurns = turns.filter((turn) => turn.accepted);
   const reportDoc = docs.find((doc) => doc.id === 'archive-report');
   const actionDoc = docs.find((doc) => doc.id === 'archive-action');
@@ -168,22 +197,7 @@ function SceneContent({ building, topic, ideas, routes, turns, findings, docs }:
 
   if (building.id === 'library') {
     return (
-      <>
-        <SceneHeading title="馆藏卷轴" body={reportDoc ? '本轮记录已经可以在这里阅读和带走。' : building.emptyBody} />
-        <div className="building-content-list building-list">
-          {docs.length === 0 ? (
-            <EmptyScene building={building} />
-          ) : (
-            docs.slice(0, 4).map((doc) => (
-              <article className="building-doc-row building-doc-card building-content-row" key={doc.id}>
-                <span>{doc.createdAt}</span>
-                <strong>{doc.title}</strong>
-                <p>{docKindLabel(doc.kind)} · {summarizeText(doc.body)}</p>
-              </article>
-            ))
-          )}
-        </div>
-      </>
+      <DiscussionRecordLibrary records={discussionRecords} onStatusChange={(id, status) => onDiscussionRecordStatusChange(status, id)} title="馆藏讨论" />
     );
   }
 
@@ -300,6 +314,7 @@ function SceneContent({ building, topic, ideas, routes, turns, findings, docs }:
             turns.slice(0, 3).map((turn) => (
               <article className="building-content-row" key={turn.id}>
                 <strong>{turn.role}留下的问题</strong>
+                <small>{protocolLabel(turn.protocol)} · {argumentMoveLabel(turn.argumentMove)}</small>
                 <p>
                   {turn.respondsTo ? `回应 ${turn.respondsTo}：` : ''}
                   {turn.title}

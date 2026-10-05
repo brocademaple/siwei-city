@@ -1,4 +1,5 @@
 import { modeLabel } from './modes';
+import { argumentMoveLabel, gapTypeLabel, protocolLabel } from './protocols';
 import { buildSampleCaseDocs } from './sampleCases';
 import { buildTraceRunDocs } from './traceRunDocs';
 import type { ArchiveDoc, DiscussionMode, IdeaNode, ReviewFinding, RoundtableTurn, Route } from '../types';
@@ -14,21 +15,21 @@ export function buildArchiveDocs(topic: string, mode: DiscussionMode, ideas: Ide
   return [
     {
       id: 'archive-report',
-      title: '本轮讨论报告',
+      title: '本轮讨论记录',
       kind: 'report',
       createdAt,
-      body: buildReport(topic, mode, ideas, routes, findings),
+      body: buildReport(topic, mode, ideas, routes, findings, turns),
     },
     {
       id: 'archive-action',
-      title: '下一步行动计划',
+      title: '行动方案',
       kind: 'action',
       createdAt,
-      body: buildActionPlan(topic, ideas, findings),
+      body: buildActionPlan(topic, ideas, findings, turns),
     },
     {
       id: 'archive-roundtable',
-      title: '居民圆桌记录',
+      title: '议论过程',
       kind: 'roundtable',
       createdAt,
       body: buildRoundtable(topic, mode, turns),
@@ -44,24 +45,36 @@ export function buildArchiveDocs(topic: string, mode: DiscussionMode, ideas: Ide
   ];
 }
 
-function buildReport(topic: string, mode: DiscussionMode, ideas: IdeaNode[], routes: Route[], findings: ReviewFinding[]) {
+function buildReport(topic: string, mode: DiscussionMode, ideas: IdeaNode[], routes: Route[], findings: ReviewFinding[], turns: RoundtableTurn[]) {
   const ideaTitle = (id: string) => ideas.find((idea) => idea.id === id)?.title ?? id;
+  const acceptedTurns = turns.filter((turn) => turn.accepted);
+  const actionTurns = acceptedTurns.filter((turn) => turn.type === 'action' || turn.argumentMove === 'action');
+  const actionIdeas = ideas.filter((idea) => idea.type === 'action');
   return [
-    `# ${topic}`,
+    `# ${topic} - 讨论记录`,
     '',
-    `- 推演模式：${modeLabel(mode)}`,
-    `- 观点建筑：${ideas.length} 座`,
-    `- 道路关系：${routes.length} 条`,
-    `- 巡城官令：${findings.length} 条`,
+    `本轮方式：${modeLabel(mode)}`,
     '',
-    '## 观点建筑',
-    ...ideas.map((idea) => `- **${idea.title}**（${idea.type} / ${idea.authorRole} / ${idea.source ?? '本地模板'}）：${idea.body}`),
+    '## 各方观点',
+    ...(turns.length === 0
+      ? ['- 讨论尚未开始。']
+      : turns.map((turn) => `- **${turn.role}：${turn.title}**：${turn.body}（${turn.accepted ? '已写入记录' : '候选观点'}）`)),
     '',
-    '## 道路关系',
-    ...(routes.length === 0 ? ['- 暂无道路'] : routes.map((route) => `- ${ideaTitle(route.fromId)} --${route.relation}--> ${ideaTitle(route.toId)}`)),
+    '## 议论结构',
+    ...(turns.length === 0
+      ? ['- 等待第一轮发言。']
+      : turns.map((turn) => `- ${turn.role}用${argumentMoveLabel(turn.argumentMove)}回应${turn.respondsTo ?? '核心问题'}。讨论方法：${protocolLabel(turn.protocol)}。`)),
+    ...(routes.length === 0 ? [] : ['', '### 已形成的观点关系', ...routes.map((route) => `- ${ideaTitle(route.fromId)} ${route.relation} ${ideaTitle(route.toId)}`)]),
     '',
-    '## 巡城结论',
-    ...(findings.length === 0 ? ['- 当前没有明显结构断点。'] : findings.map((finding) => `- **${finding.title}**：${finding.detail}。${finding.repairAction}`)),
+    '## 行动方案',
+    ...(actionTurns.length > 0
+      ? actionTurns.map((turn) => `- **下一步：${turn.title}**：${turn.body}`)
+      : actionIdeas.length > 0
+        ? actionIdeas.map((idea) => `- **下一步：${idea.title}**：${idea.body}`)
+        : ['- 当前还没有确定下一步行动，需要先写入至少一条关键观点。']),
+    '',
+    '### 仍需补齐',
+    ...(findings.length === 0 ? ['- 当前没有明显的结构缺口。'] : findings.map((finding) => `- ${finding.repairAction}（${gapTypeLabel(finding.gapType)}）`)),
   ].join('\n');
 }
 
@@ -142,8 +155,9 @@ function buildMechanismDoc(): ArchiveDoc {
   };
 }
 
-function buildActionPlan(topic: string, ideas: IdeaNode[], findings: ReviewFinding[]) {
+function buildActionPlan(topic: string, ideas: IdeaNode[], findings: ReviewFinding[], turns: RoundtableTurn[]) {
   const actions = ideas.filter((idea) => idea.type === 'action');
+  const actionTurns = turns.filter((turn) => turn.argumentMove === 'action' || turn.type === 'action');
   return [
     `# ${topic} - 下一步行动`,
     '',
@@ -151,7 +165,12 @@ function buildActionPlan(topic: string, ideas: IdeaNode[], findings: ReviewFindi
     ...(actions.length === 0 ? ['- 还没有行动建筑。'] : actions.map((idea) => `- **${idea.title}**：${idea.body}`)),
     '',
     '## 优先修缮',
-    ...(findings.length === 0 ? ['- 可以进入执行和复盘。'] : findings.map((finding) => `- ${finding.repairAction}`)),
+    ...(findings.length === 0 ? ['- 可以进入执行和复盘。'] : findings.map((finding) => `- ${finding.repairAction}（建议协议：${protocolLabel(finding.suggestedProtocol)} / ${argumentMoveLabel(finding.suggestedMove)}）`)),
+    '',
+    '## 回看指标',
+    ...(actionTurns.length === 0
+      ? ['- 还没有行动类圆桌发言。']
+      : actionTurns.map((turn) => `- **${turn.title}**：完成后把结果回流到证据或假设建筑；当前协议为 ${protocolLabel(turn.protocol)}，动作是 ${argumentMoveLabel(turn.argumentMove)}。`)),
   ].join('\n');
 }
 
@@ -161,7 +180,19 @@ function buildRoundtable(topic: string, mode: DiscussionMode, turns: RoundtableT
     '',
     `模式：${modeLabel(mode)}`,
     '',
-    ...turns.map((turn, index) => [`## ${index + 1}. ${turn.role}：${turn.title}`, '', turn.body, '', `- 回应：${turn.respondsTo ?? '议题'}`, `- 建议关系：${turn.relation}`, `- 状态：${turn.accepted ? '已采纳入城' : '未采纳'}`, ''].join('\n')),
+    ...turns.map((turn, index) => [
+      `## ${index + 1}. ${turn.role}：${turn.title}`,
+      '',
+      turn.body,
+      '',
+      `- 讨论协议：${protocolLabel(turn.protocol)}`,
+      `- 论证动作：${argumentMoveLabel(turn.argumentMove)}`,
+      `- 协议理由：${turn.protocolReason ?? '沿用本轮圆桌默认协议。'}`,
+      `- 回应：${turn.respondsTo ?? '议题'}`,
+      `- 建议关系：${turn.relation}`,
+      `- 状态：${turn.accepted ? '已采纳入城' : '未采纳'}`,
+      '',
+    ].join('\n')),
   ].join('\n');
 }
 
@@ -171,6 +202,27 @@ function buildRepairs(topic: string, findings: ReviewFinding[]) {
     '',
     ...(findings.length === 0
       ? ['当前没有明显断点。']
-      : findings.map((finding) => [`## ${finding.title}`, '', finding.detail, '', `建议角色：${finding.suggestedRole}`, '', finding.repairAction, ''].join('\n'))),
+      : findings.map((finding) => [
+        `## ${finding.title}`,
+        '',
+        finding.detail,
+        '',
+        `缺口类型：${gapTypeLabel(finding.gapType)}`,
+        `建议协议：${protocolLabel(finding.suggestedProtocol)}`,
+        `建议动作：${argumentMoveLabel(finding.suggestedMove)}`,
+        `建议角色：${finding.suggestedRole}`,
+        '',
+        finding.repairAction,
+        '',
+      ].join('\n'))),
   ].join('\n');
+}
+
+function summarizeProtocols(turns: RoundtableTurn[]) {
+  const protocolSet = new Set(turns.map((turn) => protocolLabel(turn.protocol)));
+  const moveSet = new Set(turns.map((turn) => argumentMoveLabel(turn.argumentMove)));
+  return {
+    protocols: protocolSet.size > 0 ? [...protocolSet].join('、') : '暂无',
+    moves: moveSet.size > 0 ? [...moveSet].join('、') : '暂无',
+  };
 }

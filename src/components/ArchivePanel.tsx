@@ -1,32 +1,38 @@
 import { useEffect, useMemo, useState } from 'react';
 import { sampleCases } from '../lib/sampleCases';
 import type { ArchiveDoc, SavedCity } from '../types';
+import type { DiscussionRecord, DiscussionRecordStatus } from '../types';
+import { DiscussionRecordLibrary } from './DiscussionRecordLibrary';
 import { MarkdownRenderer } from './MarkdownRenderer';
 
 interface ArchivePanelProps {
   docs: ArchiveDoc[];
   savedCities: SavedCity[];
+  discussionRecords: DiscussionRecord[];
   activeDocId: string | null;
   onOpenDoc: (id: string) => void;
   onCloseDoc: () => void;
   onSaveCity: () => void;
   onLoadCity: (id: string) => void;
   onLoadSampleCase: (id: string) => void;
+  onDiscussionRecordStatusChange: (status: DiscussionRecordStatus, id: string) => void;
 }
 
-type ArchiveShelf = 'current' | 'cases' | 'traces' | 'history' | 'product';
+type ArchiveShelf = 'records' | 'current' | 'cases' | 'traces' | 'history' | 'product';
 
 export function ArchivePanel({
   docs,
   savedCities,
+  discussionRecords,
   activeDocId,
   onOpenDoc,
   onCloseDoc,
   onSaveCity,
   onLoadCity,
   onLoadSampleCase,
+  onDiscussionRecordStatusChange,
 }: ArchivePanelProps) {
-  const [shelf, setShelf] = useState<ArchiveShelf>('current');
+  const [shelf, setShelf] = useState<ArchiveShelf>('records');
   const activeDoc = docs.find((doc) => doc.id === activeDocId) ?? null;
   const currentDocs = useMemo(() => docs.filter((doc) => ['report', 'action', 'roundtable', 'repair'].includes(doc.kind)), [docs]);
   const productDocs = useMemo(() => docs.filter((doc) => ['narrative', 'mechanism'].includes(doc.kind)), [docs]);
@@ -56,12 +62,13 @@ export function ArchivePanel({
   return (
     <section className="archive-panel">
       <div>
-        <div className="section-title">卷轴馆</div>
-        <p className="term-hint">把讨论沉淀为纸草卷轴、案例馆藏和可回看的历史城邦。</p>
+        <div className="section-title">大图书馆</div>
+        <p className="term-hint">每次讨论先成为一张记录卡，再在卡内阅读报告、行动和过程。</p>
       </div>
 
       <div className="archive-shelves" aria-label="卷轴馆分区">
-        {shelfButton('current', '本轮卷轴', shelf, setShelf)}
+        {shelfButton('records', '讨论记录', shelf, setShelf)}
+        {shelfButton('current', '当前卷轴', shelf, setShelf)}
         {shelfButton('cases', '案例馆藏', shelf, setShelf)}
         {shelfButton('traces', '公开链路', shelf, setShelf)}
         {shelfButton('history', '历史城邦', shelf, setShelf)}
@@ -84,6 +91,8 @@ export function ArchivePanel({
           </button>
         </article>
       )}
+
+      {shelf === 'records' && <DiscussionRecordLibrary records={discussionRecords} onStatusChange={(id, status) => onDiscussionRecordStatusChange(status, id)} compact />}
 
       {shelf === 'current' && (
         <>

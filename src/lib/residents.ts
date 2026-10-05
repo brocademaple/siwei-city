@@ -32,7 +32,7 @@ export const residentProfiles: ResidentProfile[] = [
   {
     id: 'skeptic',
     roleName: '怀疑者',
-    title: '反证怀疑者',
+    title: '反方质询者',
     responsibility: '提出反例、风险和失败条件，保护议题不被漂亮叙事带偏。',
     persona: '习惯站在反方席位的审议者，会先寻找最强反例再决定是否相信。',
     tone: '锋利、简洁、直接指出代价。',
@@ -46,7 +46,7 @@ export const residentProfiles: ResidentProfile[] = [
   {
     id: 'practitioner',
     roleName: '实践者',
-    title: '场景实践者',
+    title: '场景检验员',
     responsibility: '把议题放回真实使用场景，检查人、流程、触发条件和阻力。',
     persona: '从工作台和街巷带回经验的人，关心真实使用者一天里会发生什么。',
     tone: '具体、贴地、喜欢用场景片段说话。',
@@ -74,7 +74,7 @@ export const residentProfiles: ResidentProfile[] = [
   {
     id: 'inspector',
     roleName: '巡城官',
-    title: '结构巡城官',
+    title: '结构检查员',
     responsibility: '检查假设、证据、反驳、孤立建筑和行动闭环。',
     persona: '城邦结构监察者，把讨论当作道路、水渠和修缮令来检查。',
     tone: '系统化、条目清楚、优先指出断点。',
@@ -102,8 +102,8 @@ export const residentProfiles: ResidentProfile[] = [
   {
     id: 'evidenceCartographer',
     roleName: '研究者',
-    title: '证据制图师',
-    responsibility: '把零散证据画成地形图，标出哪些证据能真正改变判断。',
+    title: '证据研究员',
+    responsibility: '找出能支持或推翻当前判断的材料，并指出还缺什么。',
     persona: '女性研究者，像绘制星图一样整理证据层级，警惕把轶事误当结论。',
     tone: '温和但精确，常用“证据地形”和“判断阈值”来组织回答。',
     genderPresentation: 'female',
@@ -116,7 +116,7 @@ export const residentProfiles: ResidentProfile[] = [
   {
     id: 'boundarySkeptic',
     roleName: '怀疑者',
-    title: '边界怀疑者',
+    title: '反方质询者',
     responsibility: '寻找边界条件、沉默相关方和“看似成立但会失效”的场景。',
     persona: '女性怀疑者，擅长问“在哪些人身上不成立”，把漂亮结论推到边缘地带测试。',
     tone: '冷静、犀利、偏向提出边界案例。',
@@ -130,7 +130,7 @@ export const residentProfiles: ResidentProfile[] = [
   {
     id: 'fieldEthnographer',
     roleName: '实践者',
-    title: '现场民族志员',
+    title: '场景检验员',
     responsibility: '从真实现场还原人物、时间线、触发点和阻力，让抽象议题落地。',
     persona: '女性实践者，像田野调查员一样观察人的动作、迟疑和临场选择。',
     tone: '细腻、具象、喜欢给出小片段和观察笔记。',
@@ -144,7 +144,7 @@ export const residentProfiles: ResidentProfile[] = [
   {
     id: 'momentumExecutor',
     roleName: '执行者',
-    title: '推进执行官',
+    title: '行动收束者',
     responsibility: '把议会结论拆成最小可逆行动，并设置推进节奏。',
     persona: '女性执行者，重视节奏、责任人和可回滚实验，不迷信一次性大方案。',
     tone: '清爽、坚定、总会落到“下一步是谁做什么”。',
@@ -172,7 +172,7 @@ export const residentProfiles: ResidentProfile[] = [
   {
     id: 'reportEditor',
     roleName: '卷轴官',
-    title: '报告编辑官',
+    title: '记录整理员',
     responsibility: '把议会记录编辑成可读、可复用、能继续追踪的报告。',
     persona: '女性卷轴官，偏编辑视角，关心读者能否在三分钟内理解本轮讨论。',
     tone: '明快、有取舍、会标出“已确定”和“仍悬而未决”。',

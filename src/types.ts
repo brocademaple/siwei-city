@@ -6,8 +6,12 @@ export type LabelSide = 'left' | 'right' | 'top' | 'bottom';
 export type Prominence = 'primary' | 'normal' | 'quiet';
 export type IdeaSource = '本地模板' | 'AI 生成' | '用户手写';
 export type DiscussionMode = 'explore' | 'decide' | 'act';
+export type DiscussionProtocol = 'intent' | 'elenchus' | 'topics' | 'analogy' | 'naming';
+export type ArgumentMove = 'definition' | 'question' | 'evidence' | 'counterexample' | 'analogy' | 'stakes' | 'action' | 'rhetoric';
+export type ReviewGapType = 'definition' | 'evidence' | 'counter' | 'action_condition' | 'audience_fit' | 'name_reality';
 export type ServicePanel = 'walkthrough' | 'roundtable' | 'inspector' | 'archive';
 export type ArchiveKind = 'report' | 'action' | 'roundtable' | 'repair' | 'narrative' | 'case' | 'mechanism' | 'trace';
+export type DiscussionRecordStatus = 'pending' | 'confirmed' | 'rejected';
 export type BuildingActionTarget = 'overview' | 'archive' | 'residents' | 'candidates' | 'actions' | 'notes' | 'graveyard' | 'diagnostics';
 export type BuildingSceneId =
   | 'council'
@@ -82,6 +86,9 @@ export interface ReviewFinding {
   targetIds: string[];
   repairAction: string;
   suggestedRole: Exclude<AuthorRole, '我'>;
+  gapType?: ReviewGapType;
+  suggestedProtocol?: DiscussionProtocol;
+  suggestedMove?: ArgumentMove;
 }
 
 export interface RoleContribution {
@@ -92,6 +99,9 @@ export interface RoleContribution {
   districtId: string;
   source?: IdeaSource;
   respondsTo?: string;
+  protocol?: DiscussionProtocol;
+  argumentMove?: ArgumentMove;
+  protocolReason?: string;
 }
 
 export interface RoundtableTurn extends RoleContribution {
@@ -112,6 +122,31 @@ export interface UsageLedger {
   usageSource?: 'provider' | 'estimated';
   usageWarning?: string;
   lastError?: string;
+  model?: string;
+}
+
+export interface CitySnapshot {
+  currentTopic: string;
+  mode: DiscussionMode;
+  ideas: IdeaNode[];
+  routes: Route[];
+  turns: RoundtableTurn[];
+  acceptedContributionKeys: string[];
+  savedAt?: string;
+  storageSource?: 'localStorage' | 'sql-api';
+}
+
+export interface StructuredIdeaCandidate {
+  id: string;
+  title: string;
+  body: string;
+  type: IdeaType;
+  districtId: string;
+  authorRole: AuthorRole;
+  protocol?: DiscussionProtocol;
+  argumentMove?: ArgumentMove;
+  protocolReason?: string;
+  source?: IdeaSource;
 }
 
 export interface ArchiveDoc {
@@ -122,6 +157,36 @@ export interface ArchiveDoc {
   createdAt: string;
 }
 
+export interface DiscussionRecord {
+  id: string;
+  topic: string;
+  mode: DiscussionMode;
+  status: DiscussionRecordStatus;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string;
+  participantRoles: Exclude<AuthorRole, '我'>[];
+  actionCount: number;
+  summary: string;
+  parentRecordId?: string;
+  generation?: DiscussionGenerationSummary;
+  snapshot: CitySnapshot;
+  docs: {
+    report: ArchiveDoc;
+    action: ArchiveDoc;
+    process: ArchiveDoc;
+  };
+  storageSource?: 'localStorage' | 'sql-api';
+}
+
+export interface DiscussionGenerationSummary {
+  kind: 'ai' | 'mixed' | 'local';
+  aiTurnCount: number;
+  localTurnCount: number;
+  model?: string;
+  fallbackReason?: string;
+}
+
 export interface SavedCity {
   id: string;
   topic: string;
@@ -130,6 +195,7 @@ export interface SavedCity {
   routes: Route[];
   turns: RoundtableTurn[];
   savedAt: string;
+  source?: 'localStorage' | 'sql-api';
 }
 
 export interface ResidentProfile {

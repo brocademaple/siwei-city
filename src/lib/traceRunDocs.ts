@@ -1,11 +1,42 @@
 import traceRunData from '../../docs/trace-runs/latest-two-chain-runs.json';
 import type { ArchiveDoc } from '../types';
 
+const protocolLabels: Record<string, string> = {
+  intent: '问志',
+  elenchus: '反诘',
+  topics: '论题',
+  analogy: '类比',
+  naming: '名实',
+};
+
+const argumentMoveLabels: Record<string, string> = {
+  definition: '定义',
+  question: '追问',
+  evidence: '证据',
+  counterexample: '反例',
+  analogy: '类比',
+  stakes: '利害',
+  action: '行动',
+  rhetoric: '修辞改写',
+};
+
+const gapTypeLabels: Record<string, string> = {
+  definition: '定义缺口',
+  evidence: '证据缺口',
+  counter: '反驳缺口',
+  action_condition: '行动条件',
+  audience_fit: '听众表达',
+  name_reality: '名实一致',
+};
+
 interface TraceRunFinding {
   severity: string;
   title: string;
   detail: string;
   repairAction: string;
+  gapType?: string;
+  suggestedProtocol?: string;
+  suggestedMove?: string;
 }
 
 interface TraceRunTurn {
@@ -20,6 +51,9 @@ interface TraceRunTurn {
   respondsTo?: string;
   accepted?: boolean;
   acceptedIdeaId?: string;
+  protocol?: string;
+  argumentMove?: string;
+  protocolReason?: string;
 }
 
 interface TraceRunIdea {
@@ -90,6 +124,8 @@ function buildTraceMarkdown(trace: TraceRun) {
     '',
     `- 原始输入：${trace.topic}`,
     `- 推演模式：${trace.mode}`,
+    `- 本轮协议：${summarize(trace.turns.map((turn) => labelProtocol(turn.protocol)))}`,
+    `- 论证动作：${summarize(trace.turns.map((turn) => labelMove(turn.argumentMove)))}`,
     `- 目标用户：${trace.audience}`,
     `- 关键假设：${trace.keyAssumption}`,
     '',
@@ -104,6 +140,9 @@ function buildTraceMarkdown(trace: TraceRun) {
       '',
       turn.body,
       '',
+      `- 讨论协议：${labelProtocol(turn.protocol)}`,
+      `- 论证动作：${labelMove(turn.argumentMove)}`,
+      `- 协议理由：${turn.protocolReason ?? '沿用本轮默认协议。'}`,
       `- 回应对象：${turn.respondsTo ?? titleOf(turn.targetIdeaId)}`,
       `- 建议关系：${turn.relation}`,
       `- 建筑类型：${turn.type} / ${turn.districtId}`,
@@ -156,5 +195,21 @@ function formatFindings(findings: TraceRunFinding[]) {
   if (findings.length === 0) {
     return ['- 当前没有明显结构断点。'];
   }
-  return findings.map((finding) => `- **${finding.title}**（${finding.severity}）：${finding.detail}。${finding.repairAction}`);
+  return findings.map((finding) => `- **${finding.title}**（${finding.severity} / ${labelGap(finding.gapType)} -> ${labelProtocol(finding.suggestedProtocol)} / ${labelMove(finding.suggestedMove)}）：${finding.detail}。${finding.repairAction}`);
+}
+
+function labelProtocol(protocol?: string) {
+  return protocol ? protocolLabels[protocol] ?? protocol : '问志';
+}
+
+function labelMove(move?: string) {
+  return move ? argumentMoveLabels[move] ?? move : '追问';
+}
+
+function labelGap(gapType?: string) {
+  return gapType ? gapTypeLabels[gapType] ?? gapType : '结构缺口';
+}
+
+function summarize(labels: string[]) {
+  return [...new Set(labels)].join('、') || '暂无';
 }

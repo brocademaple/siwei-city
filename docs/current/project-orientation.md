@@ -138,7 +138,7 @@ http://127.0.0.1:5173/
 ```text
 用户输入议题
   -> 进入议会内景
-  -> createOpeningDraft 生成开局观点、初始道路、圆桌发言
+  -> runOpeningAgents 生成开局观点、初始道路、圆桌发言
   -> runCompleteDiscussion 采纳所有圆桌发言
   -> 每条被采纳发言显示在对应居民席位和中央讨论桌
   -> 被采纳发言同步变成城邦地图建筑
@@ -156,14 +156,25 @@ src/App.tsx -> runCompleteDiscussion
 
 ## 当前会话和历史城邦怎么处理
 
-现在有两层本地保存：
+现在有三层保存：
 
-| 层级 | 存储 key | 内容 | 用户入口 |
+| 层级 | 存储位置 | 内容 | 用户入口 |
 | --- | --- | --- | --- |
-| 当前会话 | `siwei-city-session-v2` | 当前议题、模式、观点、道路、圆桌发言、采纳记录 | 自动保存；刷新后主页显示“已恢复上次城邦” |
-| 历史城邦 | `siwei-city-history-v1` | 用户手动封存的城邦快照，最多保留 12 条 | 卷轴馆 -> 本轮卷轴 -> 封存当前城邦；历史城邦列表可重新打开 |
+| SQL API 当前快照 | `PUT /api/cities/current` | 当前议题、模式、观点、道路、圆桌发言、采纳记录 | 自动保存；刷新后优先从 SQL API 恢复 |
+| SQL API 历史城邦 | `POST /api/cities/archive` | 用户手动封存的城邦快照 | 卷轴馆 -> 本轮卷轴 -> 封存当前城邦；历史城邦列表可重新打开 |
+| localStorage 缓存 | `siwei-city-session-v2` / `siwei-city-history-v1` | 当前浏览器缓存和 API 失败兜底 | API 不可用、旧数据迁移或离线演示时使用 |
 
-“新开一轮”只清当前会话 key，并把界面恢复到默认议题、默认建筑和默认道路。它不会清空历史城邦，所以适合演示“我可以从上次状态继续，也可以干净重开，同时保留旧项目档案”。
+“新开一轮”只清当前会话缓存，并把界面恢复到默认议题、默认建筑和默认道路。它不会清空历史城邦，所以适合演示“我可以从上次状态继续，也可以干净重开，同时保留旧项目档案”。
+
+当前 API 先用内存适配器跑通 SQL 形状；接真实 Postgres 时替换服务端驱动即可。当前约定见：
+
+```text
+docs/current/agent-runtime-and-storage.md
+docs/current/sql-storage-design.md
+db/siwei-city-schema.sql
+```
+
+原则是：SQL API 做正式数据源，`localStorage` 只做本机缓存、未登录兜底和首次迁移来源。
 
 ## 数据结构怎么理解
 

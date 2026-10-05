@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
-import type { DiscussionMode, District, IdeaNode, RoleContribution, SceneView, UsageLedger } from '../types';
+import type { DiscussionMode, District, IdeaNode, RoleContribution, SceneView, StructuredIdeaCandidate, UsageLedger } from '../types';
 import { discussionModes } from '../lib/modes';
 import { LedgerBar } from './LedgerBar';
 import { MvpPath } from './MvpPath';
@@ -20,6 +20,8 @@ interface IdeaPanelProps {
   onUseRoleContribution: (contribution: RoleContribution) => void;
   onStartOpening: (topic: string) => void;
   onRunComplete: (topic: string) => void;
+  onPreviewImport: (rawText: string) => Promise<StructuredIdeaCandidate[]>;
+  onConfirmImport: (candidates: StructuredIdeaCandidate[]) => void;
   sceneView: SceneView;
   onEnterCouncil: (topic: string) => void;
   onModeChange: (mode: DiscussionMode) => void;
@@ -43,6 +45,8 @@ export function IdeaPanel({
   onUseRoleContribution,
   onStartOpening,
   onRunComplete,
+  onPreviewImport,
+  onConfirmImport,
   sceneView,
   onEnterCouncil,
   onModeChange,
@@ -50,6 +54,9 @@ export function IdeaPanel({
   onToggleCollapsed,
 }: IdeaPanelProps) {
   const [topicDraft, setTopicDraft] = useState(topic);
+  const [importDraft, setImportDraft] = useState('');
+  const [importCandidates, setImportCandidates] = useState<StructuredIdeaCandidate[]>([]);
+  const [importBusy, setImportBusy] = useState(false);
   const activeMode = discussionModes.find((item) => item.id === mode) ?? discussionModes[0];
   const showLedger = ledger.calls > 0 || ledger.status !== 'idle' || Boolean(ledger.lastError);
   const inCouncil = sceneView === 'council';
@@ -66,6 +73,21 @@ export function IdeaPanel({
       return;
     }
     onRunComplete(topicDraft);
+  }
+
+  async function handlePreviewImport() {
+    const clean = importDraft.trim();
+    if (!clean) return;
+    setImportBusy(true);
+    const candidates = await onPreviewImport(clean);
+    setImportCandidates(candidates);
+    setImportBusy(false);
+  }
+
+  function handleConfirmImport() {
+    onConfirmImport(importCandidates);
+    setImportDraft('');
+    setImportCandidates([]);
   }
 
   if (collapsed) {
@@ -188,6 +210,40 @@ export function IdeaPanel({
       </form>
 
       {showLedger && <LedgerBar ledger={ledger} mode={mode} />}
+
+      <details className="advanced-court compact-court import-court">
+        <summary>
+          <span className="section-title">结构化导入</span>
+          <strong>一次粘贴多条想法</strong>
+        </summary>
+        <label className="topic-field">
+          <span>多行笔记</span>
+          <textarea
+            value={importDraft}
+            onChange={(event) => setImportDraft(event.target.value)}
+            placeholder={'例：\n- 用户真正怕的是求助失败\n- 先访谈 5 位夜归女性\n- 风险是硬件很难高频使用'}
+          />
+        </label>
+        <div className="topic-actions">
+          <button className="secondary-action" type="button" onClick={handlePreviewImport} disabled={importBusy || !importDraft.trim()}>
+            {importBusy ? '拆解中' : '预览导入'}
+          </button>
+          <button className="primary-action" type="button" onClick={handleConfirmImport} disabled={importCandidates.length === 0}>
+            采纳入城
+          </button>
+        </div>
+        {importCandidates.length > 0 && (
+          <div className="import-preview-list" aria-label="导入预览">
+            {importCandidates.map((candidate) => (
+              <article className="import-preview-row" key={candidate.id}>
+                <strong>{candidate.title}</strong>
+                <p>{candidate.body}</p>
+                <small>{candidate.type} · {candidate.authorRole} · {candidate.protocol ?? 'intent'} / {candidate.argumentMove ?? 'question'}</small>
+              </article>
+            ))}
+          </div>
+        )}
+      </details>
     </aside>
   );
 }

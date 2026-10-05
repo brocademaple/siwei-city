@@ -25,7 +25,7 @@ const messages = [
 
 const successPayload = await postJson(proxyUrl, { messages });
 if (!successPayload.ok) {
-  printFailure('真实 Mimo 路径请求失败', successPayload);
+  printFailure('真实 AI 网关路径请求失败', successPayload);
   process.exit(1);
 }
 
@@ -57,7 +57,7 @@ assert(typeof errorPayload.body?.error?.message === 'string', '错误结构缺�
 assert(typeof errorPayload.body?.error?.status === 'number', '错误结构缺少 error.status');
 assert(typeof errorPayload.body?.error?.retryable === 'boolean', '错误结构缺少 error.retryable');
 
-console.log('Mimo proxy verification passed.');
+console.log('AI gateway proxy verification passed.');
 console.log(
   JSON.stringify(
     {
@@ -146,7 +146,7 @@ function readNumber(value) {
 
 function assert(condition, message) {
   if (!condition) {
-    throw new Error(`Mimo verification failed: ${message}`);
+    throw new Error(`AI gateway verification failed: ${message}`);
   }
 }
 

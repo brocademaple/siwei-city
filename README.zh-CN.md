@@ -7,7 +7,7 @@
 ![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=ffffff)
 ![GitHub Pages](https://img.shields.io/badge/Deploy-GitHub%20Pages-222222?logo=githubpages&logoColor=ffffff)
 ![Status](https://img.shields.io/badge/Status-MVP-brightgreen)
-![Mimo Proxy](https://img.shields.io/badge/Mimo-Proxy%20Ready-blue)
+![AI Gateway Proxy](https://img.shields.io/badge/AI%20Gateway-Proxy%20Ready-blue)
 
 思维城邦是一个把模糊议题转化为结构化思维地图的前端 MVP。它把观点做成建筑，把论证关系做成道路，把多角色建议做成居民来函，把结构诊断做成巡城官令，帮助用户把一次复杂思考收束成三类产物：一张地图、一个下一步行动、一份可导出的报告材料。
 
@@ -160,9 +160,9 @@ npm run build:pages
 npm run check:assets
 ```
 
-## Mimo API 代理
+## AI 网关代理
 
-前端不会保存 Mimo API Key。真实 AI 推演通过 Vercel Serverless Function 代理：
+前端不会保存 API Key。真实 AI 推演通过 Vercel Serverless Function 代理：
 
 ```text
 api/mimo/chat.ts
@@ -171,9 +171,9 @@ api/mimo/chat.ts
 Vercel 环境变量：
 
 ```text
-MIMO_API_KEY=你的 Mimo Key
-MIMO_BASE_URL=https://token-plan-cn.xiaomimimo.com/v1
-MIMO_MODEL=mimo-v2.5-pro
+MIMO_API_KEY=你的 AI 网关 Key
+MIMO_BASE_URL=https://ops-ai-gateway.yc345.tv/v1
+MIMO_MODEL=deepseek-v4-flash
 MIMO_INPUT_PRICE_CNY_PER_1K=0
 MIMO_OUTPUT_PRICE_CNY_PER_1K=0
 ```
@@ -190,8 +190,8 @@ VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K=0
 
 ```text
 MIMO_API_KEY=你的完整专属 API key
-MIMO_BASE_URL=https://token-plan-cn.xiaomimimo.com/v1
-MIMO_MODEL=mimo-v2.5-pro
+MIMO_BASE_URL=https://ops-ai-gateway.yc345.tv/v1
+MIMO_MODEL=deepseek-v4-flash
 MIMO_INPUT_PRICE_CNY_PER_1K=0
 MIMO_OUTPUT_PRICE_CNY_PER_1K=0
 VITE_MIMO_PROXY_URL=/api/mimo/chat
@@ -208,28 +208,28 @@ npm run dev
 另开一个终端：
 
 ```bash
-npm run verify:mimo
+npm run verify:ai-gateway
 ```
 
 如果 Vite 自动切到了其他端口，把终端里显示的地址传给脚本：
 
 ```bash
-npm run verify:mimo -- --url=http://127.0.0.1:5174/api/mimo/chat
+npm run verify:ai-gateway -- --url=http://127.0.0.1:5174/api/mimo/chat
 ```
 
 验证脚本会打本地 `/api/mimo/chat` 代理，确认三件事：
 
-- 真实 Mimo 响应包含可解析的 `choices[0].message.content` JSON。
+- 真实 AI 网关响应包含可解析的 `choices[0].message.content` JSON。
 - `usage.prompt_tokens`、`usage.completion_tokens`、`usage.total_tokens` 完整返回。
 - 本地校验错误返回稳定结构：`error.type/message/status/retryable`。
 
 如果要验证已部署的 Vercel function：
 
 ```bash
-npm run verify:mimo -- --url=https://你的域名/api/mimo/chat
+npm run verify:ai-gateway -- --url=https://你的域名/api/mimo/chat
 ```
 
-如果代理未配置或上游不可用，产品会自动回退到本地模板，并在城邦账簿中显示可操作的回退原因。若 Mimo 没有返回完整 usage，产品仍会展示 AI 内容，但账簿会标记 `usage 估算`。
+如果代理未配置或上游不可用，产品会自动回退到本地模板，并在城邦账簿中显示可操作的回退原因。若 AI 网关没有返回完整 usage，产品仍会展示 AI 内容，但账簿会标记 `usage 估算`。
 
 ## 目录结构
 
@@ -258,10 +258,14 @@ scripts/
 
 ## 项目阅读路径
 
+- 文档总入口：[docs/README.md](docs/README.md)
 - 图文 MVP 说明书：[docs/current/siwei-city-mvp-manual.md](docs/current/siwei-city-mvp-manual.md)
 - 当前进度与 PRD：[docs/current/project-status-prd.md](docs/current/project-status-prd.md)
 - 世界观设定：[docs/current/siwei-city-worldbuilding.md](docs/current/siwei-city-worldbuilding.md)
 - 居民圆桌机制设计：[docs/current/roundtable-mechanism.md](docs/current/roundtable-mechanism.md)
+- 文化背景研究：[docs/current/cultural-debate-background.md](docs/current/cultural-debate-background.md)
+- 参考资料来源索引：[docs/current/reference-sources.md](docs/current/reference-sources.md)
+- 真实 Agent 与 SQL 存储实现说明：[docs/current/agent-runtime-and-storage.md](docs/current/agent-runtime-and-storage.md)
 - 版本历史：[docs/current/version-history.md](docs/current/version-history.md)
 - 美术方向：[docs/current/art-direction.md](docs/current/art-direction.md)
 - 接手说明：[docs/current/project-orientation.md](docs/current/project-orientation.md)
@@ -271,9 +275,9 @@ scripts/
 
 ## 下一步规划
 
-### P0：真实 Mimo 联调
+### P0：真实 AI 网关联调
 
-已补可复跑联调路径：`npm run verify:mimo` 会校验 OpenAI-compatible content、usage 返回、错误结构和费用估算。
+已补可复跑联调路径：`npm run verify:ai-gateway` 会校验 OpenAI-compatible content、usage 返回、错误结构和费用估算。
 
 ### P1：多轮居民互相引用
 
@@ -290,6 +294,6 @@ scripts/
 ## 关键假设
 
 - 首版先验证 Web 桌面端交互闭环，不做移动端和多人协作。
-- 如果未配置 Mimo/Vercel，产品会清楚回退到本地模板。
+- 如果未配置 AI 网关/Vercel，产品会清楚回退到本地模板。
 - 用户保留最终判断权，系统只辅助发现结构和提出建议。
 - 当前会话和历史城邦先存在浏览器 localStorage，账号同步后续再做。

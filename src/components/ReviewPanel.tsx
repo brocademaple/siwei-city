@@ -1,5 +1,6 @@
 import { art } from '../assets/art';
 import { contributionKey } from '../lib/contribution';
+import { argumentMoveLabel, gapTypeLabel, protocolLabel } from '../lib/protocols';
 import type { ReviewFinding, RoleContribution } from '../types';
 
 interface ReviewPanelProps {
@@ -41,6 +42,7 @@ export function ReviewPanel({
                 <span>
                   <strong>{contribution.role}</strong>
                   <p>{contribution.title}</p>
+                  <small>{protocolLabel(contribution.protocol)} · {argumentMoveLabel(contribution.argumentMove)}</small>
                   <em>{accepted ? '已入城邦' : '预览来函'}</em>
                 </span>
               </button>
@@ -78,6 +80,7 @@ export function ReviewPanel({
                 <span>
                   <strong>{finding.title}</strong>
                   <p>{finding.detail}</p>
+                  <small>{gapTypeLabel(finding.gapType)} · 建议 {protocolLabel(finding.suggestedProtocol)} / {argumentMoveLabel(finding.suggestedMove)}</small>
                   <em>定位建筑</em>
                 </span>
               </button>

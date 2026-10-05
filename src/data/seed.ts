@@ -207,6 +207,10 @@ export const roleContributions: RoleContribution[] = [
     body: '记录实际任务中的 AI 提问、输出筛选和人工判断，而不是只收藏最后答案。',
     type: 'evidence',
     districtId: 'evidence',
+    protocol: 'analogy',
+    argumentMove: 'analogy',
+    protocolReason: '实践者先把知识管理放回真实工作流。',
+    respondsTo: '核心问题',
   },
   {
     role: '研究者',
@@ -214,6 +218,10 @@ export const roleContributions: RoleContribution[] = [
     body: '长期价值可能来自问题之间的演化关系，而不是单条笔记的完整性。',
     type: 'hypothesis',
     districtId: 'hypothesis',
+    protocol: 'topics',
+    argumentMove: 'evidence',
+    protocolReason: '研究者用论题拆解说明长期价值来自问题谱系。',
+    respondsTo: '实践者',
   },
   {
     role: '怀疑者',
@@ -221,6 +229,10 @@ export const roleContributions: RoleContribution[] = [
     body: '如果没有自己的长期问题、标准和语境，AI 只会让眼前材料显得更有说服力。',
     type: 'counter',
     districtId: 'conflict',
+    protocol: 'elenchus',
+    argumentMove: 'counterexample',
+    protocolReason: '怀疑者用反诘暴露没有长期语境时的前提冲突。',
+    respondsTo: '研究者',
   },
   {
     role: '执行者',
@@ -228,6 +240,10 @@ export const roleContributions: RoleContribution[] = [
     body: '每天只保留一个判断、一个证据和一个下一步问题，避免系统过重。',
     type: 'action',
     districtId: 'action',
+    protocol: 'analogy',
+    argumentMove: 'action',
+    protocolReason: '执行者把讨论收束成今天就能回看的一步。',
+    respondsTo: '怀疑者',
   },
 ];
 

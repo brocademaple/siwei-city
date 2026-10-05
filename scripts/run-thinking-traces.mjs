@@ -4,6 +4,34 @@ import { join } from 'node:path';
 const outputDir = 'docs/trace-runs';
 const runDate = new Date().toISOString().slice(0, 10);
 
+const protocolLabels = {
+  intent: '问志',
+  elenchus: '反诘',
+  topics: '论题',
+  analogy: '类比',
+  naming: '名实',
+};
+
+const moveLabels = {
+  definition: '定义',
+  question: '追问',
+  evidence: '证据',
+  counterexample: '反例',
+  analogy: '类比',
+  stakes: '利害',
+  action: '行动',
+  rhetoric: '修辞改写',
+};
+
+const gapLabels = {
+  definition: '定义缺口',
+  evidence: '证据缺口',
+  counter: '反驳缺口',
+  action_condition: '行动条件',
+  audience_fit: '听众表达',
+  name_reality: '名实一致',
+};
+
 const modes = {
   explore: {
     label: '探索模式',
@@ -85,6 +113,7 @@ const cases = [
 function createOpeningDraft(testCase) {
   const topic = testCase.topic.trim();
   const mode = modes[testCase.mode];
+  const openingProtocol = selectOpeningProtocol(topic, testCase.mode);
   const ideas = [
     {
       id: 'idea-core-question',
@@ -166,6 +195,9 @@ function createOpeningDraft(testCase) {
     targetIdeaId: index === 0 ? 'idea-core-question' : index === 1 ? 'idea-hypothesis-first-judgement' : 'idea-action-smallest-step',
     source: '本地模板',
     respondsTo: index === 0 ? '核心问题' : mode.steps[index - 1].role,
+    protocol: openingProtocol.protocol,
+    argumentMove: defaultMoveForRole(step.role),
+    protocolReason: openingProtocol.reason,
     accepted: false,
   }));
 
@@ -244,6 +276,9 @@ function buildReviewFindings(ideas, routes) {
       title: '假设缺少证据支撑',
       detail: unsupportedHypotheses.map((idea) => idea.title).join('、'),
       repairAction: '请研究者补充案例、观察或引用，再把证据道路铺回假设。',
+      gapType: 'evidence',
+      suggestedProtocol: 'topics',
+      suggestedMove: 'evidence',
     });
   }
 
@@ -254,6 +289,9 @@ function buildReviewFindings(ideas, routes) {
       title: '反驳尚未进入议程',
       detail: unresolvedCounters.map((idea) => idea.title).join('、'),
       repairAction: '请怀疑者说明反驳影响哪些判断，再决定回应、转向或保留风险。',
+      gapType: 'counter',
+      suggestedProtocol: 'elenchus',
+      suggestedMove: 'counterexample',
     });
   }
 
@@ -264,6 +302,9 @@ function buildReviewFindings(ideas, routes) {
       title: '行动还没有回流证据',
       detail: openActions.map((idea) => idea.title).join('、'),
       repairAction: '请执行者把行动拆成最小实验，并定义完成后要带回的证据。',
+      gapType: 'action_condition',
+      suggestedProtocol: 'analogy',
+      suggestedMove: 'action',
     });
   }
 
@@ -284,11 +325,16 @@ function buildTrace(testCase) {
     outputName: mode.outputName,
     audience: testCase.audience,
     keyAssumption: testCase.assumption,
+    agentRuntime: {
+      orchestration: 'schema-validated-agent-runtime',
+      fallback: 'local-template',
+      storage: 'sql-api-snapshot',
+    },
     chain: [
       { step: '输入议题', result: testCase.topic },
       { step: '选择模式', result: `${mode.label}：${mode.intent}` },
-      { step: '生成开局地图', result: `生成 ${opening.ideas.length} 座观点建筑和 ${opening.routes.length} 条道路。` },
-      { step: '居民圆桌', result: `生成 ${opening.turns.length} 条角色来函，并记录每条回应对象。` },
+      { step: '生成开局地图', result: `按 agent schema 生成 ${opening.ideas.length} 座观点建筑和 ${opening.routes.length} 条道路。` },
+      { step: '居民圆桌', result: `生成 ${opening.turns.length} 条角色来函，并记录每条回应对象、讨论协议、论证动作和采纳状态。` },
       { step: '采纳入城', result: `采纳 ${accepted.turns.length} 条来函，新增 ${accepted.ideas.length - opening.ideas.length} 座建筑。` },
       { step: '巡城检查', result: `采纳前 ${beforeReview.length} 条修缮令，采纳后 ${afterReview.length} 条修缮令。` },
       { step: '归档输出', result: `${mode.outputName}、下一步行动、圆桌记录、修缮记录。` },
@@ -329,6 +375,9 @@ function renderMarkdown(payload) {
     lines.push(`- 目标用户：${trace.audience}`);
     lines.push(`- 关键假设：${trace.keyAssumption}`);
     lines.push(`- 归档产物：${trace.outputName}`);
+    lines.push(`- Agent 运行层：${trace.agentRuntime.orchestration} / 兜底：${trace.agentRuntime.fallback} / 存储：${trace.agentRuntime.storage}`);
+    lines.push(`- 本轮协议：${summarize(trace.turns.map((turn) => labelProtocol(turn.protocol)))}`);
+    lines.push(`- 论证动作：${summarize(trace.turns.map((turn) => labelMove(turn.argumentMove)))}`);
     lines.push('');
     lines.push('### 链路步骤');
     for (const item of trace.chain) {
@@ -348,6 +397,9 @@ function renderMarkdown(payload) {
     lines.push('### 居民圆桌');
     for (const turn of trace.turns) {
       lines.push(`- **${turn.role}：${turn.title}**`);
+      lines.push(`  - 协议：${labelProtocol(turn.protocol)}`);
+      lines.push(`  - 动作：${labelMove(turn.argumentMove)}`);
+      lines.push(`  - 理由：${turn.protocolReason}`);
       lines.push(`  - 回应：${turn.respondsTo}`);
       lines.push(`  - 关系：${turn.relation}`);
       lines.push(`  - 状态：${turn.accepted ? '已采纳入城' : '未采纳'}`);
@@ -385,13 +437,49 @@ function titleFor(ideas, id) {
 
 function formatFindings(findings) {
   if (findings.length === 0) return '暂无明显结构断点。';
-  return findings.map((finding) => `${finding.title}：${finding.detail}，${finding.repairAction}`).join('；');
+  return findings.map((finding) => `${finding.title}（${labelGap(finding.gapType)} -> ${labelProtocol(finding.suggestedProtocol)} / ${labelMove(finding.suggestedMove)}）：${finding.detail}，${finding.repairAction}`).join('；');
+}
+
+function selectOpeningProtocol(topic, mode) {
+  if (['定义', '什么是', '何为', '意义', '值得', '安全', '好产品', '可持续'].some((needle) => topic.includes(needle))) {
+    return { protocol: 'naming', reason: '议题含有高歧义关键词，先校准名实再展开讨论。' };
+  }
+  if (mode === 'decide') return { protocol: 'topics', reason: '决策模式需要拆清证据、反例和行动前提。' };
+  if (mode === 'act') return { protocol: 'analogy', reason: '行动模式需要把判断放回真实场景和听众情境。' };
+  if (['应该', '是否', '要不要'].some((needle) => topic.includes(needle))) {
+    return { protocol: 'elenchus', reason: '议题已经带有强判断，先用反诘检查前提和反例。' };
+  }
+  return { protocol: 'intent', reason: '探索模式先让居民交代推进方向，帮助用户选择主线。' };
+}
+
+function defaultMoveForRole(role) {
+  if (role === '研究者') return 'evidence';
+  if (role === '怀疑者') return 'counterexample';
+  if (role === '实践者') return 'analogy';
+  if (role === '执行者') return 'action';
+  return 'question';
+}
+
+function labelProtocol(protocol) {
+  return protocolLabels[protocol] ?? protocol ?? '问志';
+}
+
+function labelMove(move) {
+  return moveLabels[move] ?? move ?? '追问';
+}
+
+function labelGap(gapType) {
+  return gapLabels[gapType] ?? gapType ?? '结构缺口';
+}
+
+function summarize(labels) {
+  return [...new Set(labels)].join('、') || '暂无';
 }
 
 const payload = {
   generatedAt: new Date().toLocaleString('zh-CN', { hour12: false }),
   assumptions: [
-    '本次使用本地模板跑完整链路，避免依赖未配置的 Mimo API。',
+    '本次 trace 使用本地模板复跑完整链路，但字段形状按真实 agent runtime 的可校验 schema 保留。',
     '“完整思维链路”定义为产品可展示的外部推理轨迹、采纳动作、检查结果和归档输出。',
     '项目交互记录保留关键文件阅读、脚本生成、输出写入和验证命令，不包含模型私有逐字思维链。',
   ],
@@ -399,6 +487,8 @@ const payload = {
     '读取 package.json，确认项目是 Vite + React + TypeScript，已有 build/check 脚本。',
     '读取 src/lib/opening.ts，复用开局地图、三类模式和居民圆桌的产品路径。',
     '读取 src/lib/review.ts，复用巡城官令的结构检查口径。',
+    '读取 src/lib/agents/agentRuntime.ts，公开 trace 与真实 agent 输出字段保持同一套协议和论证动作。',
+    '读取 src/lib/storage/cityStorage.ts，确认当前城邦以 SQL API 快照形状保存，localStorage 作为缓存和兜底。',
     '读取 src/lib/sampleCases.ts，选择独居女性夜间安全产品和 AI 简历工具两个内置样例作为完整链路。',
     '新增 scripts/run-thinking-traces.mjs，生成 Markdown 与 JSON 双格式留痕。',
     '新增 docs/trace-runs/README.md，并将输出写入 docs/trace-runs/。',

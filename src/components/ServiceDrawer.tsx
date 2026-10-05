@@ -2,7 +2,8 @@ import { ArchivePanel } from './ArchivePanel';
 import { InfoHint } from './InfoHint';
 import { ProcessPanel } from './ProcessPanel';
 import { art } from '../assets/art';
-import type { ArchiveDoc, ReviewFinding, RoundtableTurn, SavedCity, ServicePanel } from '../types';
+import { argumentMoveLabel, gapTypeLabel, protocolLabel } from '../lib/protocols';
+import type { ArchiveDoc, DiscussionRecord, DiscussionRecordStatus, ReviewFinding, RoundtableTurn, SavedCity, ServicePanel } from '../types';
 import type { DiscussionMode, IdeaNode, Route } from '../types';
 
 interface ServiceDrawerProps {
@@ -16,6 +17,7 @@ interface ServiceDrawerProps {
   findings: ReviewFinding[];
   docs: ArchiveDoc[];
   savedCities: SavedCity[];
+  discussionRecords: DiscussionRecord[];
   activeDocId: string | null;
   onToggle: () => void;
   onPanelChange: (panel: ServicePanel) => void;
@@ -27,6 +29,7 @@ interface ServiceDrawerProps {
   onSaveCity: () => void;
   onLoadCity: (id: string) => void;
   onLoadSampleCase: (id: string) => void;
+  onDiscussionRecordStatusChange: (status: DiscussionRecordStatus, id: string) => void;
 }
 
 export function ServiceDrawer({
@@ -40,6 +43,7 @@ export function ServiceDrawer({
   findings,
   docs,
   savedCities,
+  discussionRecords,
   activeDocId,
   onToggle,
   onPanelChange,
@@ -51,6 +55,7 @@ export function ServiceDrawer({
   onSaveCity,
   onLoadCity,
   onLoadSampleCase,
+  onDiscussionRecordStatusChange,
 }: ServiceDrawerProps) {
   return (
     <aside className={open ? 'city-log service-drawer open' : 'city-log service-drawer'} data-guide="log">
@@ -134,6 +139,7 @@ export function ServiceDrawer({
                 <span>
                   <strong>{turn.role}</strong>
                   <p>{turn.title}</p>
+                  <small>{protocolLabel(turn.protocol)} · {argumentMoveLabel(turn.argumentMove)}</small>
                   <em>{turn.accepted ? '已入城邦' : `回应 ${turn.respondsTo ?? '议题'}`}</em>
                 </span>
               </button>
@@ -169,6 +175,7 @@ export function ServiceDrawer({
                   <span>
                     <strong>{finding.title}</strong>
                     <p>{finding.detail}</p>
+                    <small>{gapTypeLabel(finding.gapType)} · 建议 {protocolLabel(finding.suggestedProtocol)} / {argumentMoveLabel(finding.suggestedMove)}</small>
                     <p className="repair-action">{finding.repairAction}</p>
                     <div className="repair-actions">
                       <button type="button" onClick={() => onFocusFinding(finding)}>
@@ -190,12 +197,14 @@ export function ServiceDrawer({
         <ArchivePanel
           docs={docs}
           savedCities={savedCities}
+          discussionRecords={discussionRecords}
           activeDocId={activeDocId}
           onOpenDoc={onOpenDoc}
           onCloseDoc={onCloseDoc}
           onSaveCity={onSaveCity}
           onLoadCity={onLoadCity}
           onLoadSampleCase={onLoadSampleCase}
+          onDiscussionRecordStatusChange={onDiscussionRecordStatusChange}
         />
       )}
     </aside>

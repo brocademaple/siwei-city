@@ -1,6 +1,7 @@
 import { art } from '../assets/art';
 import { relationOptions } from '../data/seed';
 import { typeLabel } from '../lib/layout';
+import { argumentMoveLabel, protocolLabel } from '../lib/protocols';
 import { InfoHint } from './InfoHint';
 import type { District, IdeaNode, RoleContribution, Route, RouteRelation } from '../types';
 
@@ -47,9 +48,12 @@ export function MapPopover({
         <p>{previewContribution.body}</p>
         <div className="meta-row">
           <span>{typeLabel(previewContribution.type)}</span>
+          <span>{protocolLabel(previewContribution.protocol)}</span>
+          <span>{argumentMoveLabel(previewContribution.argumentMove)}</span>
           <span>建议落入 {district?.name}</span>
           <span>{previewContribution.source ?? '本地模板'}</span>
         </div>
+        {previewContribution.protocolReason && <p className="protocol-reason">{previewContribution.protocolReason}</p>}
         <p className="term-hint">居民动态 = 多角色 agent 的建议流。点击只预览，不会自动改变地图。</p>
         <button
           className="primary-action"
@@ -57,9 +61,9 @@ export function MapPopover({
           disabled={accepted}
           onClick={() => onAcceptContribution(previewContribution)}
         >
-          {accepted ? '已入城邦' : '采纳入城'}
+          {accepted ? '已纳入结论' : '纳入本轮结论'}
         </button>
-        <small className="term-hint">采纳入城 = 把这条建议正式转成一座观点建筑。</small>
+        <small className="term-hint">讨论会自动记录。纳入结论会把这条观点同步到议题地图。</small>
       </section>
     );
   }

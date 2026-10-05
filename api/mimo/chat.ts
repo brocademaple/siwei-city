@@ -23,8 +23,8 @@ export default async function handler(request: any, response: any) {
   }
 
   const apiKey = process.env.MIMO_API_KEY;
-  const baseUrl = process.env.MIMO_BASE_URL ?? 'https://token-plan-cn.xiaomimimo.com/v1';
-  const model = process.env.MIMO_MODEL ?? 'mimo-v2.5-pro';
+  const baseUrl = process.env.MIMO_BASE_URL ?? 'https://ops-ai-gateway.yc345.tv/v1';
+  const model = process.env.MIMO_MODEL ?? 'deepseek-v4-flash';
 
   if (!apiKey) {
     response.status(501).json(buildError('config_error', 'MIMO_API_KEY is not configured', 501, false));
@@ -58,7 +58,7 @@ export default async function handler(request: any, response: any) {
       response.status(upstream.status).json(
         buildError(
           'upstream_error',
-          getUpstreamErrorMessage(payload) ?? 'Mimo request failed',
+          getUpstreamErrorMessage(payload) ?? 'AI gateway request failed',
           upstream.status,
           upstream.status === 408 || upstream.status === 429 || upstream.status >= 500,
           payload,
@@ -71,7 +71,7 @@ export default async function handler(request: any, response: any) {
   } catch (error) {
     response
       .status(500)
-      .json(buildError('network_error', error instanceof Error ? error.message : 'Unknown Mimo proxy error', 500, true));
+      .json(buildError('network_error', error instanceof Error ? error.message : 'Unknown AI gateway proxy error', 500, true));
   }
 }
 
@@ -132,7 +132,7 @@ function withDiagnostics(payload: any, model: string) {
   return {
     ...payload,
     diagnostics: {
-      provider: 'mimo',
+      provider: 'ops-ai-gateway',
       model: payload?.model ?? model,
       usage: {
         source: usageWarnings.length ? 'missing_or_partial' : 'provider',

@@ -16,6 +16,8 @@
     "check:assets": "node scripts/check-green-artifacts.mjs",
     "capture:screenshots": "node scripts/capture-page-screenshots.mjs",
     "verify:mimo": "node scripts/verify-mimo-chat.mjs",
+    "verify:ai-gateway": "node scripts/verify-mimo-chat.mjs",
+    "test:unit": "node scripts/tests/agent-storage-unit.mjs",
     "test:smoke": "node scripts/smoke-test.mjs"
   },
   "dependencies": {

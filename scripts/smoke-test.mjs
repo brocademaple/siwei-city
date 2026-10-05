@@ -6,10 +6,18 @@ const root = process.cwd();
 const checks = [
   ['src/lib/cityBuildings.ts', ['council', 'library', 'residential', 'hypothesisHarbor', 'actionHarbor', 'contemplationGarden', 'memoryCemetery', 'lighthouse']],
   ['src/components/HomeWorldMap.tsx', ['从冲突议会开始', 'world-marker-label', 'markerLabels', 'onResetSession']],
-  ['src/components/CouncilStage.tsx', ['召集居民发言', '先采纳右侧发言', '查看卷轴报告']],
-  ['src/lib/traceRunDocs.ts', ['latest-two-chain-runs.json', '居民回应', '采纳动作', '巡城结果', '下一步行动']],
+  ['src/components/CouncilStage.tsx', ['这轮想讨论什么', '开始讨论', '发言记录', '议论结构', '总结与行动', '大图书馆', 'scroll-record-body', 'onRecordStatusChange', '本轮结束', '结束本轮，返回城邦', '围绕本题追问', '发起新议题']],
+  ['src/lib/traceRunDocs.ts', ['latest-two-chain-runs.json', '居民回应', '采纳动作', '巡城结果', '下一步行动', '讨论协议', '论证动作']],
+  ['src/lib/protocols.ts', ['intent', 'elenchus', 'topics', 'analogy', 'naming', 'selectOpeningProtocol', 'protocolForFinding']],
+  ['src/lib/agents/agentRuntime.ts', ['runOpeningAgents', 'runFindingAgent', 'runStructuredImport', 'callWithRepair']],
+  ['src/lib/agents/agentSchemas.ts', ['validateOpeningMapDraft', 'validateTurnDraft', 'validateStructuredImportDraft']],
+  ['src/lib/storage/cityStorage.ts', ['fetchCurrentCity', 'putCurrentCity', 'archiveCity', 'restoreSavedCity']],
+  ['src/lib/storage/discussionRecordStorage.ts', ['fetchDiscussionRecords', 'createDiscussionRecord', 'updateDiscussionRecord', 'localStorage']],
+  ['src/components/DiscussionRecordLibrary.tsx', ['讨论记录', '待确认', '已确认', '已否决', '报告', '行动', '过程', '围绕上一轮追问', '追问自：']],
+  ['src/lib/importIdeas.ts', ['buildLocalStructuredImport']],
+  ['vite.config.ts', ['/api/cities', 'cityStorageDevProxy', 'sql-api-memory']],
   ['src/components/ArchivePanel.tsx', ['公开思维链路留痕', '阅读最近链路', "doc.kind === 'trace'", "setShelf('traces')"]],
-  ['src/styles.css', ['.home-shell .service-drawer.open', 'calc(100vw - 24px)', '.trace-entry-card']],
+  ['src/styles.css', ['.home-shell .service-drawer.open', 'calc(100vw - 24px)', '.trace-entry-card', '.import-preview-list']],
   ['dist/index.html', ['/siwei-city/v2/', 'pages-home-hero.webp', 'pages-home-hero-scroll.webm', 'pages-home-hero-scroll.mp4', 'data-hero-video', 'data-hero-sound-toggle', '开启原声', 'autoplay', 'loop', 'preload="auto"', 'hero-scroll-stage', 'data-wiki-tab', '思维城邦 2.0', '城邦 Wiki', '建筑制度', '居民席位', '行动远航']],
   ['dist/v1/index.html', ['/siwei-city/v2/', 'Version 1.0 Iteration Log', '美术资产与编排思路']],
   ['dist/v2/index.html', ['/siwei-city/v2/assets/']],
@@ -74,8 +82,18 @@ for (const trace of traceData.traces) {
   if (!Array.isArray(trace.turns) || !trace.turns.some((turn) => turn.accepted)) {
     throw new Error(`Smoke test expected accepted resident turns for trace: ${trace.id}`);
   }
+  for (const turn of trace.turns) {
+    if (!turn.protocol || !turn.argumentMove) {
+      throw new Error(`Smoke test expected protocol metadata on turn "${turn.title}" for trace: ${trace.id}`);
+    }
+  }
   if (!trace.review?.beforeAcceptance || !trace.review?.afterAcceptance) {
     throw new Error(`Smoke test expected review checkpoints for trace: ${trace.id}`);
+  }
+  for (const finding of [...trace.review.beforeAcceptance, ...trace.review.afterAcceptance]) {
+    if (!finding.gapType || !finding.suggestedProtocol || !finding.suggestedMove) {
+      throw new Error(`Smoke test expected protocol metadata on finding "${finding.title}" for trace: ${trace.id}`);
+    }
   }
   if (!trace.finalOutputs?.reportSummary || !trace.finalOutputs?.nextAction) {
     throw new Error(`Smoke test expected final outputs for trace: ${trace.id}`);

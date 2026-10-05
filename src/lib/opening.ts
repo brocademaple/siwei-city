@@ -1,4 +1,5 @@
 import { getDiscussionMode } from './modes';
+import { defaultArgumentMoveForRole, selectOpeningProtocol } from './protocols';
 import type { DiscussionMode, IdeaNode, RoundtableTurn, Route } from '../types';
 
 export interface OpeningDraft {
@@ -11,6 +12,7 @@ export interface OpeningDraft {
 export function createOpeningDraft(rawTopic: string, mode: DiscussionMode = 'explore'): OpeningDraft {
   const topic = normalizeTopic(rawTopic);
   const config = getDiscussionMode(mode);
+  const openingProtocol = selectOpeningProtocol(topic, mode);
   const ideas: IdeaNode[] = [
     {
       id: 'idea-core-question',
@@ -144,6 +146,9 @@ export function createOpeningDraft(rawTopic: string, mode: DiscussionMode = 'exp
     targetIdeaId: targetIdeaForStep(step.type, step.role),
     source: '本地模板',
     respondsTo: index === 0 ? '核心问题' : config.steps[index - 1]?.role,
+    protocol: openingProtocol.protocol,
+    argumentMove: defaultArgumentMoveForRole(step.role),
+    protocolReason: openingProtocol.reason,
   }));
 
   return { topic, ideas, routes, turns };

@@ -11,7 +11,7 @@ export interface GatewayJsonResult {
   ledger: UsageLedger;
 }
 
-const proxyUrl = import.meta.env.VITE_MIMO_PROXY_URL ?? '/api/mimo/chat';
+const proxyUrl = import.meta.env.VITE_MIMO_PROXY_URL?.trim() || '/api/mimo/chat';
 const inputPriceCny = Number(import.meta.env.VITE_MIMO_INPUT_PRICE_CNY_PER_1K ?? 0);
 const outputPriceCny = Number(import.meta.env.VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K ?? 0);
 

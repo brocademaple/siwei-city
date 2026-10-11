@@ -21,6 +21,7 @@ export async function requestGatewayJson(messages: GatewayMessage[], purpose: st
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messages }),
+      signal: AbortSignal.timeout(45_000),
     });
     const text = await response.text();
     const payload = parseJsonResponse(text, 'AI 网关代理返回了非 JSON 内容');
@@ -103,6 +104,7 @@ export function fallbackLedger(message: string, calls = 1): UsageLedger {
 }
 
 function toFallbackMessage(error: unknown) {
+  if (error instanceof Error && error.name === 'TimeoutError') return 'AI 网关请求超过 45 秒，已回退到本地模板。';
   if (error instanceof SyntaxError) return withFallbackSuffix(error.message);
   if (error instanceof TypeError) return '无法连接 AI 网关代理，已使用本地模板。';
   if (error instanceof Error) return withFallbackSuffix(error.message);

@@ -57,15 +57,25 @@ export async function runOpeningAgents(
   const config = getDiscussionMode(mode);
   const mapResult = await callWithRepair(
     buildOpeningMapMessages(localOpening.topic, mode, ideas, routes),
-    validateOpeningMapDraft,
+    (value) => {
+      const result = validateOpeningMapDraft(value);
+      if (result.ok && result.value.ideas.length !== localOpening.ideas.length) {
+        return { ok: false as const, reason: `开局必须包含 ${localOpening.ideas.length} 条观点，以保持居民引用完整` };
+      }
+      return result;
+    },
     '开局地图 agent',
   );
   const opening = mapResult.value ? applyOpeningMap(localOpening, mapResult.value) : localOpening;
 
-  const turnResults: GatewayJsonResult[] = [];
+  const turnResults: (GatewayJsonResult & { value?: AgentTurnDraft })[] = [];
   const turns: RoundtableTurn[] = [];
   for (const localTurn of opening.turns) {
-    const result = await callWithRepair(buildResidentTurnMessages(opening, localTurn, config.label), validateTurnDraft, `${localTurn.role} agent`);
+    const result = await callWithRepair(
+      buildResidentTurnMessages(opening, localTurn, config.label, turns),
+      (value) => validateTurnDraft(value, { role: localTurn.role, ideaIds: opening.ideas.map((idea) => idea.id) }),
+      `${localTurn.role} agent`,
+    );
     turnResults.push(result);
     const turn = result.value ? applyTurnDraft(localTurn, result.value, turns) : localTurn;
     turns.push(turn);
@@ -73,6 +83,7 @@ export async function runOpeningAgents(
   }
 
   const ledger = mergeLedgers([mapResult, ...turnResults], mapResult.value ? undefined : '开局地图 agent 未通过校验，已保留本地开局。');
+  if (!mapResult.value || turnResults.some((result) => !result.value)) ledger.status = 'fallback';
   const agentOpening = { ...opening, turns };
   return {
     opening: agentOpening,
@@ -116,9 +127,13 @@ export async function runFindingAgent(finding: ReviewFinding, mode: DiscussionMo
     protocolReason: localProtocol.reason,
   };
 
-  const result = await callWithRepair(buildFindingTurnMessages(topic, finding, localTurn, target), validateTurnDraft, '巡城修缮 agent');
+  const result = await callWithRepair(
+    buildFindingTurnMessages(topic, finding, localTurn, target),
+    (value) => validateTurnDraft(value, { role: localTurn.role, ideaIds: target ? [target.id] : [] }),
+    '巡城修缮 agent',
+  );
   if (!result.value) {
-    return { turn: localTurn, ledger: fallbackLedger(result.ledger.lastError ?? '巡城修缮 agent 未通过校验，已使用本地模板。') };
+    return { turn: localTurn, ledger: result.ledger };
   }
   return {
     turn: { ...applyTurnDraft(localTurn, result.value, []), id: localTurn.id, source: 'AI 生成' },
@@ -151,6 +166,8 @@ async function callWithRepair<T>(
   purpose: string,
 ): Promise<GatewayJsonResult & { value?: T }> {
   const first = await requestGatewayJson(messages, purpose);
+  // A network/configuration failure has no model output to repair.
+  if (first.json === undefined && first.ledger.status === 'fallback') return first;
   const firstValidation = validate(first.json);
   if (firstValidation.ok) return { ...first, value: firstValidation.value };
 
@@ -165,6 +182,7 @@ async function callWithRepair<T>(
         purpose,
         validationError: firstValidation.reason,
         invalidJson: first.rawContent ?? first.json,
+        originalRequest: messages,
         required: '修复为合法 JSON。所有中文内容短而具体，不要新增解释字段。',
       }),
     },
@@ -223,7 +241,7 @@ function buildOpeningMapMessages(topic: string, mode: DiscussionMode, ideas: Ide
   ];
 }
 
-function buildResidentTurnMessages(opening: OpeningDraft, localTurn: RoundtableTurn, modeLabel: string): GatewayMessage[] {
+function buildResidentTurnMessages(opening: OpeningDraft, localTurn: RoundtableTurn, modeLabel: string, previousTurns: RoundtableTurn[]): GatewayMessage[] {
   const profile = councilResidentIds
     .map((id) => getResidentProfile(id))
     .find((item) => item.roleName === localTurn.role);
@@ -234,6 +252,8 @@ function buildResidentTurnMessages(opening: OpeningDraft, localTurn: RoundtableT
         `你是思维城邦居民 agent：${profile?.title ?? localTurn.role}。`,
         `角色职责：${profile?.promptBrief ?? localTurn.role}。`,
         '只输出 JSON。不要总结全部议题，只写你这一位居民的一条可采纳发言。',
+        '依据 currentIdeas 的实际主张和 previousTurns 的实际发言继续推理。明确指出你回应的主张、依据或反例，保留尚未解决的分歧。',
+        'targetIdeaId 必须从 currentIdeas 中选择；空数组表示尚无居民发言，不得编造前序意见。source 表示生成方式，不代表已核验的证据。',
       ].join('\n'),
     },
     {
@@ -246,8 +266,10 @@ function buildResidentTurnMessages(opening: OpeningDraft, localTurn: RoundtableT
         expectedMove: localTurn.argumentMove ?? defaultArgumentMoveForRole(localTurn.role),
         respondsTo: localTurn.respondsTo,
         targetIdeaId: localTurn.targetIdeaId,
-        currentIdeas: opening.ideas.map(({ id, title, type, authorRole }) => ({ id, title, type, authorRole })),
-        previousTurns: opening.turns.filter((turn) => turn.id !== localTurn.id).map(({ role, title, respondsTo }) => ({ role, title, respondsTo })),
+        currentIdeas: opening.ideas.map(({ id, title, body, type, authorRole, source }) => ({ id, title, body: contextExcerpt(body), type, authorRole, source })),
+        previousTurns: previousTurns.map(({ id, role, title, body, respondsTo, targetIdeaId, relation, source, protocol, argumentMove }) => ({
+          id, role, title, body: contextExcerpt(body), respondsTo, targetIdeaId, relation, source, protocol, argumentMove,
+        })),
         outputShape: {
           role: localTurn.role,
           title: 'string',
@@ -264,6 +286,11 @@ function buildResidentTurnMessages(opening: OpeningDraft, localTurn: RoundtableT
       }),
     },
   ];
+}
+
+function contextExcerpt(body: string) {
+  const limit = 6000;
+  return body.length > limit ? `${body.slice(0, limit)}\n[上下文截断，完整正文保留在讨论记录中]` : body;
 }
 
 function buildFindingTurnMessages(topic: string, finding: ReviewFinding, localTurn: RoundtableTurn, target?: IdeaNode): GatewayMessage[] {

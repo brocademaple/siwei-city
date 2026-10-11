@@ -49,6 +49,7 @@ export default async function handler(request: any, response: any) {
         model,
         temperature: 0.72,
         response_format: { type: 'json_object' },
+        thinking: { type: 'disabled' },
         messages: body.messages,
       }),
     });

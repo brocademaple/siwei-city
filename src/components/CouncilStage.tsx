@@ -63,7 +63,8 @@ export function CouncilStage({
   const reportDoc = docs.find((doc) => doc.kind === 'report');
   const nextStep = discussionRunning ? getDiscussionMode(mode).steps[turns.length] : undefined;
   const cleanTopic = topicDraft.trim();
-  const showingComposer = composerMode !== null;
+  const interruptedBeforeFirstTurn = discussionStarted && !discussionRunning && turns.length === 0 && !activeRecord;
+  const showingComposer = composerMode !== null || interruptedBeforeFirstTurn;
   const showingCloseout = !discussionRunning && Boolean(activeRecord);
 
   useEffect(() => setTopicDraft(topic), [topic]);
@@ -120,10 +121,11 @@ export function CouncilStage({
       <section className="council-table council-scroll council-workspace" aria-label="议会讨论">
         {showingComposer || !discussionStarted ? (
           <form className="council-topic-form council-opening-form" onSubmit={handleStart}>
+            {interruptedBeforeFirstTurn && <p role="status">上次讨论在第一席发言前中断。议题已保留，可以重新开始。</p>}
             <label htmlFor="council-topic">{composerMode === 'followup' ? '围绕本题继续追问什么？' : '这轮想讨论什么？'}</label>
             <textarea id="council-topic" value={topicDraft} onChange={(event) => setTopicDraft(event.target.value)} placeholder={composerMode === 'followup' ? '保留原议题，或写下一个更具体的追问' : '写下一个选择、判断，或你暂时想不明白的问题'} rows={4} />
             <div className="scroll-composer-actions">
-              {showingComposer ? <button className="topic-example" type="button" onClick={onCancelComposer}>回到本轮结束</button> : <button className="topic-example" type="button" onClick={() => setTopicDraft('AI 时代，个人应该如何重建自己的知识管理系统？')}>填入示例</button>}
+              {composerMode !== null ? <button className="topic-example" type="button" onClick={onCancelComposer}>回到本轮结束</button> : <button className="topic-example" type="button" onClick={() => setTopicDraft('AI 时代，个人应该如何重建自己的知识管理系统？')}>填入示例</button>}
               <button className="council-start-button" type="submit" disabled={!cleanTopic || discussionRunning}>{composerMode === 'followup' ? '开始追问' : '开始讨论'}</button>
             </div>
           </form>

@@ -34,6 +34,9 @@ jobs:
       - name: Check art assets
         run: npm run check:assets
 
+      - name: Test reasoning runtime
+        run: npm run test:unit
+
       - name: Build site
         run: npm run build:pages
         env:

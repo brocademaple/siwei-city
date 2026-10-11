@@ -82,7 +82,12 @@ export function validateOpeningMapDraft(value: unknown): { ok: true; value: Agen
   return { ok: true, value: { topic: value.topic.trim(), ideas: ideas as AgentIdeaDraft[], routes: value.routes as AgentOpeningMapDraft['routes'] } };
 }
 
-export function validateTurnDraft(value: unknown): { ok: true; value: AgentTurnDraft } | { ok: false; reason: string } {
+export interface TurnValidationContext {
+  role: AgentTurnDraft['role'];
+  ideaIds: string[];
+}
+
+export function validateTurnDraft(value: unknown, context?: TurnValidationContext): { ok: true; value: AgentTurnDraft } | { ok: false; reason: string } {
   if (!isRecord(value)) return invalid('居民发言必须是对象');
   if (!residentRoles.includes(value.role as Exclude<AuthorRole, '我'>)) return invalid('role 不合法');
   if (!isNonEmptyString(value.title)) return invalid('title 必须是非空字符串');
@@ -95,6 +100,13 @@ export function validateTurnDraft(value: unknown): { ok: true; value: AgentTurnD
   if (!argumentMoves.includes(value.argumentMove as ArgumentMove)) return invalid('argumentMove 不合法');
   if (!isNonEmptyString(value.protocolReason)) return invalid('protocolReason 必须是非空字符串');
   if (value.targetIdeaId !== undefined && typeof value.targetIdeaId !== 'string') return invalid('targetIdeaId 必须是字符串');
+  if (context) {
+    if (value.role !== context.role) return invalid(`role 必须是本席居民 ${context.role}`);
+    if (context.ideaIds.length > 0 && !context.ideaIds.includes(String(value.targetIdeaId))) {
+      return invalid(`targetIdeaId 必须引用本轮观点：${context.ideaIds.join(', ')}`);
+    }
+    if (context.ideaIds.length === 0 && value.targetIdeaId) return invalid('当前没有可引用的观点，不能填写 targetIdeaId');
+  }
   return { ok: true, value: value as unknown as AgentTurnDraft };
 }
 

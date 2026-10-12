@@ -18,6 +18,8 @@ import { getDistrictBlueprint } from './lib/districtBlueprints';
 import { getCityBuilding } from './lib/cityBuildings';
 import { councilResidentIds, getResidentProfile, residentProfiles } from './lib/residents';
 import { sampleCases } from './lib/sampleCases';
+import { runEvidenceRound } from './lib/agents/evidenceRound';
+import { widgetInstallEvidencePack } from './data/evidencePacks';
 import {
   archiveCity,
   clearLocalSnapshot,
@@ -38,7 +40,7 @@ import {
   setDiscussionRecordStatus,
   updateDiscussionRecord,
 } from './lib/storage/discussionRecordStorage';
-import type { ArchiveDoc, BuildingSceneId, CitySnapshot, DiscussionMode, DiscussionRecord, DiscussionRecordStatus, IdeaNode, ResidentId, ReviewFinding, RoleContribution, RoundtableTurn, Route, RouteRelation, SavedCity, SceneView, ServicePanel, StructuredIdeaCandidate, UsageLedger } from './types';
+import type { ArchiveDoc, BuildingSceneId, CitySnapshot, DiscussionMode, EvidenceExit, DiscussionRecord, DiscussionRecordStatus, IdeaNode, ResidentId, ReviewFinding, RoleContribution, RoundtableTurn, Route, RouteRelation, SavedCity, SceneView, ServicePanel, StructuredIdeaCandidate, UsageLedger } from './types';
 
 const GUIDE_STORAGE_KEY = 'siwei-city-guide-complete';
 
@@ -67,6 +69,7 @@ function App() {
   const [ideas, setIdeas] = useState<IdeaNode[]>(persisted?.ideas ?? initialIdeas.map((idea) => ({ ...idea, source: '本地模板' })));
   const [routes, setRoutes] = useState<Route[]>(persisted?.routes ?? initialRoutes);
   const [turns, setTurns] = useState<RoundtableTurn[]>(persisted?.turns ?? createOpeningDraft(topic, 'explore').turns);
+  const [evidenceExit, setEvidenceExit] = useState<EvidenceExit | null>(persisted?.evidenceExit ?? null);
   const [savedCities, setSavedCities] = useState<SavedCity[]>(persistedCities);
   const [discussionRecords, setDiscussionRecords] = useState<DiscussionRecord[]>(persistedDiscussionRecords);
   const [activeDiscussionRecordId, setActiveDiscussionRecordId] = useState<string | null>(persistedDiscussionRecords[0]?.id ?? null);
@@ -141,14 +144,14 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const snapshot = buildCurrentSnapshot(currentTopic, mode, ideas, routes, turns, acceptedContributionKeys);
+    const snapshot = { ...buildCurrentSnapshot(currentTopic, mode, ideas, routes, turns, acceptedContributionKeys), ...(evidenceExit ? { evidenceExit } : {}) };
     saveLocalSnapshot(snapshot);
     if (!storageReady) return;
     const timer = window.setTimeout(() => {
       putCurrentCity(snapshot);
     }, 550);
     return () => window.clearTimeout(timer);
-  }, [currentTopic, ideas, routes, mode, turns, acceptedContributionKeys, storageReady]);
+  }, [currentTopic, ideas, routes, mode, turns, acceptedContributionKeys, storageReady, evidenceExit]);
 
   useEffect(() => {
     saveLocalSavedCities(savedCities);
@@ -336,7 +339,27 @@ function App() {
     if (firstTarget) selectIdea(firstTarget);
   }
 
+  async function startEvidenceRound() {
+    const pack = widgetInstallEvidencePack;
+    setLedger((current) => ({ ...current, status: 'running', engine: 'AI 推演', lastError: undefined }));
+    setCouncilComposer(null);
+    setCurrentTopic(pack.topic);
+    setTurns([]);
+    setEvidenceExit(null);
+    setAcceptedContributionKeys([]);
+    setActiveDiscussionRecordId(null);
+    setActiveResidentId(councilResidentIds[0]);
+    setSceneView('council');
+    const result = await runEvidenceRound(pack, mode, (partial) => setTurns(partial));
+    setLedger(result.ledger);
+    setTurns(result.turns);
+    setEvidenceExit(result.exit);
+    const snapshot = { ...buildCurrentSnapshot(pack.topic, mode, ideas, routes, result.turns, []), evidenceExit: result.exit };
+    saveCompletedDiscussionRecord(snapshot, buildReviewFindings(ideas, routes), undefined, result.ledger);
+  }
+
   async function startOpening(rawTopic: string) {
+    setEvidenceExit(null);
     const parentRecordId = councilComposer?.kind === 'followup' ? councilComposer.parentRecordId : undefined;
     setLedger((current) => ({ ...current, status: 'running', engine: 'AI 推演', lastError: undefined }));
     setCouncilComposer(null);
@@ -700,6 +723,10 @@ function App() {
               composerMode={councilComposer?.kind ?? null}
               onActiveResidentChange={setActiveResidentId}
               onStartOpening={startOpening}
+              onStartEvidenceRound={startEvidenceRound}
+              evidenceExit={evidenceExit}
+              evidencePack={widgetInstallEvidencePack}
+              ledger={ledger}
               onCancelComposer={() => setCouncilComposer(null)}
               onPrepareFollowUp={prepareFollowUpDiscussion}
               onPrepareNewDiscussion={prepareNewDiscussion}

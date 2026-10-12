@@ -110,6 +110,10 @@ export interface RoundtableTurn extends RoleContribution {
   relation: RouteRelation;
   targetIdeaId?: string;
   accepted?: boolean;
+  evidenceSeat?: EvidenceSeat;
+  evidencePhase?: 'opening' | 'cross';
+  evidenceIds?: string[];
+  citedOpponentEvidence?: string[];
 }
 
 export interface UsageLedger {
@@ -126,6 +130,7 @@ export interface UsageLedger {
 }
 
 export interface CitySnapshot {
+  evidenceExit?: EvidenceExit;
   currentTopic: string;
   mode: DiscussionMode;
   ideas: IdeaNode[];
@@ -211,4 +216,22 @@ export interface ResidentProfile {
   outputContract: string;
   assetKey: ResidentId;
   homeDistrictId: string;
+}
+
+export interface EvidenceItem {
+  id: string;
+  text: string;
+  source: string;
+}
+
+export type EvidenceSeat = '主张' | '反例' | '代价';
+
+export interface EvidenceExit {
+  title: string;
+  claim: string;
+  disagreements: string[];
+  toVerify: string;
+  evidencePackId: string;
+  model?: string;
+  source: 'AI 生成' | '本地模板';
 }

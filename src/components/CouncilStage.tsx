@@ -4,6 +4,8 @@ import { councilResidentIds, getResidentProfile } from '../lib/residents';
 import { getDiscussionMode, modeLabel } from '../lib/modes';
 import { argumentMoveLabel, gapTypeLabel, protocolLabel } from '../lib/protocols';
 import { discussionGenerationDetail, discussionGenerationLabel } from '../lib/discussionRecords';
+import type { EvidencePack } from '../data/evidencePacks';
+import type { EvidenceExit, UsageLedger } from '../types';
 import type { ArchiveDoc, DiscussionMode, DiscussionRecord, DiscussionRecordStatus, ResidentId, ReviewFinding, RoundtableTurn } from '../types';
 
 type CouncilTab = 'transcript' | 'structure' | 'summary';
@@ -21,6 +23,10 @@ interface CouncilStageProps {
   composerMode: 'new' | 'followup' | null;
   onActiveResidentChange: (id: ResidentId) => void;
   onStartOpening: (topic: string) => void;
+  onStartEvidenceRound?: () => void;
+  evidenceExit?: EvidenceExit | null;
+  evidencePack?: EvidencePack;
+  ledger?: UsageLedger;
   onCancelComposer: () => void;
   onPrepareFollowUp: () => void;
   onPrepareNewDiscussion: () => void;
@@ -43,6 +49,10 @@ export function CouncilStage({
   composerMode,
   onActiveResidentChange,
   onStartOpening,
+  onStartEvidenceRound,
+  evidenceExit,
+  evidencePack,
+  ledger,
   onCancelComposer,
   onPrepareFollowUp,
   onPrepareNewDiscussion,
@@ -126,6 +136,7 @@ export function CouncilStage({
             <textarea id="council-topic" value={topicDraft} onChange={(event) => setTopicDraft(event.target.value)} placeholder={composerMode === 'followup' ? '保留原议题，或写下一个更具体的追问' : '写下一个选择、判断，或你暂时想不明白的问题'} rows={4} />
             <div className="scroll-composer-actions">
               {composerMode !== null ? <button className="topic-example" type="button" onClick={onCancelComposer}>回到本轮结束</button> : <button className="topic-example" type="button" onClick={() => setTopicDraft('AI 时代，个人应该如何重建自己的知识管理系统？')}>填入示例</button>}
+              {onStartEvidenceRound && composerMode !== 'followup' && <button className="council-start-button evidence-start" type="button" disabled={discussionRunning} onClick={() => { setActiveTab('transcript'); setFollowingLatest(true); onStartEvidenceRound(); }}>证据局：三席对质</button>}
               <button className="council-start-button" type="submit" disabled={!cleanTopic || discussionRunning}>{composerMode === 'followup' ? '开始追问' : '开始讨论'}</button>
             </div>
           </form>
@@ -150,7 +161,9 @@ export function CouncilStage({
                   <article className={index === turns.length - 1 ? 'scroll-entry latest' : 'scroll-entry'} key={turn.id} ref={(node) => { turnRefs.current[turn.id] = node; }}>
                     <header><span>{roleTitle(turn.role)}</span><small className={turn.source === 'AI 生成' ? 'turn-source ai' : 'turn-source local'}>{turn.source ?? '本地模板'} · {turn.accepted ? '已纳入结论' : '讨论发言'}</small></header>
                     <strong>{turn.title}</strong>
+                    {turn.evidenceSeat && <em className="evidence-seat-tag">{turn.evidenceSeat}席 · {turn.evidencePhase === 'cross' ? '对质' : '开场'}</em>}
                     <p>{turn.body}</p>
+                    {turn.evidenceIds && turn.evidenceIds.length > 0 && <div className="evidence-chips">{turn.evidenceIds.map((id) => <span key={id} title={evidencePack?.items.find((item) => item.id === id)?.text}>{id} · {evidencePack?.items.find((item) => item.id === id)?.source ?? '证据包'}</span>)}{turn.citedOpponentEvidence?.length ? <span className="cited">点到对方：{turn.citedOpponentEvidence.join('、')}</span> : null}</div>}
                     <footer><span>回应：{turn.respondsTo ?? '核心问题'}</span><span>方式：{discussionMethod(turn)}</span></footer>
                     {!turn.accepted && !discussionRunning && <button className="turn-accept-button" type="button" onClick={() => onAcceptTurn(turn)}>纳入结论</button>}
                   </article>
@@ -175,6 +188,16 @@ export function CouncilStage({
 
             {activeTab === 'summary' && (
               <div className="discussion-summary">
+                {evidenceExit && !discussionRunning && (
+                  <section className="evidence-exit" aria-label="出口四字段">
+                    <span>出口四字段 · {evidenceExit.source}{evidenceExit.model ? ` · ${evidenceExit.model}` : ''}{ledger ? ` · ${ledger.calls} 次调用 · ${ledger.inputTokens}+${ledger.outputTokens} tokens · ${ledger.usageSource === 'provider' ? '服务商计量' : '估算'}` : ''}</span>
+                    <div><small>标题</small><strong>{evidenceExit.title}</strong></div>
+                    <div><small>主张一句</small><p>{evidenceExit.claim}</p></div>
+                    <div><small>分歧三条</small><ol>{evidenceExit.disagreements.map((item) => <li key={item}>{item}</li>)}</ol></div>
+                    <div><small>待证一条</small><p>{evidenceExit.toVerify}</p></div>
+                    {evidencePack && <details><summary>证据包 {evidencePack.items.length} 条</summary><ul>{evidencePack.items.map((item) => <li key={item.id}><b>{item.id}</b> {item.text}<i>（{item.source}）</i></li>)}</ul></details>}
+                  </section>
+                )}
                 {showingCloseout && activeRecord && (
                   <section className="round-closeout" ref={closeoutRef} aria-label="本轮结束">
                     <header>

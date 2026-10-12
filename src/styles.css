@@ -6013,3 +6013,45 @@ textarea {
     min-height: 360px;
   }
 }
+
+/* 证据局：三席对质 + 出口四字段（A 大理石神殿配色，沿用现有字体） */
+.council-start-button.evidence-start {
+  background: linear-gradient(180deg, #f4efe4, #ddd3c0);
+  color: #2f3b52;
+  border: 1px solid rgba(176, 141, 72, 0.7);
+}
+.evidence-seat-tag {
+  justify-self: start;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgba(176, 141, 72, 0.16);
+  color: #7a5a22;
+  font-size: 11px;
+  font-style: normal;
+}
+.evidence-chips { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.evidence-chips span {
+  padding: 1px 7px;
+  border: 1px solid rgba(40, 91, 130, 0.32);
+  border-radius: 4px;
+  background: rgba(244, 239, 228, 0.9);
+  color: var(--lapis);
+  font-size: 10.5px;
+}
+.evidence-chips span.cited { border-color: rgba(150, 60, 40, 0.4); color: #8a3b26; }
+.evidence-exit {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid rgba(176, 141, 72, 0.55);
+  border-radius: 8px;
+  background: rgba(248, 245, 238, 0.92);
+  color: #3d2b1d;
+}
+.evidence-exit > span { color: #7a5a22; font-size: 11px; }
+.evidence-exit small { display: block; color: var(--lapis); font-size: 11px; font-weight: 600; }
+.evidence-exit strong { font-size: 15px; }
+.evidence-exit p, .evidence-exit ol, .evidence-exit ul { margin: 2px 0 0; font-size: 12px; line-height: 1.55; }
+.evidence-exit ol, .evidence-exit ul { padding-left: 18px; }
+.evidence-exit details { font-size: 11px; color: #564130; }
+.evidence-exit i { color: #8a7a62; }

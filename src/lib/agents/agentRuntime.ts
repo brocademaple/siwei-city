@@ -160,7 +160,7 @@ export async function runStructuredImport(rawText: string, topic: string, mode: 
   };
 }
 
-async function callWithRepair<T>(
+export async function callWithRepair<T>(
   messages: GatewayMessage[],
   validate: (value: unknown) => { ok: true; value: T } | { ok: false; reason: string },
   purpose: string,

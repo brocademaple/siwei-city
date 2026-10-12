@@ -5,7 +5,7 @@ import { getDiscussionMode, modeLabel } from '../lib/modes';
 import { argumentMoveLabel, gapTypeLabel, protocolLabel } from '../lib/protocols';
 import { discussionGenerationDetail, discussionGenerationLabel } from '../lib/discussionRecords';
 import type { EvidencePack } from '../data/evidencePacks';
-import type { EvidenceExit, UsageLedger } from '../types';
+import type { EvidenceExit, RecallCard, UsageLedger } from '../types';
 import type { ArchiveDoc, DiscussionMode, DiscussionRecord, DiscussionRecordStatus, ResidentId, ReviewFinding, RoundtableTurn } from '../types';
 
 type CouncilTab = 'transcript' | 'structure' | 'summary';
@@ -26,6 +26,13 @@ interface CouncilStageProps {
   onStartEvidenceRound?: () => void;
   evidenceExit?: EvidenceExit | null;
   evidencePack?: EvidencePack;
+  evidencePacks?: EvidencePack[];
+  onSelectEvidencePack?: (id: string) => void;
+  memoryRecall?: RecallCard[];
+  memoryRecallLive?: boolean;
+  memoryNotice?: string | null;
+  confirmedRulingId?: string | null;
+  onConfirmRuling?: () => void;
   ledger?: UsageLedger;
   onCancelComposer: () => void;
   onPrepareFollowUp: () => void;
@@ -52,6 +59,13 @@ export function CouncilStage({
   onStartEvidenceRound,
   evidenceExit,
   evidencePack,
+  evidencePacks,
+  onSelectEvidencePack,
+  memoryRecall = [],
+  memoryRecallLive = false,
+  memoryNotice,
+  confirmedRulingId,
+  onConfirmRuling,
   ledger,
   onCancelComposer,
   onPrepareFollowUp,
@@ -128,6 +142,21 @@ export function CouncilStage({
         <button className="hud-button" type="button" onClick={onOpenLibrary}>大图书馆</button>
       </header>
 
+      {memoryRecall.length > 0 && (
+        <aside className="city-memory-banner" aria-label="城邦记得">
+          <span className="city-memory-label">城邦记得{memoryRecallLive ? ' · 已注入三席与出口' : ' · 开局将注入'}</span>
+          <ul>
+            {memoryRecall.map((card) => (
+              <li key={card.id} className={card.status === '待验证' ? 'pending' : 'settled'}>
+                <b>{card.id}</b><em>{card.status === '待验证' ? '待验证' : card.kind === '裁定' ? '已定裁定' : '已定'}</em>
+                <span>{card.text}</span>
+                <small>{card.sources.join(' / ')}</small>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      )}
+
       <section className="council-table council-scroll council-workspace" aria-label="议会讨论">
         {showingComposer || !discussionStarted ? (
           <form className="council-topic-form council-opening-form" onSubmit={handleStart}>
@@ -136,6 +165,11 @@ export function CouncilStage({
             <textarea id="council-topic" value={topicDraft} onChange={(event) => setTopicDraft(event.target.value)} placeholder={composerMode === 'followup' ? '保留原议题，或写下一个更具体的追问' : '写下一个选择、判断，或你暂时想不明白的问题'} rows={4} />
             <div className="scroll-composer-actions">
               {composerMode !== null ? <button className="topic-example" type="button" onClick={onCancelComposer}>回到本轮结束</button> : <button className="topic-example" type="button" onClick={() => setTopicDraft('AI 时代，个人应该如何重建自己的知识管理系统？')}>填入示例</button>}
+              {onStartEvidenceRound && composerMode !== 'followup' && evidencePacks && evidencePacks.length > 1 && (
+                <select className="evidence-pack-select" aria-label="证据局议题" value={evidencePack?.id} onChange={(event) => onSelectEvidencePack?.(event.target.value)}>
+                  {evidencePacks.map((pack) => <option key={pack.id} value={pack.id}>{pack.topic}</option>)}
+                </select>
+              )}
               {onStartEvidenceRound && composerMode !== 'followup' && <button className="council-start-button evidence-start" type="button" disabled={discussionRunning} onClick={() => { setActiveTab('transcript'); setFollowingLatest(true); onStartEvidenceRound(); }}>证据局：三席对质</button>}
               <button className="council-start-button" type="submit" disabled={!cleanTopic || discussionRunning}>{composerMode === 'followup' ? '开始追问' : '开始讨论'}</button>
             </div>
@@ -163,7 +197,8 @@ export function CouncilStage({
                     <strong>{turn.title}</strong>
                     {turn.evidenceSeat && <em className="evidence-seat-tag">{turn.evidenceSeat}席 · {turn.evidencePhase === 'cross' ? '对质' : '开场'}</em>}
                     <p>{turn.body}</p>
-                    {turn.evidenceIds && turn.evidenceIds.length > 0 && <div className="evidence-chips">{turn.evidenceIds.map((id) => <span key={id} title={evidencePack?.items.find((item) => item.id === id)?.text}>{id} · {evidencePack?.items.find((item) => item.id === id)?.source ?? '证据包'}</span>)}{turn.citedOpponentEvidence?.length ? <span className="cited">点到对方：{turn.citedOpponentEvidence.join('、')}</span> : null}</div>}
+                    {turn.unresolved && <p className="evidence-unresolved">合不成，进待验证：{turn.unresolved}</p>}
+                    {turn.evidenceIds && turn.evidenceIds.length > 0 && <div className="evidence-chips">{turn.evidenceIds.map((id) => <span key={id} title={evidencePack?.items.find((item) => item.id === id)?.text}>{id} · {evidencePack?.items.find((item) => item.id === id)?.source ?? '证据包'}</span>)}{turn.citedOpponentEvidence?.length ? <span className="cited">点到对方：{turn.citedOpponentEvidence.join('、')}</span> : null}{turn.memoryIds?.map((id) => <span key={`m-${id}`} className="memory">城邦记忆 {id}</span>)}</div>}
                     <footer><span>回应：{turn.respondsTo ?? '核心问题'}</span><span>方式：{discussionMethod(turn)}</span></footer>
                     {!turn.accepted && !discussionRunning && <button className="turn-accept-button" type="button" onClick={() => onAcceptTurn(turn)}>纳入结论</button>}
                   </article>
@@ -195,6 +230,15 @@ export function CouncilStage({
                     <div><small>主张一句</small><p>{evidenceExit.claim}</p></div>
                     <div><small>分歧三条</small><ol>{evidenceExit.disagreements.map((item) => <li key={item}>{item}</li>)}</ol></div>
                     <div><small>待证一条</small><p>{evidenceExit.toVerify}</p></div>
+                    {evidenceExit.recalledMemory?.length ? <div><small>回应城邦记忆</small><p>召回 {evidenceExit.recalledMemory.join('、')}；已回应 {evidenceExit.respondedMemory?.join('、') || '无'}</p></div> : null}
+                    {evidenceExit.source === 'AI 生成' && onConfirmRuling && (
+                      <div className="evidence-confirm">
+                        {confirmedRulingId
+                          ? <strong>已确认为裁定 {confirmedRulingId} · 存入大图书馆「已定」</strong>
+                          : <button className="primary-action" type="button" onClick={onConfirmRuling}>确认为裁定</button>}
+                      </div>
+                    )}
+                    {memoryNotice && <p className="evidence-memory-notice" role="status">{memoryNotice}</p>}
                     {evidencePack && <details><summary>证据包 {evidencePack.items.length} 条</summary><ul>{evidencePack.items.map((item) => <li key={item.id}><b>{item.id}</b> {item.text}<i>（{item.source}）</i></li>)}</ul></details>}
                   </section>
                 )}

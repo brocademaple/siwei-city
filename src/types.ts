@@ -114,6 +114,8 @@ export interface RoundtableTurn extends RoleContribution {
   evidencePhase?: 'opening' | 'cross';
   evidenceIds?: string[];
   citedOpponentEvidence?: string[];
+  unresolved?: string;
+  memoryIds?: string[];
 }
 
 export interface UsageLedger {
@@ -234,4 +236,46 @@ export interface EvidenceExit {
   evidencePackId: string;
   model?: string;
   source: 'AI 生成' | '本地模板';
+  respondedMemory?: string[];
+  recalledMemory?: string[];
+}
+
+/** 城邦记忆：只有卡片。每张卡必须带出处。 */
+export type MemoryStatus = '已定' | '待验证' | '作废';
+export type MemoryKind = '裁定' | '待验证' | '证据' | '立场';
+
+export interface Provenance {
+  kind: 'round' | 'user' | 'import';
+  recordId?: string;
+  topic?: string;
+  seat?: EvidenceSeat | '出口';
+  phase?: 'opening' | 'cross' | 'exit';
+  evidenceIds: string[];
+  note?: string;
+  at: string;
+}
+
+export interface MemoryCard {
+  id: string;
+  kind: MemoryKind;
+  status: MemoryStatus;
+  text: string;
+  tags: string[];
+  provenance: Provenance[];
+  residentTag?: string;
+  reopenable?: boolean;
+  dependsOn?: string[];
+  answer?: { text: string; evidenceId: string; at: string };
+  voidReason?: string;
+  packId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RecallCard {
+  id: string;
+  kind: MemoryKind;
+  status: MemoryStatus;
+  text: string;
+  sources: string[];
 }

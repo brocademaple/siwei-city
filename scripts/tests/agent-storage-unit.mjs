@@ -17,6 +17,10 @@ const checks = [
   ['api/cities/records/[id].ts', ['validateDiscussionRecord', 'records']],
   ['api/cities/[id]/restore.ts', ['savedCityToSnapshot', 'store.current.set']],
   ['src/lib/importIdeas.ts', ['buildLocalStructuredImport', 'classifyLine']],
+  ['src/lib/memory/memoryCore.ts', ['validateProvenance', 'extractRoundMemory', 'confirmRuling', 'backfillQuestion', 'recallMemory', 'RECALL_LIMIT']],
+  ['src/lib/memory/memoryStore.ts', ['indexedDB', 'loadMemoryCards', 'saveMemoryCards']],
+  ['src/components/MemoryLibrary.tsx', ['已定', '待验证', '作废', '有数据了', '这条不对']],
+  ['src/lib/agents/evidenceRound.ts', ['cityMemory', 'respondedMemory', 'assertsCausality']],
   ['src/components/IdeaPanel.tsx', ['onPreviewImport', 'importCandidates', '采纳入城']],
 ];
 

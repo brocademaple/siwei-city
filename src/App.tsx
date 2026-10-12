@@ -19,7 +19,9 @@ import { getCityBuilding } from './lib/cityBuildings';
 import { councilResidentIds, getResidentProfile, residentProfiles } from './lib/residents';
 import { sampleCases } from './lib/sampleCases';
 import { runEvidenceRound } from './lib/agents/evidenceRound';
-import { widgetInstallEvidencePack } from './data/evidencePacks';
+import { evidencePacks, widgetInstallEvidencePack } from './data/evidencePacks';
+import { backfillQuestion, confirmRuling, exportMemory, extractRoundMemory, importMemory, recallMemory, voidCard } from './lib/memory/memoryCore';
+import { loadMemoryCards, saveMemoryCards } from './lib/memory/memoryStore';
 import {
   archiveCity,
   clearLocalSnapshot,
@@ -40,7 +42,7 @@ import {
   setDiscussionRecordStatus,
   updateDiscussionRecord,
 } from './lib/storage/discussionRecordStorage';
-import type { ArchiveDoc, BuildingSceneId, CitySnapshot, DiscussionMode, EvidenceExit, DiscussionRecord, DiscussionRecordStatus, IdeaNode, ResidentId, ReviewFinding, RoleContribution, RoundtableTurn, Route, RouteRelation, SavedCity, SceneView, ServicePanel, StructuredIdeaCandidate, UsageLedger } from './types';
+import type { ArchiveDoc, BuildingSceneId, CitySnapshot, DiscussionMode, EvidenceExit, DiscussionRecord, MemoryCard, RecallCard, DiscussionRecordStatus, IdeaNode, ResidentId, ReviewFinding, RoleContribution, RoundtableTurn, Route, RouteRelation, SavedCity, SceneView, ServicePanel, StructuredIdeaCandidate, UsageLedger } from './types';
 
 const GUIDE_STORAGE_KEY = 'siwei-city-guide-complete';
 
@@ -93,6 +95,15 @@ function App() {
   const [activeBlueprintDistrictId, setActiveBlueprintDistrictId] = useState<string | null>(null);
   const [scribeCollapsed, setScribeCollapsed] = useState(true);
   const [storageReady, setStorageReady] = useState(false);
+  const [memoryCards, setMemoryCards] = useState<MemoryCard[]>([]);
+  const [memoryReady, setMemoryReady] = useState(false);
+  const [evidencePackId, setEvidencePackId] = useState<string>(persisted?.evidenceExit?.evidencePackId ?? widgetInstallEvidencePack.id);
+  const [roundRecall, setRoundRecall] = useState<RecallCard[] | null>(null);
+  const [evidenceRecordId, setEvidenceRecordId] = useState<string | null>(null);
+  const [memoryNotice, setMemoryNotice] = useState<string | null>(null);
+  const selectedEvidencePack = evidencePacks.find((pack) => pack.id === evidencePackId) ?? widgetInstallEvidencePack;
+  const pendingRecall = useMemo(() => recallMemory(memoryCards, selectedEvidencePack.topic, selectedEvidencePack.tags), [memoryCards, selectedEvidencePack]);
+  const confirmedRulingId = memoryCards.find((card) => card.kind === '裁定' && card.provenance.some((p) => p.recordId && p.recordId === evidenceRecordId))?.id ?? null;
 
   const findings = useMemo(() => buildReviewFindings(ideas, routes), [ideas, routes]);
   const activeIdea = ideas.find((idea) => idea.id === activePopoverIdeaId) ?? null;
@@ -117,6 +128,31 @@ function App() {
     () => discussionRecords.find((record) => record.id === activeDiscussionRecordId) ?? null,
     [activeDiscussionRecordId, discussionRecords],
   );
+
+  useEffect(() => {
+    let cancelled = false;
+    loadMemoryCards().then((cards) => {
+      if (cancelled) return;
+      let seeded = cards;
+      if (!cards.length) {
+        // 本地存档里已有证据局出口时，从它生成待验证卡。
+        const record = persistedDiscussionRecords.find((item) => item.snapshot.evidenceExit?.source === 'AI 生成');
+        if (record?.snapshot.evidenceExit) {
+          seeded = extractRoundMemory([], record.snapshot.turns, record.snapshot.evidenceExit, { recordId: record.id, topic: record.topic, packId: record.snapshot.evidenceExit.evidencePackId, at: record.createdAt }).cards;
+        }
+      }
+      setMemoryCards(seeded);
+      setMemoryReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!memoryReady) return;
+    saveMemoryCards(memoryCards);
+  }, [memoryCards, memoryReady]);
 
   useEffect(() => {
     let cancelled = false;
@@ -340,7 +376,11 @@ function App() {
   }
 
   async function startEvidenceRound() {
-    const pack = widgetInstallEvidencePack;
+    const pack = selectedEvidencePack;
+    const recall = recallMemory(memoryCards, pack.topic, pack.tags);
+    setRoundRecall(recall);
+    setEvidenceRecordId(null);
+    setMemoryNotice(null);
     setLedger((current) => ({ ...current, status: 'running', engine: 'AI 推演', lastError: undefined }));
     setCouncilComposer(null);
     setCurrentTopic(pack.topic);
@@ -350,12 +390,58 @@ function App() {
     setActiveDiscussionRecordId(null);
     setActiveResidentId(councilResidentIds[0]);
     setSceneView('council');
-    const result = await runEvidenceRound(pack, mode, (partial) => setTurns(partial));
+    const result = await runEvidenceRound(pack, mode, (partial) => setTurns(partial), recall);
     setLedger(result.ledger);
     setTurns(result.turns);
     setEvidenceExit(result.exit);
     const snapshot = { ...buildCurrentSnapshot(pack.topic, mode, ideas, routes, result.turns, []), evidenceExit: result.exit };
-    saveCompletedDiscussionRecord(snapshot, buildReviewFindings(ideas, routes), undefined, result.ledger);
+    const record = saveCompletedDiscussionRecord(snapshot, buildReviewFindings(ideas, routes), undefined, result.ledger);
+    setEvidenceRecordId(record.id);
+    // 局后：AI 只能自动写入「待验证」。
+    setMemoryCards((current) => {
+      const extracted = extractRoundMemory(current, result.turns, result.exit, { recordId: record.id, topic: pack.topic, packId: pack.id });
+      setMemoryNotice(extracted.written.length ? `已写入图书馆「待验证」：${[...new Set(extracted.written)].join('、')}` : null);
+      return extracted.cards;
+    });
+  }
+
+  function confirmEvidenceRuling() {
+    if (!evidenceExit || !evidenceRecordId) return;
+    const result = confirmRuling(memoryCards, evidenceExit, { recordId: evidenceRecordId, topic: currentTopic, packId: evidenceExit.evidencePackId });
+    if (result.id) {
+      setMemoryCards(result.cards);
+      setMemoryNotice(`已确认为裁定 ${result.id}，写入图书馆「已定」`);
+    } else setMemoryNotice(`没能写入：${result.reason}`);
+  }
+
+  function backfillMemory(id: string, text: string, source: string) {
+    const result = backfillQuestion(memoryCards, id, text, source);
+    if (result.evidenceId) setMemoryCards(result.cards);
+    return result.reason ?? null;
+  }
+
+  function voidMemory(id: string, action: 'flag' | 'delete') {
+    setMemoryCards((current) => voidCard(current, id, action));
+  }
+
+  function exportMemoryFile() {
+    const blob = new Blob([JSON.stringify(exportMemory(memoryCards), null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `siwei-city-memory-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function importMemoryFile(file: File) {
+    try {
+      const result = importMemory(memoryCards, JSON.parse(await file.text()));
+      setMemoryCards(result.cards);
+      return `导入 ${result.imported} 张，拒绝 ${result.rejected} 张（无出处或格式不对）`;
+    } catch {
+      return '文件不是有效的 JSON';
+    }
   }
 
   async function startOpening(rawTopic: string) {
@@ -465,6 +551,7 @@ function App() {
     persistDiscussionRecord(record).then((result) => {
       if (!result.ok) setAdoptionNotice('本轮记录已暂存在本地；图书馆 API 暂不可用。');
     });
+    return record;
   }
 
   function changeDiscussionRecordStatus(status: DiscussionRecordStatus, id = activeDiscussionRecordId) {
@@ -725,11 +812,18 @@ function App() {
               onStartOpening={startOpening}
               onStartEvidenceRound={startEvidenceRound}
               evidenceExit={evidenceExit}
-              evidencePack={widgetInstallEvidencePack}
+              evidencePack={selectedEvidencePack}
+              evidencePacks={evidencePacks}
+              onSelectEvidencePack={setEvidencePackId}
+              memoryRecall={roundRecall ?? pendingRecall}
+              memoryRecallLive={roundRecall !== null}
+              memoryNotice={memoryNotice}
+              confirmedRulingId={confirmedRulingId}
+              onConfirmRuling={evidenceRecordId ? confirmEvidenceRuling : undefined}
               ledger={ledger}
               onCancelComposer={() => setCouncilComposer(null)}
               onPrepareFollowUp={prepareFollowUpDiscussion}
-              onPrepareNewDiscussion={prepareNewDiscussion}
+              onPrepareNewDiscussion={() => { setRoundRecall(null); prepareNewDiscussion(); }}
               onAcceptTurn={acceptContribution}
               onRecordStatusChange={changeDiscussionRecordStatus}
               onOpenLibrary={() => openBuildingScene('library')}
@@ -746,6 +840,11 @@ function App() {
               docs={archiveDocs}
               discussionRecords={discussionRecords}
               onDiscussionRecordStatusChange={changeDiscussionRecordStatus}
+              memoryCards={memoryCards}
+              onBackfillMemory={backfillMemory}
+              onVoidMemory={voidMemory}
+              onExportMemory={exportMemoryFile}
+              onImportMemory={importMemoryFile}
               onBackToCity={() => setSceneView('city')}
               onOpenBuilding={openBuildingScene}
               onEnterCouncil={() => enterCouncil()}

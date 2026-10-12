@@ -6055,3 +6055,70 @@ textarea {
 .evidence-exit ol, .evidence-exit ul { padding-left: 18px; }
 .evidence-exit details { font-size: 11px; color: #564130; }
 .evidence-exit i { color: #8a7a62; }
+
+/* 城邦记忆 v0.1：议会厅「城邦记得」横幅 + 大图书馆三抽屉（A 大理石神殿配色，沿用现有字体） */
+.city-memory-banner {
+  position: absolute;
+  z-index: 4;
+  right: 12px;
+  top: 76px;
+  width: min(260px, calc(17vw - 24px));
+  max-height: calc(100% - 110px);
+  overflow: auto;
+  padding: 10px 12px;
+  border: 1px solid rgba(176, 141, 72, 0.6);
+  border-radius: 10px;
+  background: rgba(248, 245, 238, 0.93);
+  color: #3d2b1d;
+  box-shadow: 0 12px 30px rgba(12, 8, 5, 0.22);
+}
+.city-memory-label { display: block; margin-bottom: 6px; color: var(--lapis); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; }
+.city-memory-banner ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.city-memory-banner li { display: grid; grid-template-columns: auto 1fr; gap: 2px 6px; padding: 6px 8px; border-left: 3px solid #b08d48; border-radius: 4px; background: rgba(244, 239, 228, 0.9); font-size: 11.5px; line-height: 1.5; }
+.city-memory-banner li.pending { border-left-color: #a5482f; }
+.city-memory-banner li b { color: #2f3b52; }
+.city-memory-banner li em { justify-self: start; font-style: normal; font-size: 10.5px; color: #7a5a22; }
+.city-memory-banner li span, .city-memory-banner li small { grid-column: 1 / -1; }
+.city-memory-banner li small { color: #8a7a62; font-size: 10px; }
+.evidence-pack-select { max-width: 260px; padding: 6px 8px; border: 1px solid rgba(176, 141, 72, 0.7); border-radius: 6px; background: #f4efe4; color: #2f3b52; font: inherit; font-size: 12px; }
+.evidence-unresolved { margin: 0; padding: 4px 8px; border-left: 3px solid #a5482f; background: rgba(165, 72, 47, 0.07); color: #6e3221; font-size: 12px; }
+.evidence-chips span.memory { border-color: rgba(176, 141, 72, 0.7); color: #7a5a22; background: rgba(176, 141, 72, 0.12); }
+.evidence-confirm { display: flex; align-items: center; gap: 8px; }
+.evidence-confirm strong { color: #2f6b4a; font-size: 12.5px; }
+.evidence-memory-notice { color: #2f3b52; font-size: 11.5px; }
+
+.library-workspace { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; }
+.memory-library { display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); gap: 10px; min-height: 0; padding: 12px; border: 1px solid rgba(176, 141, 72, 0.5); border-radius: 12px; background: rgba(248, 245, 238, 0.88); }
+.memory-library-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.memory-library-head strong { display: block; color: #2f3b52; font-size: 16px; }
+.memory-library-head small { color: #8a7a62; font-size: 11px; }
+.memory-library-io { display: flex; gap: 6px; }
+.memory-library button { padding: 4px 10px; border: 1px solid rgba(176, 141, 72, 0.6); border-radius: 6px; background: #f4efe4; color: #2f3b52; font: inherit; font-size: 12px; cursor: pointer; }
+.memory-drawers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.memory-drawers button { display: grid; grid-template-columns: 1fr auto; gap: 2px 6px; padding: 8px 10px; text-align: left; }
+.memory-drawers button.active { border-color: #2f3b52; background: #2f3b52; color: #f4efe4; }
+.memory-drawers b { font-size: 14px; }
+.memory-drawers span { font-weight: 700; }
+.memory-drawers small { grid-column: 1 / -1; font-size: 10.5px; opacity: 0.8; }
+.memory-notice { margin: 0; color: #2f6b4a; font-size: 12px; }
+.memory-cards { display: grid; align-content: start; gap: 8px; min-height: 0; overflow: auto; padding-right: 4px; }
+.memory-empty { color: #8a7a62; font-size: 12px; }
+.memory-card { display: grid; gap: 4px; padding: 9px 11px; border: 1px solid rgba(176, 141, 72, 0.45); border-left: 4px solid #b08d48; border-radius: 6px; background: #fbf9f4; font-size: 12px; line-height: 1.55; }
+.memory-card.memory-待验证 { border-left-color: #a5482f; }
+.memory-card.memory-作废 { border-left-color: #8a7a62; opacity: 0.78; }
+.memory-card header { display: flex; align-items: center; gap: 6px; }
+.memory-card header b { color: #2f3b52; }
+.memory-card header em { font-style: normal; color: #7a5a22; font-size: 11px; }
+.memory-card header i { font-style: normal; padding: 0 6px; border-radius: 999px; font-size: 10.5px; }
+.memory-reopen { background: rgba(165, 72, 47, 0.14); color: #a5482f; }
+.memory-answered { background: rgba(47, 107, 74, 0.14); color: #2f6b4a; }
+.memory-card p { margin: 0; }
+.memory-answer { color: #2f6b4a; }
+.memory-void { color: #8a7a62; font-style: italic; }
+.memory-provenance { margin: 0; padding-left: 16px; color: #8a7a62; font-size: 10.5px; }
+.memory-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.memory-tags span { padding: 0 6px; border-radius: 4px; background: rgba(40, 91, 130, 0.1); color: var(--lapis); font-size: 10.5px; }
+.memory-card footer { display: flex; gap: 6px; }
+.memory-card .memory-primary { background: #2f3b52; color: #f4efe4; }
+.memory-backfill { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 6px; }
+.memory-backfill input { padding: 4px 6px; border: 1px solid rgba(176, 141, 72, 0.6); border-radius: 4px; font: inherit; font-size: 12px; }

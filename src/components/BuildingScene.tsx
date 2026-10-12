@@ -5,6 +5,8 @@ import { residentProfiles } from '../lib/residents';
 import { argumentMoveLabel, protocolLabel } from '../lib/protocols';
 import type { ArchiveDoc, BuildingActionTarget, BuildingSceneId, DiscussionRecord, DiscussionRecordStatus, IdeaNode, ReviewFinding, Route, RoundtableTurn } from '../types';
 import { DiscussionRecordLibrary } from './DiscussionRecordLibrary';
+import { MemoryLibrary } from './MemoryLibrary';
+import type { MemoryCard } from '../types';
 
 interface BuildingSceneProps {
   building: CityBuilding;
@@ -20,6 +22,11 @@ interface BuildingSceneProps {
   onOpenBuilding: (id: BuildingSceneId) => void;
   onEnterCouncil: () => void;
   onRunComplete: () => void;
+  memoryCards?: MemoryCard[];
+  onBackfillMemory?: (id: string, text: string, source: string) => string | null;
+  onVoidMemory?: (id: string, action: 'flag' | 'delete') => void;
+  onExportMemory?: () => void;
+  onImportMemory?: (file: File) => Promise<string>;
 }
 
 export function BuildingScene({
@@ -36,6 +43,11 @@ export function BuildingScene({
   onOpenBuilding,
   onEnterCouncil,
   onRunComplete,
+  memoryCards = [],
+  onBackfillMemory = () => null,
+  onVoidMemory = () => undefined,
+  onExportMemory = () => undefined,
+  onImportMemory = async () => '',
 }: BuildingSceneProps) {
   const [activeTarget, setActiveTarget] = useState<BuildingActionTarget>(building.primaryActionTarget);
   const isCouncil = building.id === 'council';
@@ -67,6 +79,7 @@ export function BuildingScene({
 
       {isLibrary ? (
         <section className="library-workspace" aria-label="大图书馆讨论记录">
+          <MemoryLibrary cards={memoryCards} onBackfill={onBackfillMemory} onVoid={onVoidMemory} onExport={onExportMemory} onImport={onImportMemory} />
           <DiscussionRecordLibrary
             records={discussionRecords}
             onStatusChange={(id, status) => onDiscussionRecordStatusChange(status, id)}

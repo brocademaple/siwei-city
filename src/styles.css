@@ -6390,3 +6390,264 @@ body, button, input, textarea, select { font-family: var(--font-body); }
 /* 卡片列防溢出：一句话省略号收在卡内，状态签留在右侧可见 */
 .memory-library .memory-cards { grid-template-columns: minmax(0, 1fr); }
 .memory-library .memory-card, .memory-library .memory-card-summary { min-width: 0; max-width: 100%; }
+
+/* ===== 石刻皮肤 v3：左侧议题竖栏（展开 / 收起） ===== */
+.scribe-panel {
+  border-right: 1px solid #7d6a4c !important;
+  border-radius: 0 !important;
+  color: var(--sk-ink);
+  background:
+    linear-gradient(rgba(236, 230, 218, 0.94), rgba(226, 218, 202, 0.95)),
+    var(--sk-stone) center / cover no-repeat !important;
+  box-shadow:
+    inset 0 0 0 4px rgba(236, 230, 218, 0.9),
+    inset 0 0 0 5px #9c8a68,
+    0 18px 40px rgba(12, 8, 5, 0.45) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.scribe-panel::after {
+  border-right-color: rgba(156, 138, 104, 0.55);
+}
+.runtime-scribe {
+  background:
+    linear-gradient(rgba(236, 230, 218, 0.94), rgba(226, 218, 202, 0.95)),
+    var(--sk-stone) center / cover no-repeat !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.home-shell .scribe-panel {
+  border: 1px solid #7d6a4c !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset 0 0 0 4px rgba(236, 230, 218, 0.9),
+    inset 0 0 0 5px #9c8a68,
+    0 18px 40px rgba(12, 8, 5, 0.45) !important;
+}
+.scribe-panel.collapsed {
+  border-radius: 0 !important;
+  padding: 16px 8px;
+}
+.scribe-header {
+  border-bottom: 1px solid var(--sk-line);
+}
+.scribe-panel .kicker,
+.scribe-panel .section-title,
+.scribe-panel .topic-mode-label,
+.scribe-panel .topic-scroll > span,
+.scribe-panel .topic-field > span {
+  color: var(--sk-blue);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.scribe-panel h1 {
+  color: var(--sk-ink);
+  font-family: var(--font-body);
+  font-size: 28px;
+  letter-spacing: 0.04em;
+}
+.scribe-panel .scribe-header p,
+.scribe-panel .runtime-decree p {
+  color: var(--sk-muted);
+}
+.scribe-collapse-toggle {
+  min-height: 30px;
+  padding: 4px 10px;
+  border: 1px solid #7d6a4c !important;
+  border-radius: 2px !important;
+  color: var(--sk-ink) !important;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  writing-mode: horizontal-tb;
+  background:
+    linear-gradient(rgba(240, 234, 222, 0.94), rgba(226, 218, 202, 0.95)),
+    var(--sk-stone) center / cover no-repeat !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(240, 234, 222, 0.7),
+    inset 0 0 0 3px #9c8a68,
+    0 4px 10px rgba(12, 8, 5, 0.28) !important;
+}
+.scribe-collapse-toggle:hover,
+.scribe-collapse-toggle:focus-visible {
+  color: var(--sk-red) !important;
+  border-color: var(--sk-red) !important;
+}
+.scribe-panel.collapsed .scribe-collapse-toggle {
+  width: 52px;
+  min-height: 44px;
+  border-radius: 2px !important;
+}
+.scribe-rail-title {
+  color: var(--sk-ink);
+  letter-spacing: 0.28em;
+}
+.scribe-rail-title span {
+  color: var(--sk-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+}
+.scribe-rail-title strong {
+  color: var(--sk-red);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+}
+.runtime-decree,
+.mvp-path,
+.scribe-panel .advanced-court,
+.scribe-panel .ledger-bar,
+.scribe-panel .import-preview-row {
+  border: 1px solid var(--sk-line) !important;
+  border-radius: 0 !important;
+  color: var(--sk-ink);
+  background:
+    linear-gradient(rgba(251, 248, 240, 0.9), rgba(246, 240, 226, 0.92)),
+    var(--sk-parch) center / cover no-repeat !important;
+  box-shadow:
+    inset 0 0 0 3px rgba(251, 248, 240, 0.55),
+    inset 0 0 0 4px rgba(176, 141, 87, 0.4) !important;
+  backdrop-filter: none !important;
+}
+.runtime-decree strong,
+.mvp-path-head strong {
+  color: var(--sk-ink);
+  font-family: var(--font-body);
+}
+.decree-meta span {
+  border: 1px solid rgba(47, 93, 138, 0.55);
+  border-radius: 0;
+  background: transparent;
+  color: var(--sk-blue);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.scribe-panel .mode-switch button {
+  border: 1px solid var(--sk-line);
+  border-radius: 0;
+  background: rgba(251, 250, 246, 0.72);
+  color: var(--sk-ink);
+  box-shadow: none;
+}
+.scribe-panel .mode-switch button.active {
+  border-color: var(--sk-red);
+  background: rgba(168, 67, 42, 0.08);
+  box-shadow: inset 0 -3px 0 var(--sk-red);
+}
+.scribe-panel .mode-switch strong {
+  color: var(--sk-blue);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+.scribe-panel .mode-switch b {
+  color: var(--sk-ink);
+  font-size: 12px;
+  font-weight: 400;
+}
+.scribe-panel textarea,
+.scribe-panel input {
+  border: 1px solid var(--sk-line) !important;
+  border-radius: 0 !important;
+  color: var(--sk-ink);
+  background: #FBFAF6 !important;
+  box-shadow: none !important;
+}
+.scribe-panel .primary-action {
+  border: 1px solid var(--sk-red) !important;
+  border-radius: 2px !important;
+  background: var(--sk-red) !important;
+  color: #FBFAF6 !important;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  box-shadow: none !important;
+}
+.scribe-panel .primary-action:hover,
+.scribe-panel .primary-action:focus-visible {
+  background: var(--sk-red-hover) !important;
+}
+.scribe-panel .secondary-action {
+  border: 1px solid var(--sk-blue) !important;
+  border-radius: 2px !important;
+  background: transparent !important;
+  color: var(--sk-blue) !important;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  box-shadow: none !important;
+}
+.scribe-panel .advanced-court > summary {
+  color: var(--sk-ink);
+}
+.scribe-panel .advanced-court > summary strong {
+  color: var(--sk-muted);
+  font-weight: 400;
+}
+.scribe-panel .topic-scroll {
+  border-bottom-color: var(--sk-line);
+}
+.scribe-panel .ledger-bar {
+  color: var(--sk-muted);
+}
+.scribe-panel .ledger-bar strong {
+  color: var(--sk-blue);
+}
+.scribe-panel .import-preview-row small {
+  color: var(--sk-muted);
+}
+
+/* 竖栏内路径步骤 / 统计：去圆角胶囊，改刻字小签 */
+.scribe-panel .quick-path li {
+  border: 1px solid var(--sk-line);
+  border-radius: 0;
+  background: rgba(251, 250, 246, 0.7);
+  color: var(--sk-ink);
+}
+.scribe-panel .quick-path li.active {
+  border-color: var(--sk-red);
+  background: rgba(168, 67, 42, 0.08);
+  box-shadow: inset 0 -2px 0 var(--sk-red);
+}
+.scribe-panel .quick-path li.done {
+  border-color: rgba(47, 93, 138, 0.45);
+  background: rgba(47, 93, 138, 0.06);
+}
+.scribe-panel .quick-path i {
+  width: 20px;
+  height: 20px;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  background: transparent;
+  color: var(--sk-blue);
+  font-family: var(--font-title-en);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.scribe-panel .quick-path li.active i { color: var(--sk-red); }
+.scribe-panel .quick-path li.done i { color: var(--sk-blue); }
+.scribe-panel .quick-path span {
+  color: var(--sk-ink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.scribe-panel .run-stats span {
+  border: 1px solid rgba(47, 93, 138, 0.45);
+  border-radius: 0;
+  background: transparent;
+  color: var(--sk-muted);
+}
+.scribe-panel .run-stats strong { color: var(--sk-blue); }
+.scribe-panel .advanced-court {
+  border-radius: 0 !important;
+}
+.scribe-panel .advanced-court > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.scribe-panel .advanced-court > summary::-webkit-details-marker { display: none; }

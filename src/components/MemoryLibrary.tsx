@@ -73,6 +73,10 @@ export function MemoryLibrary({ cards, onBackfill, onVoid, onExport, onImport }:
               <b className="memory-card-id">{card.id}</b>
               <span className="memory-card-text">{card.text}</span>
               <small className="memory-card-src">{sourceIds(card)}</small>
+              {openId !== card.id && (card.reopenable || card.answer) && <span className="memory-card-flags">
+                {card.reopenable && <i className="memory-reopen">可重议</i>}
+                {card.answer && <i className="memory-answered">已回填</i>}
+              </span>}
             </button>
             {openId === card.id && <div className="memory-card-detail">
             <header>

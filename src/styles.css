@@ -1,11 +1,10 @@
 :root {
   color-scheme: light;
-  font-family:
-    "PingFang SC",
-    "Hiragino Sans GB",
-    "Microsoft YaHei",
-    system-ui,
-    sans-serif;
+  --font-cn: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+  --font-title-en: "Cinzel", "Noto Serif SC", serif;
+  --font-body: var(--font-cn);
+  --font-mono: "SFMono-Regular", Consolas, monospace;
+  font-family: var(--font-body);
   color: #2b2118;
   background: #211812;
   --ink: #302215;
@@ -17,7 +16,7 @@
   --terracotta: #a24d35;
   --violet: #72519a;
   --shadow: 0 20px 52px rgba(28, 18, 9, 0.3);
-  --ui-serif: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
+  --ui-serif: var(--font-cn);
   --hud-glass: linear-gradient(180deg, rgba(255, 248, 225, 0.68), rgba(224, 197, 139, 0.46));
   --hud-stroke: rgba(255, 236, 184, 0.42);
   --hud-shadow: 0 20px 54px rgba(12, 8, 5, 0.34);
@@ -3803,7 +3802,7 @@ textarea {
   border-radius: 5px;
   background: rgba(47, 35, 25, 0.1);
   color: #2f2319;
-  font-family: "SFMono-Regular", Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 0.92em;
 }
 
@@ -6124,6 +6123,7 @@ textarea {
 .memory-backfill input { padding: 4px 6px; border: 1px solid rgba(176, 141, 72, 0.6); border-radius: 4px; font: inherit; font-size: 12px; }
 
 /* ==== 石刻皮肤 v1：图书馆 / 讨论记录 / 议会厅同一套石板 + 羊皮纸（只换视觉） ==== */
+:root,
 .library-workspace,
 .council-stage {
   --sk-ink: #1F1D1A; --sk-muted: #5E584F; --sk-line: #B9AE98;
@@ -6289,3 +6289,104 @@ textarea {
 .council-stage .council-start-button.evidence-start { border: 1px solid var(--sk-blue); background: transparent; color: var(--sk-blue); }
 .council-stage .council-start-button:disabled { opacity: 0.5; }
 .council-stage .council-topic-form textarea { border-radius: 2px; }
+
+/* ===== 石刻皮肤 v2：字体统一 + 顶栏 / 席位 / 出口 / 首页浮层 ===== */
+body, button, input, textarea, select { font-family: var(--font-body); }
+.en-title, .hud-plaque:lang(en) { font-family: var(--font-title-en); letter-spacing: 0.08em; }
+/* 顶栏按钮：直角石牌 */
+.hud-button, .hud-plaque, .guide-button, .world-zoom-controls, .world-zoom-controls button,
+.home-entry-actions button, .scribe-collapse-toggle {
+  border-radius: 2px !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+}
+.hud-button {
+  border: 1px solid #7d6a4c; color: var(--sk-ink); font-weight: 700; letter-spacing: 0.08em;
+  background: linear-gradient(rgba(240, 234, 222, 0.94), rgba(226, 218, 202, 0.95)), var(--sk-stone) center / cover no-repeat;
+  box-shadow: inset 0 0 0 2px rgba(240, 234, 222, 0.7), inset 0 0 0 3px #9c8a68, 0 6px 14px rgba(12, 8, 5, 0.35);
+}
+.hud-button.ghost { color: var(--sk-blue); }
+.hud-button:hover, .hud-button:focus-visible { color: var(--sk-red); border-color: var(--sk-red); }
+.hud-plaque {
+  border: 1px solid #6f5326; color: #FBF4E2; letter-spacing: 0.3em; font-weight: 700;
+  background: linear-gradient(rgba(122, 86, 40, 0.88), rgba(84, 58, 26, 0.92)), var(--sk-bronze) center / cover no-repeat;
+  box-shadow: inset 0 0 0 2px rgba(251, 240, 210, 0.25), 0 6px 14px rgba(12, 8, 5, 0.4);
+}
+/* 左侧居民席位卡：石板铭牌 */
+.council-seat {
+  border-radius: 2px !important; backdrop-filter: none !important; border: 1px solid #7d6a4c;
+  background: linear-gradient(rgba(240, 234, 222, 0.92), rgba(226, 218, 202, 0.94)), var(--sk-stone) center / cover no-repeat;
+  box-shadow: inset 0 0 0 2px rgba(240, 234, 222, 0.7), 0 6px 14px rgba(12, 8, 5, 0.35); color: var(--sk-ink);
+}
+.council-seat.active { border-color: var(--sk-red); box-shadow: inset 3px 0 0 var(--sk-red), inset 0 0 0 2px rgba(240, 234, 222, 0.7), 0 6px 14px rgba(12, 8, 5, 0.35); }
+.council-seat img { border-radius: 0 !important; border: 1px solid #9c8a68; }
+.council-seat strong { color: var(--sk-ink); }
+.council-seat small { color: var(--sk-muted); }
+/* 出口四字段：石碑分栏 */
+.council-stage .evidence-exit { display: grid; gap: 10px; padding: 16px 18px; }
+.council-stage .evidence-exit > div { border-top: 1px solid var(--sk-line); padding-top: 8px; display: grid; gap: 4px; }
+.council-stage .evidence-exit > div > small { display: inline-block; justify-self: start; padding: 1px 8px; border: 1px solid var(--sk-blue); border-radius: 0; background: transparent; }
+.council-stage .evidence-exit > div > strong { font-size: 18px; line-height: 1.5; color: var(--sk-ink); }
+.council-stage .evidence-exit ol { margin: 0; padding-left: 1.4em; display: grid; gap: 4px; }
+.council-stage .evidence-exit .evidence-confirm { border-top: 1px dashed var(--sk-line); }
+/* 按钮通用：主红陶实心，次蓝细边，文字横排 */
+.council-stage button, .library-workspace button, .home-shell button { writing-mode: horizontal-tb; }
+.record-resolution-actions, .round-next-actions { align-items: center; }
+.record-resolution-actions button, .round-next-actions button, .record-reader button,
+.discussion-library button, .memory-library button {
+  white-space: nowrap; writing-mode: horizontal-tb; min-width: max-content; border-radius: 2px !important; box-shadow: none;
+}
+.record-resolution-actions button:not(.primary-action), .round-next-actions button:not(.primary-action),
+.discussion-library .record-reader button:not(.primary-action):not(.active) {
+  border: 1px solid var(--sk-blue); background: transparent; color: var(--sk-blue);
+}
+.council-stage .primary-action, .library-workspace .primary-action {
+  border: 1px solid var(--sk-red); background: var(--sk-red); color: #FBFAF6;
+}
+.council-stage .round-closeout, .council-stage .discussion-summary > section { border-radius: 0; }
+.council-stage .round-closeout-grid > div, .council-stage .round-closeout-section article { border-radius: 0; }
+/* 首页浮层：议题牌、服务栏、进度、缩放、帮助 */
+.home-entry-actions button { box-shadow: none !important; font-weight: 700; letter-spacing: 0.08em; }
+.home-entry-actions button:first-child { background: var(--sk-red) !important; border: 1px solid var(--sk-red) !important; color: #FBFAF6 !important; }
+.home-entry-actions button:not(:first-child) { background: rgba(251, 248, 240, 0.7) !important; border: 1px solid var(--sk-blue) !important; color: var(--sk-blue) !important; }
+.world-zoom-controls {
+  border: 1px solid #7d6a4c !important; box-shadow: 0 6px 14px rgba(12, 8, 5, 0.35) !important;
+  background: linear-gradient(rgba(240, 234, 222, 0.94), rgba(226, 218, 202, 0.95)), var(--sk-stone) center / cover no-repeat !important;
+}
+.world-zoom-controls button { background: transparent !important; border: 1px solid var(--sk-line) !important; color: var(--sk-ink) !important; box-shadow: none !important; }
+.guide-button span, .guide-button { border-radius: 2px !important; }
+.guide-button span {
+  border: 1px solid #7d6a4c; color: var(--sk-ink); box-shadow: 0 6px 14px rgba(12, 8, 5, 0.35);
+  background: linear-gradient(rgba(240, 234, 222, 0.94), rgba(226, 218, 202, 0.95)), var(--sk-stone) center / cover no-repeat;
+}
+.scribe-panel { border-radius: 2px !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+/* 卡片收起也显示状态签 */
+.memory-card-flags { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+.memory-card-flags i, .memory-card header i {
+  font-style: normal; font-size: 11px; padding: 0 6px; border-radius: 0 !important; background: transparent !important;
+  border: 1px solid currentColor; letter-spacing: 0.06em; white-space: nowrap;
+}
+.memory-card-flags .memory-reopen, .memory-card header .memory-reopen { color: var(--sk-red); }
+.memory-card-flags .memory-answered, .memory-card header .memory-answered { color: #2f6b4a; }
+.memory-library .memory-card-summary { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+/* 建筑页顶栏：与议会厅同一套石牌 */
+.building-topbar button, .building-topbar span {
+  border-radius: 2px; backdrop-filter: none; -webkit-backdrop-filter: none; border: 1px solid #7d6a4c;
+  color: var(--sk-ink); font-weight: 700; letter-spacing: 0.08em;
+  background: linear-gradient(rgba(240, 234, 222, 0.94), rgba(226, 218, 202, 0.95)), var(--sk-stone) center / cover no-repeat;
+  box-shadow: inset 0 0 0 2px rgba(240, 234, 222, 0.7), inset 0 0 0 3px #9c8a68, 0 6px 14px rgba(12, 8, 5, 0.35);
+}
+.building-topbar > button:first-child { color: var(--sk-blue); }
+.building-topbar button:hover, .building-topbar button:focus-visible { color: var(--sk-red); border-color: var(--sk-red); }
+.building-topbar > span {
+  display: inline-grid; place-items: center; border-color: #6f5326; color: #FBF4E2; letter-spacing: 0.3em;
+  background: linear-gradient(rgba(122, 86, 40, 0.88), rgba(84, 58, 26, 0.92)), var(--sk-bronze) center / cover no-repeat;
+  box-shadow: inset 0 0 0 2px rgba(251, 240, 210, 0.25), 0 6px 14px rgba(12, 8, 5, 0.4);
+}
+/* 报告面板头：标题独占一行，确认/否决放在下方横排 */
+.discussion-library .record-reader > header { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+.discussion-library .record-reader > header .record-resolution-actions { display: flex; flex-direction: row; justify-content: flex-start; gap: 8px; }
+.discussion-library .record-reader > header h2 { word-break: normal; }
+/* 编号用 Cinzel：罗马碑文感 */
+.memory-card-id, .council-stage .city-memory-banner li b { font-family: var(--font-title-en); font-weight: 700; letter-spacing: 0.06em; }
+/* 卡片列防溢出：一句话省略号收在卡内，状态签留在右侧可见 */
+.memory-library .memory-cards { grid-template-columns: minmax(0, 1fr); }
+.memory-library .memory-card, .memory-library .memory-card-summary { min-width: 0; max-width: 100%; }

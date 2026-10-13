@@ -6122,3 +6122,170 @@ textarea {
 .memory-card .memory-primary { background: #2f3b52; color: #f4efe4; }
 .memory-backfill { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 6px; }
 .memory-backfill input { padding: 4px 6px; border: 1px solid rgba(176, 141, 72, 0.6); border-radius: 4px; font: inherit; font-size: 12px; }
+
+/* ==== 石刻皮肤 v1：图书馆 / 讨论记录 / 议会厅同一套石板 + 羊皮纸（只换视觉） ==== */
+.library-workspace,
+.council-stage {
+  --sk-ink: #1F1D1A; --sk-muted: #5E584F; --sk-line: #B9AE98;
+  --sk-red: #A8432A; --sk-red-hover: #943B25; --sk-blue: #2F5D8A; --sk-gold: #B08D57;
+  --sk-parch: url('./assets/art/textures/texture-parchment.png');
+  --sk-vellum: url('./assets/art/textures/texture-vellum.png');
+  --sk-stone: url('./assets/art/textures/texture-stone.png');
+  --sk-bronze: url('./assets/art/textures/texture-bronze.png');
+}
+/* 外框：石板，直角，不再毛玻璃 */
+.library-workspace {
+  border: 1px solid #7d6a4c;
+  border-radius: 2px;
+  background: linear-gradient(rgba(236, 230, 218, 0.9), rgba(226, 218, 202, 0.92)), var(--sk-stone) center / 420px repeat;
+  backdrop-filter: none;
+  box-shadow: inset 0 0 0 4px rgba(236, 230, 218, 0.9), inset 0 0 0 5px #9c8a68, 0 18px 40px rgba(12, 8, 5, 0.45);
+  color: var(--sk-ink);
+}
+/* 城邦记忆：羊皮纸面 */
+.library-workspace .memory-library,
+.library-workspace .discussion-library .record-reader,
+.library-workspace .discussion-record-card {
+  border: 1px solid var(--sk-line);
+  border-radius: 2px;
+  background: linear-gradient(rgba(251, 248, 240, 0.88), rgba(246, 240, 226, 0.9)), var(--sk-parch) center / 380px repeat;
+  box-shadow: inset 0 0 0 3px rgba(251, 248, 240, 0.6), inset 0 0 0 4px rgba(176, 141, 87, 0.45);
+  backdrop-filter: none;
+}
+.memory-library { gap: 8px; padding: 16px; }
+.memory-library-head strong,
+.library-workspace .section-title { color: var(--sk-ink); font-size: 20px; letter-spacing: 0.12em; }
+.memory-library-head small { color: var(--sk-muted); font-size: 12px; }
+.library-workspace button,
+.council-stage .evidence-exit button,
+.council-stage .record-resolution-actions button { border-radius: 2px; box-shadow: none; }
+.memory-library button,
+.library-workspace .record-filters button,
+.library-workspace .record-reader-tabs button,
+.library-workspace .record-resolution-actions button {
+  padding: 4px 10px; border: 1px solid var(--sk-blue); border-radius: 2px;
+  background: transparent; color: var(--sk-blue); font-size: 12px;
+}
+.library-workspace .primary-action,
+.memory-card .memory-primary,
+.council-stage .evidence-exit .primary-action {
+  border: 1px solid var(--sk-red); background: var(--sk-red); color: #FBFAF6;
+}
+.library-workspace .primary-action:hover, .memory-card .memory-primary:hover { background: var(--sk-red-hover); }
+/* 三抽屉 = 书柜三格 */
+.memory-bookcase {
+  gap: 0; padding: 6px; border-radius: 0;
+  background: linear-gradient(rgba(74, 48, 28, 0.55), rgba(52, 33, 19, 0.65)), var(--sk-bronze) center / 300px;
+  box-shadow: inset 0 0 0 1px #2c1c10, inset 0 -6px 0 rgba(0, 0, 0, 0.25);
+}
+.memory-drawers button.memory-shelf {
+  display: grid; grid-template-columns: 1fr; justify-items: center; gap: 6px;
+  min-height: 74px; padding: 10px 6px 8px; border: none; border-right: 4px solid #3a2616; border-radius: 0;
+  background: linear-gradient(180deg, rgba(20, 12, 6, 0.55), rgba(20, 12, 6, 0.25) 70%, rgba(110, 78, 46, 0.55));
+  color: #EADFC8; text-align: center;
+}
+.memory-drawers button.memory-shelf:last-child { border-right: none; }
+.memory-shelf-plate {
+  padding: 2px 14px; border: 1px solid #6f5326; border-radius: 1px;
+  background: linear-gradient(180deg, #d7bd84, #a8864e); color: #2a1c0c;
+  font-size: 14px; letter-spacing: 0.3em; text-indent: 0.3em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.memory-shelf-count { font-size: 12px; font-weight: 400; letter-spacing: 0.1em; color: #EADFC8; }
+.memory-drawers button.memory-shelf.active { background: linear-gradient(180deg, rgba(168, 67, 42, 0.35), rgba(30, 18, 8, 0.25) 70%, rgba(150, 106, 60, 0.6)); color: #fff6e4; }
+.memory-drawers button.memory-shelf.active .memory-shelf-plate { outline: 2px solid var(--sk-red); outline-offset: 2px; }
+.memory-shelf-hint { margin: 0; color: var(--sk-muted); font-size: 12px; }
+/* 记忆卡：收起时一行 */
+.memory-cards { gap: 6px; }
+.memory-card {
+  gap: 0; padding: 0; border: 1px solid var(--sk-line); border-left: 3px solid var(--sk-gold); border-radius: 0;
+  background: rgba(251, 250, 246, 0.82); font-size: 14px;
+}
+.memory-card.memory-待验证 { border-left-color: var(--sk-red); }
+.memory-card.memory-作废 { border-left-color: #8a8070; opacity: 0.8; }
+.memory-card.memory-作废 .memory-card-text { text-decoration: line-through; text-decoration-color: rgba(31, 29, 26, 0.35); }
+.memory-library .memory-card-summary {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; gap: 10px;
+  width: 100%; padding: 8px 12px; border: none; background: transparent; color: var(--sk-ink); text-align: left; font-size: 14px;
+}
+.memory-library .memory-card-summary:hover { background: rgba(176, 141, 87, 0.1); }
+.memory-card-id { color: var(--sk-red); font-size: 12px; letter-spacing: 0.08em; }
+.memory-card-text { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.memory-card.open .memory-card-text { white-space: normal; }
+.memory-card-src { color: var(--sk-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.memory-card-detail { display: grid; gap: 6px; padding: 4px 12px 10px 12px; border-top: 1px dashed var(--sk-line); font-size: 12px; }
+.memory-card header i { padding: 0 5px; border: 1px solid currentColor; border-radius: 0; background: transparent; font-size: 12px; letter-spacing: 0.05em; }
+.memory-card header em { color: var(--sk-muted); font-size: 12px; }
+.memory-provenance { color: var(--sk-muted); font-size: 12px; }
+.memory-tags span,
+.council-stage .evidence-chips span,
+.council-stage .evidence-seat-tag,
+.library-workspace .record-status,
+.council-stage .turn-source,
+.council-stage .city-memory-banner li em {
+  padding: 0 5px; border: 1px solid rgba(47, 93, 138, 0.55); border-radius: 0; background: transparent;
+  color: var(--sk-blue); font-size: 12px; font-style: normal; letter-spacing: 0.04em; box-shadow: none;
+}
+.memory-backfill input { border-radius: 0; border-color: var(--sk-line); background: #FBFAF6; }
+/* 讨论记录卡 + 右侧报告 */
+.library-workspace .discussion-record-card { padding: 12px 14px; color: var(--sk-ink); }
+.library-workspace .discussion-record-card.active { border-color: var(--sk-red); box-shadow: inset 0 0 0 1px var(--sk-red); }
+.library-workspace .discussion-record-card p { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--sk-muted); }
+.library-workspace .record-status.confirmed { border-color: var(--sk-gold); color: #6f5326; }
+.library-workspace .record-status.rejected { border-color: #8a8070; color: #6B655C; }
+.library-workspace .record-status.pending { border-color: var(--sk-red); color: var(--sk-red); }
+.library-workspace .record-filters button.active,
+.library-workspace .record-reader-tabs button.active { border-color: var(--sk-red); color: var(--sk-red); background: rgba(168, 67, 42, 0.06); }
+.library-workspace .record-reader { color: var(--sk-ink); }
+.library-workspace .record-reader h2 { font-size: 20px; line-height: 1.4; }
+.library-workspace .record-reader-body { background: transparent; }
+.library-workspace .record-reader-body li, .library-workspace .record-reader-body ul > * { border-radius: 0; }
+/* 议会厅：横幅、发言、出口 */
+.council-stage .city-memory-banner {
+  border: 1px solid #7d6a4c; border-radius: 0; backdrop-filter: none;
+  background: linear-gradient(rgba(251, 248, 240, 0.9), rgba(244, 236, 220, 0.92)), var(--sk-parch) center / 380px;
+  box-shadow: inset 0 0 0 3px rgba(251, 248, 240, 0.6), inset 0 0 0 4px rgba(176, 141, 87, 0.5), 0 10px 24px rgba(12, 8, 5, 0.35);
+}
+.council-stage .city-memory-label { color: var(--sk-red); letter-spacing: 0.2em; border-bottom: 1px solid var(--sk-line); padding-bottom: 4px; }
+.council-stage .city-memory-banner li { border-radius: 0; background: rgba(251, 250, 246, 0.7); border-left-color: var(--sk-gold); font-size: 12px; color: var(--sk-ink); }
+.council-stage .city-memory-banner li.pending { border-left-color: var(--sk-red); }
+.council-stage .city-memory-banner li small { font-size: 12px; color: var(--sk-muted); }
+.council-stage .scroll-entry { border-radius: 0; box-shadow: none; }
+.council-stage .evidence-chips span.cited { border-color: var(--sk-red); color: var(--sk-red); }
+.council-stage .evidence-chips span.memory { border-color: var(--sk-gold); color: #6f5326; background: transparent; }
+.council-stage .evidence-unresolved { border-left-color: var(--sk-red); background: transparent; border-top: 1px dashed var(--sk-line); color: #6e3221; }
+.council-stage .evidence-exit {
+  border: 1px solid #7d6a4c; border-radius: 0;
+  background: linear-gradient(rgba(240, 234, 222, 0.9), rgba(228, 220, 204, 0.92)), var(--sk-stone) center / 420px;
+  box-shadow: inset 0 0 0 3px rgba(240, 234, 222, 0.7), inset 0 0 0 4px #9c8a68;
+  color: var(--sk-ink);
+}
+.council-stage .evidence-exit > span { color: var(--sk-red); letter-spacing: 0.2em; font-size: 12px; }
+.council-stage .evidence-exit small { color: var(--sk-blue); font-size: 12px; letter-spacing: 0.1em; }
+.council-stage .evidence-exit p, .council-stage .evidence-exit ol, .council-stage .evidence-exit ul { font-size: 14px; }
+.council-stage .evidence-exit details, .council-stage .evidence-exit i { font-size: 12px; color: var(--sk-muted); }
+.council-stage .evidence-pack-select { border-radius: 0; }
+/* 纹理切片带画框，铺满一次即可，避免重复成格子 */
+.library-workspace { background: linear-gradient(rgba(236, 230, 218, 0.86), rgba(226, 218, 202, 0.9)), var(--sk-stone) center / cover no-repeat; }
+.library-workspace .memory-library,
+.library-workspace .discussion-library .record-reader,
+.library-workspace .discussion-record-card,
+.council-stage .city-memory-banner { background: linear-gradient(rgba(251, 248, 240, 0.9), rgba(246, 240, 226, 0.92)), var(--sk-parch) center / cover no-repeat; }
+.council-stage .evidence-exit { background: linear-gradient(rgba(240, 234, 222, 0.9), rgba(228, 220, 204, 0.92)), var(--sk-stone) center / cover no-repeat; }
+/* 议会卷轴外框也改成直角石板，去掉毛玻璃 */
+.council-stage .council-table.council-scroll {
+  border: 1px solid #7d6a4c; border-radius: 2px; backdrop-filter: none;
+  background: linear-gradient(rgba(236, 230, 218, 0.94), rgba(226, 218, 202, 0.95)), var(--sk-stone) center / cover no-repeat;
+  box-shadow: inset 0 0 0 4px rgba(236, 230, 218, 0.9), inset 0 0 0 5px #9c8a68, 0 18px 40px rgba(12, 8, 5, 0.45);
+}
+.council-stage .scroll-entry { border: 1px solid var(--sk-line); border-left: 3px solid var(--sk-gold); background: rgba(251, 250, 246, 0.86); }
+.council-stage .scroll-entry.latest { border-left-color: var(--sk-red); }
+.council-stage .turn-accept-button,
+.council-stage .topic-example,
+.council-stage .record-follow-button { border: 1px solid var(--sk-blue); border-radius: 2px; background: transparent; color: var(--sk-blue); box-shadow: none; }
+.council-stage .council-tabs button { border-radius: 0; }
+.council-stage .council-tabs button.active { color: var(--sk-red); box-shadow: inset 0 -3px 0 var(--sk-red); background: transparent; }
+.council-stage .council-start-button { border-radius: 2px; box-shadow: none; border-color: var(--sk-red); background: var(--sk-red); color: #FBFAF6; }
+.council-stage .council-start-button.evidence-start { border: 1px solid var(--sk-blue); background: transparent; color: var(--sk-blue); }
+.council-stage .council-start-button:disabled { opacity: 0.5; }
+.council-stage .council-topic-form textarea { border-radius: 2px; }

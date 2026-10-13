@@ -21,12 +21,20 @@ function provenanceLine(card: MemoryCard) {
     : `你 · ${p.note}`));
 }
 
+function sourceIds(card: MemoryCard) {
+  const ids = new Set<string>();
+  card.provenance.forEach((p) => { if (p.kind === 'round') p.evidenceIds.forEach((id) => ids.add(id)); });
+  if (card.answer) ids.add(card.answer.evidenceId);
+  return [...ids].slice(0, 4).join('·') || '你';
+}
+
 export function MemoryLibrary({ cards, onBackfill, onVoid, onExport, onImport }: MemoryLibraryProps) {
   const [active, setActive] = useState<MemoryStatus>('待验证');
   const [fillingId, setFillingId] = useState<string | null>(null);
   const [answer, setAnswer] = useState('');
   const [source, setSource] = useState('');
   const [notice, setNotice] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const shown = cards.filter((card) => card.status === active).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 
@@ -47,27 +55,31 @@ export function MemoryLibrary({ cards, onBackfill, onVoid, onExport, onImport }:
           }} />
         </div>
       </header>
-      <div className="memory-drawers" role="tablist" aria-label="记忆抽屉">
+      <div className="memory-drawers memory-bookcase" role="tablist" aria-label="记忆抽屉">
         {drawers.map((drawer) => (
-          <button key={drawer.status} type="button" role="tab" aria-selected={active === drawer.status} className={active === drawer.status ? 'active' : ''} onClick={() => setActive(drawer.status)}>
-            <b>{drawer.status}</b>
-            <span>{cards.filter((card) => card.status === drawer.status).length}</span>
-            <small>{drawer.hint}</small>
+          <button key={drawer.status} type="button" role="tab" title={drawer.hint} aria-selected={active === drawer.status} className={`memory-shelf shelf-${drawer.status}${active === drawer.status ? ' active' : ''}`} onClick={() => { setActive(drawer.status); setOpenId(null); }}>
+            <b className="memory-shelf-plate">{drawer.status}</b>
+            <span className="memory-shelf-count">{cards.filter((card) => card.status === drawer.status).length} 卷</span>
           </button>
         ))}
       </div>
+      <p className="memory-shelf-hint">{drawers.find((drawer) => drawer.status === active)?.hint}</p>
       {notice && <p className="memory-notice" role="status">{notice}</p>}
       <div className="memory-cards">
         {shown.length === 0 && <p className="memory-empty">这个抽屉还是空的。</p>}
         {shown.map((card) => (
-          <article key={card.id} className={`memory-card memory-${card.status}`}>
+          <article key={card.id} className={`memory-card memory-${card.status}${openId === card.id ? ' open' : ''}`}>
+            <button type="button" className="memory-card-summary" aria-expanded={openId === card.id} onClick={() => setOpenId(openId === card.id ? null : card.id)}>
+              <b className="memory-card-id">{card.id}</b>
+              <span className="memory-card-text">{card.text}</span>
+              <small className="memory-card-src">{sourceIds(card)}</small>
+            </button>
+            {openId === card.id && <div className="memory-card-detail">
             <header>
-              <b>{card.id}</b>
               <em>{card.kind}{card.residentTag ? ` · ${card.residentTag}` : ''}</em>
               {card.reopenable && <i className="memory-reopen">可重议</i>}
               {card.answer && <i className="memory-answered">已回填 {card.answer.evidenceId}</i>}
             </header>
-            <p>{card.text}</p>
             {card.answer && <p className="memory-answer">数据：{card.answer.text}</p>}
             {card.voidReason && <p className="memory-void">{card.voidReason}</p>}
             {card.dependsOn?.length ? <small>前提：{card.dependsOn.join('、')}</small> : null}
@@ -92,6 +104,7 @@ export function MemoryLibrary({ cards, onBackfill, onVoid, onExport, onImport }:
                 <button type="button" onClick={() => onVoid(card.id, 'delete')}>删除</button>
               </footer>
             )}
+            </div>}
           </article>
         ))}
       </div>

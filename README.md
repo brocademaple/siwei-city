@@ -172,8 +172,8 @@ Vercel environment variables:
 
 ```text
 DEEPSEEK_API_KEY=your AI gateway key
-DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
-DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
+DEEPSEEK_MODEL=ep-20261013174723-ms6vn
 DEEPSEEK_INPUT_PRICE_CNY_PER_1K=0
 DEEPSEEK_OUTPUT_PRICE_CNY_PER_1K=0
 ```
@@ -190,8 +190,8 @@ For local development, place the full config in `.env.local`:
 
 ```text
 DEEPSEEK_API_KEY=your full private API key
-DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
-DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
+DEEPSEEK_MODEL=ep-20261013174723-ms6vn
 DEEPSEEK_INPUT_PRICE_CNY_PER_1K=0
 DEEPSEEK_OUTPUT_PRICE_CNY_PER_1K=0
 VITE_DEEPSEEK_PROXY_URL=/api/deepseek/chat

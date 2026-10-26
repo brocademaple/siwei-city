@@ -23,9 +23,29 @@ function aiGatewayDevProxy(mode: string): Plugin {
         }
 
         const env = loadEnv(mode, process.cwd(), '');
-        const apiKey = env.DEEPSEEK_API_KEY || env.MIMO_API_KEY || process.env.DEEPSEEK_API_KEY || process.env.MIMO_API_KEY;
-        const baseUrl = env.DEEPSEEK_BASE_URL || env.MIMO_BASE_URL || process.env.DEEPSEEK_BASE_URL || process.env.MIMO_BASE_URL || 'https://api.deepseek.com/v1';
-        const configuredModel = env.DEEPSEEK_MODEL || env.MIMO_MODEL || process.env.DEEPSEEK_MODEL || process.env.MIMO_MODEL || 'deepseek-chat';
+        const apiKey =
+          env.DEEPSEEK_API_KEY ||
+          env.ARK_API_KEY ||
+          env.MIMO_API_KEY ||
+          process.env.DEEPSEEK_API_KEY ||
+          process.env.ARK_API_KEY ||
+          process.env.MIMO_API_KEY;
+        const baseUrl =
+          env.DEEPSEEK_BASE_URL ||
+          env.ARK_BASE_URL ||
+          env.MIMO_BASE_URL ||
+          process.env.DEEPSEEK_BASE_URL ||
+          process.env.ARK_BASE_URL ||
+          process.env.MIMO_BASE_URL ||
+          'https://ark.cn-beijing.volces.com/api/v3';
+        const configuredModel =
+          env.DEEPSEEK_MODEL ||
+          env.ARK_MODEL ||
+          env.MIMO_MODEL ||
+          process.env.DEEPSEEK_MODEL ||
+          process.env.ARK_MODEL ||
+          process.env.MIMO_MODEL ||
+          'ep-20261013174723-ms6vn';
 
         if (!apiKey || apiKey.includes('replace-with')) {
           sendJson(response, 501, buildError('config_error', 'DEEPSEEK_API_KEY is not configured in .env.local', 501, false));
@@ -62,10 +82,13 @@ function aiGatewayDevProxy(mode: string): Plugin {
 
           let upstream = await callGateway(usedModel, !isPublicDeepSeek);
           let payload = await readUpstreamJson(upstream);
-          if (!upstream.ok && (upstream.status === 400 || upstream.status === 404 || upstream.status === 422) && usedModel !== 'deepseek-chat') {
-            usedModel = 'deepseek-chat';
-            upstream = await callGateway(usedModel, false);
-            payload = await readUpstreamJson(upstream);
+          if (!upstream.ok && (upstream.status === 400 || upstream.status === 403 || upstream.status === 404 || upstream.status === 422)) {
+            const fallbackModel = isPublicDeepSeek ? 'deepseek-chat' : 'ep-20261013174723-ms6vn';
+            if (usedModel !== fallbackModel) {
+              usedModel = fallbackModel;
+              upstream = await callGateway(usedModel, !isPublicDeepSeek);
+              payload = await readUpstreamJson(upstream);
+            }
           }
 
           if (!upstream.ok) {
@@ -329,8 +352,9 @@ function withAiGatewayDiagnostics(payload: any, model: string, env: Record<strin
   return {
     ...payload,
     diagnostics: {
-      provider: 'deepseek',
+      provider: (env.DEEPSEEK_BASE_URL ?? 'https://ark.cn-beijing.volces.com/api/v3').includes('volces.com') ? 'volcengine-ark' : 'deepseek',
       model: payload?.model ?? model,
+      endpoint: model,
       usage: {
         source: usageWarnings.length ? 'missing_or_partial' : 'provider',
         promptTokens,

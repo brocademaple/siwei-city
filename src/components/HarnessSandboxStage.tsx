@@ -162,7 +162,7 @@ export function HarnessSandboxStage({
           seatClashes: Array.isArray(parsed.seatClashes) && parsed.seatClashes.length ? parsed.seatClashes : token.seatClashes,
         },
       }));
-      setDistillNotice(`DeepSeek (${result.ledger.model ?? 'deepseek-chat'}) 已完成筹码【${token.code} ${token.title}】三席实时过筛 → ${parsed.status.toUpperCase()}`);
+      setDistillNotice(`火山方舟 DeepSeek (${result.ledger.model ?? 'deepseek-v4-1-flash-260910'} · prompt ${result.ledger.inputTokens} / completion ${result.ledger.outputTokens} tokens) 已完成筹码【${token.code} ${token.title}】三席实时过筛 → ${parsed.status.toUpperCase()}`);
     } else {
       setDistillNotice(result.ledger.lastError ?? 'DeepSeek 实时过筛未接通（请检查 .env.local 中的 DEEPSEEK_API_KEY），当前保留本地沙盘推演结果。');
     }
@@ -372,8 +372,11 @@ export function HarnessSandboxStage({
               ))}
             </select>
             {ledger && (
-              <span className="stele-ledger-badge" title={ledger.lastError ?? 'DeepSeek 网关 (/api/deepseek/chat)'}>
-                引擎：{ledger.engine}{ledger.model ? ` (${ledger.model})` : ' · DeepSeek 网关'} · 证据包 E1–E6 已锁
+              <span className="stele-ledger-badge" title={ledger.lastError ?? '火山方舟 DeepSeek 网关 (/api/deepseek/chat)'}>
+                引擎：{ledger.engine}
+                {ledger.model ? ` (${ledger.model})` : ' · 火山方舟 DeepSeek'}
+                {ledger.calls > 0 ? ` · ${ledger.calls} 次调用 (${ledger.inputTokens} in / ${ledger.outputTokens} out tokens)` : ''}
+                {' · 证据包 E1–E6 已锁'}
               </span>
             )}
           </div>

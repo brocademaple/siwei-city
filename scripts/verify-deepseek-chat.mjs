@@ -62,7 +62,9 @@ console.log(
   JSON.stringify(
     {
       proxyUrl,
-      model: diagnostics.model ?? payload.model ?? process.env.DEEPSEEK_MODEL ?? process.env.MIMO_MODEL ?? 'deepseek-chat',
+      provider: diagnostics.provider ?? 'volcengine-ark',
+      model: diagnostics.model ?? payload.model ?? process.env.DEEPSEEK_MODEL ?? process.env.MIMO_MODEL ?? 'ep-20261013174723-ms6vn',
+      endpoint: diagnostics.endpoint,
       promptTokens,
       completionTokens,
       totalTokens,

@@ -62,6 +62,24 @@ async function main() {
     await page.waitForSettled();
     await page.screenshot(path.join(outDir, '04-library-persona-skill-vault.png'));
     console.log('Saved 04-library-persona-skill-vault.png');
+
+    // 05: 切回对质分流沙盘，触发真实火山方舟 DeepSeek 筹码过筛并截图
+    await page.clickText('对质分流沙盘');
+    await page.waitForSettled();
+    const t0 = Date.now();
+    await page.clickText('⚡ DeepSeek 实时过筛此筹码');
+    await page.waitForExpression(
+      'Boolean(document.querySelector(".sandbox-distill-toast") && document.querySelector(".sandbox-distill-toast").innerText.includes("火山方舟 DeepSeek"))',
+      35000,
+    );
+    const toastText = await page.evaluate('document.querySelector(".sandbox-distill-toast")?.innerText ?? ""');
+    const ledgerBadge = await page.evaluate('document.querySelector(".stele-ledger-badge")?.innerText ?? ""');
+    console.log('Live Volcengine DeepSeek triage completed in', Date.now() - t0, 'ms');
+    console.log('Toast:', toastText.value);
+    console.log('Ledger badge:', ledgerBadge.value);
+    await page.waitForSettled();
+    await page.screenshot(path.join(outDir, '05-live-volc-deepseek-triage.png'));
+    console.log('Saved 05-live-volc-deepseek-triage.png');
   } finally {
     await page.close().catch(() => {});
     await stopChrome(chrome.process);

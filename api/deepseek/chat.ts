@@ -22,9 +22,17 @@ export default async function handler(request: any, response: any) {
     return;
   }
 
-  const apiKey = process.env.DEEPSEEK_API_KEY || process.env.MIMO_API_KEY;
-  const baseUrl = process.env.DEEPSEEK_BASE_URL || process.env.MIMO_BASE_URL || 'https://api.deepseek.com/v1';
-  const configuredModel = process.env.DEEPSEEK_MODEL || process.env.MIMO_MODEL || 'deepseek-chat';
+  const apiKey = process.env.DEEPSEEK_API_KEY || process.env.ARK_API_KEY || process.env.MIMO_API_KEY;
+  const baseUrl =
+    process.env.DEEPSEEK_BASE_URL ||
+    process.env.ARK_BASE_URL ||
+    process.env.MIMO_BASE_URL ||
+    'https://ark.cn-beijing.volces.com/api/v3';
+  const configuredModel =
+    process.env.DEEPSEEK_MODEL ||
+    process.env.ARK_MODEL ||
+    process.env.MIMO_MODEL ||
+    'ep-20261013174723-ms6vn';
 
   if (!apiKey) {
     response.status(501).json(buildError('config_error', 'DEEPSEEK_API_KEY is not configured', 501, false));
@@ -46,10 +54,13 @@ export default async function handler(request: any, response: any) {
     let upstream = await callUpstream(endpoint, apiKey, usedModel, body.messages, !isPublicDeepSeek);
     let payload = await readJson(upstream);
 
-    if (!upstream.ok && (upstream.status === 400 || upstream.status === 404 || upstream.status === 422) && usedModel !== 'deepseek-chat') {
-      usedModel = 'deepseek-chat';
-      upstream = await callUpstream(endpoint, apiKey, usedModel, body.messages, false);
-      payload = await readJson(upstream);
+    if (!upstream.ok && (upstream.status === 400 || upstream.status === 403 || upstream.status === 404 || upstream.status === 422)) {
+      const fallbackModel = isPublicDeepSeek ? 'deepseek-chat' : 'ep-20261013174723-ms6vn';
+      if (usedModel !== fallbackModel) {
+        usedModel = fallbackModel;
+        upstream = await callUpstream(endpoint, apiKey, usedModel, body.messages, !isPublicDeepSeek);
+        payload = await readJson(upstream);
+      }
     }
 
     if (!upstream.ok) {
@@ -65,7 +76,7 @@ export default async function handler(request: any, response: any) {
       return;
     }
 
-    response.status(200).json(withDiagnostics(payload, usedModel));
+    response.status(200).json(withDiagnostics(payload, usedModel, baseUrl));
   } catch (error) {
     response
       .status(500)
@@ -127,7 +138,7 @@ function buildError(type: string, message: string, status: number, retryable: bo
   };
 }
 
-function withDiagnostics(payload: any, model: string) {
+function withDiagnostics(payload: any, model: string, baseUrl: string) {
   const usage = payload?.usage ?? {};
   const promptTokens = readTokenCount(usage.prompt_tokens);
   const completionTokens = readTokenCount(usage.completion_tokens);
@@ -159,8 +170,9 @@ function withDiagnostics(payload: any, model: string) {
   return {
     ...payload,
     diagnostics: {
-      provider: 'deepseek',
+      provider: baseUrl.includes('volces.com') ? 'volcengine-ark' : 'deepseek',
       model: payload?.model ?? model,
+      endpoint: model,
       usage: {
         source: usageWarnings.length ? 'missing_or_partial' : 'provider',
         promptTokens,

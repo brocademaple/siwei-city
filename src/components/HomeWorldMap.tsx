@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { art } from '../assets/art';
+import type { HarnessPreset } from '../data/harnessData';
 import { cityBuildings } from '../lib/cityBuildings';
 import type { BuildingSceneId, IdeaNode, ReviewFinding, Route, RoundtableTurn } from '../types';
+import { CityOverworldBar } from './CityOverworldBar';
 
 const MIN_MAP_SCALE = 0.78;
 const MAX_MAP_SCALE = 1.85;
@@ -13,6 +15,9 @@ interface HomeWorldMapProps {
   turns: RoundtableTurn[];
   findings: ReviewFinding[];
   restoredSession: boolean;
+  presets: HarnessPreset[];
+  activePreset: HarnessPreset;
+  onSelectPreset: (presetId: string) => void;
   onOpenBuilding: (id: BuildingSceneId) => void;
   onOpenScribe: () => void;
   onResetSession: () => void;
@@ -20,13 +25,16 @@ interface HomeWorldMapProps {
 
 export function HomeWorldMap({
   topic,
-  ideas,
-  routes,
-  turns,
-  findings,
+  ideas: _ideas,
+  routes: _routes,
+  turns: _turns,
+  findings: _findings,
   restoredSession: _restoredSession,
+  presets,
+  activePreset,
+  onSelectPreset,
   onOpenBuilding,
-  onOpenScribe,
+  onOpenScribe: _onOpenScribe,
   onResetSession: _onResetSession,
 }: HomeWorldMapProps) {
   const [scale, setScale] = useState(1);
@@ -34,12 +42,11 @@ export function HomeWorldMap({
   const shellRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ pointerId: number; x: number; y: number; offsetX: number; offsetY: number } | null>(null);
-  const acceptedTurns = turns.filter((turn) => turn.accepted).length;
-  const firstRoundComplete = acceptedTurns > 0;
   const homeAssets = art.homeOnboarding;
-  const progressSummary = firstRoundComplete
-    ? `${ideas.length} 观点 · ${routes.length} 关系 · ${acceptedTurns} 采纳${findings.length > 0 ? ` · ${findings.length} 修缮` : ''}`
-    : '待开局 · 首轮后解锁后续建筑';
+
+  const keepCount = activePreset.tokens.filter((t) => t.status === 'keep').length;
+  const modifyCount = activePreset.tokens.filter((t) => t.status === 'modify').length;
+  const dropCount = activePreset.tokens.filter((t) => t.status === 'drop').length;
 
   function getMapMetrics() {
     const shell = shellRef.current;
@@ -109,7 +116,15 @@ export function HomeWorldMap({
   }, []);
 
   return (
-    <main className="home-world" data-guide="map">
+    <main className="home-world overworld-clean" data-guide="map">
+      <CityOverworldBar
+        presets={presets}
+        activePreset={activePreset}
+        onSelectPreset={onSelectPreset}
+        onEnterCouncilSandbox={() => onOpenBuilding('council')}
+        onEnterLibraryVault={() => onOpenBuilding('library')}
+      />
+
       <div className="home-world-canvas-shell" ref={shellRef}>
         <div
           className="home-world-canvas"
@@ -152,64 +167,102 @@ export function HomeWorldMap({
             dragRef.current = null;
           }}
         >
-          <img className="home-council-arrow" src={homeAssets.arrowCouncil} alt="" aria-hidden="true" />
-          {cityBuildings.map((building) => (
-            <button
-              className={`world-marker tone-${building.markerTone} ${building.id === 'council' ? 'primary' : ''}`}
-              key={building.id}
+          {/* SVG 集结路线：从各学派街区连向冲突议会厅 (55%, 58%) */}
+          <svg className="overworld-convergence-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            {activePreset.seats.map((seat) => (
+              <g key={seat.seatCode}>
+                <line
+                  x1={seat.districtCoords.x}
+                  y1={seat.districtCoords.y}
+                  x2={55}
+                  y2={58}
+                  stroke="#B08D57"
+                  strokeWidth="0.35"
+                  strokeDasharray="1.2 0.8"
+                />
+                <circle cx={seat.districtCoords.x} cy={seat.districtCoords.y} r="0.9" fill="#A8432A" stroke="#FBFAF6" strokeWidth="0.25" />
+              </g>
+            ))}
+          </svg>
+
+          {/* 按当前 Preset 正在向议会厅集结的学派居民徽章 */}
+          {activePreset.seats.map((seat) => (
+            <div
+              key={seat.seatCode}
+              className="overworld-envoy-token"
               style={{
-                left: `${building.mapX}%`,
-                top: `${building.mapY}%`,
-                backgroundImage: `url(${building.id === 'council' ? homeAssets.markerCardPrimary : homeAssets.markerCard})`,
+                left: `${seat.districtCoords.x}%`,
+                top: `${seat.districtCoords.y}%`,
               }}
-              type="button"
-              aria-label={`${building.name}：${building.tagline}`}
-              onPointerDown={(event) => event.stopPropagation()}
-              onClick={(event) => {
-                event.stopPropagation();
-                onOpenBuilding(building.id);
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenBuilding('council');
               }}
             >
-              {building.id === 'council' && (
-                <>
-                  <img className="world-marker-halo" src={homeAssets.buildingHalo} alt="" aria-hidden="true" />
-                  <img className="world-marker-recommended" src={homeAssets.labelRecommended} alt="推荐起点" />
-                </>
-              )}
-              <img className="world-marker-label" src={homeAssets.markerLabels[building.id]} alt={building.name} />
-              <small>{building.tagline}</small>
-            </button>
+              <img src={art.characters[seat.residentId]} alt={seat.residentName} />
+              <div className="envoy-token-caption">
+                <span>{seat.seatCode}</span>
+                <b>{seat.seatTitle.split('·')[0].trim()}</b>
+              </div>
+            </div>
           ))}
+
+          {cityBuildings.map((building) => {
+            const isCouncil = building.id === 'council';
+            const isLibrary = building.id === 'library';
+            return (
+              <button
+                className={`world-marker tone-${building.markerTone} ${isCouncil ? 'primary' : ''} ${isLibrary ? 'library-highlight' : ''}`}
+                key={building.id}
+                style={{
+                  left: `${building.mapX}%`,
+                  top: `${building.mapY}%`,
+                  backgroundImage: `url(${isCouncil ? homeAssets.markerCardPrimary : homeAssets.markerCard})`,
+                }}
+                type="button"
+                aria-label={`${building.name}：${building.tagline}`}
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onOpenBuilding(building.id);
+                }}
+              >
+                {isCouncil && (
+                  <>
+                    <img className="world-marker-halo" src={homeAssets.buildingHalo} alt="" aria-hidden="true" />
+                    <span className="marker-stone-badge">
+                      室内石刻沙盘 · 保留 {keepCount} / 修正 {modifyCount} / 删减 {dropCount}
+                    </span>
+                  </>
+                )}
+                {isLibrary && (
+                  <span className="marker-stone-badge bronze">
+                    铜木格档案匣 · 3 印章 / 3 石刻简
+                  </span>
+                )}
+                <img className="world-marker-label" src={homeAssets.markerLabels[building.id]} alt={building.name} />
+                <small>{building.tagline}</small>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <section className="home-entry-card" aria-label="城邦入口" style={{ backgroundImage: `url(${homeAssets.topicPanel})` }}>
-        <img className="home-card-label" src={homeAssets.labelCurrentTopic} alt="当前议题" />
-        <h2>{topic}</h2>
-        <div className="home-entry-actions">
-          <button
-            className="home-art-button primary-action"
-            style={{ backgroundImage: `url(${homeAssets.primaryButton})` }}
-            type="button"
-            onClick={() => onOpenBuilding('council')}
-          >
-            <span>从冲突议会开始</span>
-          </button>
-          <button
-            className="home-art-button secondary-action"
-            style={{ backgroundImage: `url(${homeAssets.secondaryButton})` }}
-            type="button"
-            onClick={onOpenScribe}
-          >
-            <span>换一个议题</span>
+      {/* 底部极简石刻铭牌（取代旧版糊满画面的大表单框） */}
+      <footer className="overworld-bottom-plaque" aria-label="当前推演议题石刻条">
+        <div className="plaque-topic-info">
+          <span className="cinzel-tag">ACTIVE PROPOSITION</span>
+          <strong>{topic}</strong>
+          <small>
+            当前激活：{activePreset.code} 《{activePreset.shortName}》 · 筹码分流：{keepCount} 保留 / {modifyCount} 修正 / {dropCount} 删减
+          </small>
+        </div>
+        <div className="plaque-cta-group">
+          <button type="button" className="terracotta-main-btn" onClick={() => onOpenBuilding('council')}>
+            进入议会厅 · 打开俯视石刻博弈沙盘 →
           </button>
         </div>
-      </section>
-
-      <section className="home-deposit-card" aria-label="本轮进度" style={{ backgroundImage: `url(${homeAssets.progressPanel})` }}>
-        <img className="home-card-label" src={homeAssets.labelProgress} alt="本轮进度" />
-        <strong className="home-deposit-status">{progressSummary}</strong>
-      </section>
+      </footer>
 
       <div className="world-zoom-controls" aria-label="地图缩放">
         <button type="button" onClick={() => updateScale(-0.1)} aria-label="缩小地图">

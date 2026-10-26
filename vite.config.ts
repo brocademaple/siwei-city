@@ -24,8 +24,8 @@ function aiGatewayDevProxy(mode: string): Plugin {
         }
 
         const apiKey = env.MIMO_API_KEY;
-        const baseUrl = env.MIMO_BASE_URL ?? 'https://ops-ai-gateway.yc345.tv/v1';
-        const model = env.MIMO_MODEL ?? 'deepseek-v4-flash';
+        const baseUrl = env.MIMO_BASE_URL ?? 'https://api.deepseek.com/v1';
+        const model = env.MIMO_MODEL ?? 'deepseek-flash';
 
         if (!apiKey || apiKey.includes('replace-with')) {
           sendJson(response, 501, buildError('config_error', 'MIMO_API_KEY is not configured in .env.local', 501, false));
@@ -301,7 +301,7 @@ function withAiGatewayDiagnostics(payload: any, model: string, env: Record<strin
   return {
     ...payload,
     diagnostics: {
-      provider: 'ops-ai-gateway',
+      provider: 'deepseek',
       model: payload?.model ?? model,
       usage: {
         source: usageWarnings.length ? 'missing_or_partial' : 'provider',

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BuildingScene } from './components/BuildingScene';
 import { CouncilStage } from './components/CouncilStage';
+import { HarnessSandboxStage } from './components/HarnessSandboxStage';
+import { defaultHarnessPresets, initialDistilledPersonas, initialDistilledSkills, type DistilledPersonaSeal, type DistilledSkillTablet, type HarnessPreset } from './data/harnessData';
 import { GuideButton } from './components/GuideButton';
 import { GuideOverlay } from './components/GuideOverlay';
 import { HomeWorldMap } from './components/HomeWorldMap';
@@ -101,6 +103,15 @@ function App() {
   const [roundRecall, setRoundRecall] = useState<RecallCard[] | null>(null);
   const [evidenceRecordId, setEvidenceRecordId] = useState<string | null>(null);
   const [memoryNotice, setMemoryNotice] = useState<string | null>(null);
+  const [harnessPresets, setHarnessPresets] = useState<HarnessPreset[]>(defaultHarnessPresets);
+  const [activePresetId, setActivePresetId] = useState<string>(defaultHarnessPresets[0].id);
+  const [distilledPersonas, setDistilledPersonas] = useState<DistilledPersonaSeal[]>(initialDistilledPersonas);
+  const [distilledSkills, setDistilledSkills] = useState<DistilledSkillTablet[]>(initialDistilledSkills);
+  const [sandboxFocusMode, setSandboxFocusMode] = useState<'sandbox' | 'scroll' | 'vault'>('sandbox');
+  const activeHarnessPreset = useMemo(
+    () => harnessPresets.find((item) => item.id === activePresetId) ?? harnessPresets[0],
+    [harnessPresets, activePresetId],
+  );
   const selectedEvidencePack = evidencePacks.find((pack) => pack.id === evidencePackId) ?? widgetInstallEvidencePack;
   const pendingRecall = useMemo(() => recallMemory(memoryCards, selectedEvidencePack.topic, selectedEvidencePack.tags), [memoryCards, selectedEvidencePack]);
   const confirmedRulingId = memoryCards.find((card) => card.kind === '裁定' && card.provenance.some((p) => p.recordId && p.recordId === evidenceRecordId))?.id ?? null;
@@ -756,7 +767,7 @@ function App() {
         .filter(Boolean)
         .join(' ')}
     >
-      {sceneView !== 'library' && (
+      {sceneView !== 'library' && sceneView !== 'city' && sceneView !== 'council' && (
         <IdeaPanel
           topic={currentTopic}
           mode={mode}
@@ -786,48 +797,44 @@ function App() {
         <section className="map-workspace">
           {sceneView === 'city' ? (
             <HomeWorldMap
-              topic={currentTopic}
+              topic={selectedEvidencePack.topic}
               ideas={ideas}
               routes={routes}
               turns={turns}
-            findings={findings}
+              findings={findings}
               restoredSession={restoredSession}
+              presets={harnessPresets}
+              activePreset={activeHarnessPreset}
+              onSelectPreset={setActivePresetId}
               onOpenBuilding={openBuildingScene}
               onOpenScribe={() => setScribeCollapsed(false)}
               onResetSession={resetCurrentSession}
             />
           ) : sceneView === 'council' ? (
-            <CouncilStage
-              topic={currentTopic}
-              mode={mode}
-              turns={turns}
-              findings={findings}
-              docs={archiveDocs}
-              activeResidentId={activeResidentId}
-              discussionStarted={openingStarted}
-              discussionRunning={ledger.status === 'running'}
-              activeRecord={activeDiscussionRecord}
-              composerMode={councilComposer?.kind ?? null}
-              onActiveResidentChange={setActiveResidentId}
-              onStartOpening={startOpening}
-              onStartEvidenceRound={startEvidenceRound}
-              evidenceExit={evidenceExit}
+            <HarnessSandboxStage
+              presets={harnessPresets}
+              activePreset={activeHarnessPreset}
+              onSelectPreset={setActivePresetId}
+              onSaveCustomPreset={(preset) => {
+                setHarnessPresets((prev) => [...prev, preset]);
+                setActivePresetId(preset.id);
+              }}
               evidencePack={selectedEvidencePack}
               evidencePacks={evidencePacks}
               onSelectEvidencePack={setEvidencePackId}
               memoryRecall={roundRecall ?? pendingRecall}
-              memoryRecallLive={roundRecall !== null}
-              memoryNotice={memoryNotice}
-              confirmedRulingId={confirmedRulingId}
-              onConfirmRuling={evidenceRecordId ? confirmEvidenceRuling : undefined}
+              memoryCards={memoryCards}
+              personas={distilledPersonas}
+              skills={distilledSkills}
+              onDistillPersona={(seal) => setDistilledPersonas((prev) => [seal, ...prev])}
+              onDistillSkill={(tablet) => setDistilledSkills((prev) => [tablet, ...prev])}
+              onRunLiveEvidenceRound={startEvidenceRound}
+              discussionRunning={ledger.status === 'running'}
               ledger={ledger}
-              onCancelComposer={() => setCouncilComposer(null)}
-              onPrepareFollowUp={prepareFollowUpDiscussion}
-              onPrepareNewDiscussion={() => { setRoundRecall(null); prepareNewDiscussion(); }}
-              onAcceptTurn={acceptContribution}
-              onRecordStatusChange={changeDiscussionRecordStatus}
-              onOpenLibrary={() => openBuildingScene('library')}
               onBackToCity={() => setSceneView('city')}
+              onOpenLibrary={() => openBuildingScene('library')}
+              focusMode={sandboxFocusMode}
+              onFocusModeChange={setSandboxFocusMode}
             />
           ) : (
             <BuildingScene
@@ -851,7 +858,7 @@ function App() {
               onRunComplete={() => runCompleteDiscussion(currentTopic)}
             />
           )}
-          {sceneView === 'city' && (
+          {false && sceneView === 'city' && (
             <ServiceDrawer
             open={drawerOpen}
             activePanel={activePanel}

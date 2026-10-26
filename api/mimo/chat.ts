@@ -23,8 +23,8 @@ export default async function handler(request: any, response: any) {
   }
 
   const apiKey = process.env.MIMO_API_KEY;
-  const baseUrl = process.env.MIMO_BASE_URL ?? 'https://ops-ai-gateway.yc345.tv/v1';
-  const model = process.env.MIMO_MODEL ?? 'deepseek-v4-flash';
+  const baseUrl = process.env.MIMO_BASE_URL ?? 'https://api.deepseek.com/v1';
+  const model = process.env.MIMO_MODEL ?? 'deepseek-flash';
 
   if (!apiKey) {
     response.status(501).json(buildError('config_error', 'MIMO_API_KEY is not configured', 501, false));
@@ -133,7 +133,7 @@ function withDiagnostics(payload: any, model: string) {
   return {
     ...payload,
     diagnostics: {
-      provider: 'ops-ai-gateway',
+      provider: 'deepseek',
       model: payload?.model ?? model,
       usage: {
         source: usageWarnings.length ? 'missing_or_partial' : 'provider',

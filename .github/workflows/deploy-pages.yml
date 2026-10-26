@@ -40,9 +40,9 @@ jobs:
       - name: Build site
         run: npm run build:pages
         env:
-          VITE_MIMO_PROXY_URL: ${{ vars.VITE_MIMO_PROXY_URL }}
-          VITE_MIMO_INPUT_PRICE_CNY_PER_1K: ${{ vars.VITE_MIMO_INPUT_PRICE_CNY_PER_1K }}
-          VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K: ${{ vars.VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K }}
+          VITE_DEEPSEEK_PROXY_URL: ${{ vars.VITE_DEEPSEEK_PROXY_URL || vars.VITE_MIMO_PROXY_URL }}
+          VITE_DEEPSEEK_INPUT_PRICE_CNY_PER_1K: ${{ vars.VITE_DEEPSEEK_INPUT_PRICE_CNY_PER_1K || vars.VITE_MIMO_INPUT_PRICE_CNY_PER_1K }}
+          VITE_DEEPSEEK_OUTPUT_PRICE_CNY_PER_1K: ${{ vars.VITE_DEEPSEEK_OUTPUT_PRICE_CNY_PER_1K || vars.VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K }}
 
       - name: Smoke test
         run: npm run test:smoke

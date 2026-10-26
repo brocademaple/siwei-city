@@ -11,9 +11,20 @@ export interface GatewayJsonResult {
   ledger: UsageLedger;
 }
 
-const proxyUrl = import.meta.env.VITE_MIMO_PROXY_URL?.trim() || '/api/mimo/chat';
-const inputPriceCny = Number(import.meta.env.VITE_MIMO_INPUT_PRICE_CNY_PER_1K ?? 0);
-const outputPriceCny = Number(import.meta.env.VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K ?? 0);
+const proxyUrl =
+  import.meta.env.VITE_DEEPSEEK_PROXY_URL?.trim() ||
+  import.meta.env.VITE_MIMO_PROXY_URL?.trim() ||
+  '/api/deepseek/chat';
+const inputPriceCny = Number(
+  import.meta.env.VITE_DEEPSEEK_INPUT_PRICE_CNY_PER_1K ??
+    import.meta.env.VITE_MIMO_INPUT_PRICE_CNY_PER_1K ??
+    0,
+);
+const outputPriceCny = Number(
+  import.meta.env.VITE_DEEPSEEK_OUTPUT_PRICE_CNY_PER_1K ??
+    import.meta.env.VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K ??
+    0,
+);
 
 export async function requestGatewayJson(messages: GatewayMessage[], purpose: string): Promise<GatewayJsonResult> {
   try {
@@ -126,7 +137,7 @@ function parseJsonResponse(text: string, fallbackMessage: string) {
 function formatProxyError(payload: any, status: number) {
   const error = payload?.error;
   if (typeof error === 'string') return `${error}，已使用本地模板。`;
-  if (error?.type === 'config_error') return `${error.message}。请在 .env.local 或 Vercel 中配置 MIMO_API_KEY，已使用本地模板。`;
+  if (error?.type === 'config_error') return `${error.message}。请在 .env.local 或 Vercel 中配置 DEEPSEEK_API_KEY，已使用本地模板。`;
   if (error?.type === 'validation_error') return `${error.message}，已使用本地模板。`;
   if (error?.type === 'upstream_error') {
     const retryHint = error.retryable ? '稍后重试或检查 AI 网关服务状态' : '请检查 API Key、模型名和额度';

@@ -16,10 +16,12 @@
     "check:assets": "node scripts/check-green-artifacts.mjs",
     "capture:screenshots": "node scripts/capture-page-screenshots.mjs",
     "verify:mimo": "node scripts/verify-mimo-chat.mjs",
-    "verify:ai-gateway": "node scripts/verify-mimo-chat.mjs",
+    "verify:ai-gateway": "node scripts/verify-deepseek-chat.mjs",
     "test:unit": "node --test scripts/tests/reasoning-runtime.test.mjs scripts/tests/city-memory.test.mjs",
     "test:structure": "node scripts/tests/agent-storage-unit.mjs",
-    "test:smoke": "node scripts/smoke-test.mjs"
+    "test:smoke": "node scripts/smoke-test.mjs",
+    "verify:deepseek": "node scripts/verify-deepseek-chat.mjs",
+    "test": "npm run test:unit && npm run test:structure"
   },
   "dependencies": {
     "@fontsource/cinzel": "^5.3.0",

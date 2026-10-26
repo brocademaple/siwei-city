@@ -165,38 +165,38 @@ npm run check:assets
 The front end does not store an API key. Real AI reasoning goes through a Vercel Serverless Function proxy:
 
 ```text
-api/mimo/chat.ts
+api/deepseek/chat.ts
 ```
 
 Vercel environment variables:
 
 ```text
-MIMO_API_KEY=your AI gateway key
-MIMO_BASE_URL=https://ops-ai-gateway.yc345.tv/v1
-MIMO_MODEL=deepseek-v4-flash
-MIMO_INPUT_PRICE_CNY_PER_1K=0
-MIMO_OUTPUT_PRICE_CNY_PER_1K=0
+DEEPSEEK_API_KEY=your AI gateway key
+DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
+DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_INPUT_PRICE_CNY_PER_1K=0
+DEEPSEEK_OUTPUT_PRICE_CNY_PER_1K=0
 ```
 
 Front-end environment variables:
 
 ```text
-VITE_MIMO_PROXY_URL=/api/mimo/chat
-VITE_MIMO_INPUT_PRICE_CNY_PER_1K=0
-VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K=0
+VITE_DEEPSEEK_PROXY_URL=/api/deepseek/chat
+VITE_DEEPSEEK_INPUT_PRICE_CNY_PER_1K=0
+VITE_DEEPSEEK_OUTPUT_PRICE_CNY_PER_1K=0
 ```
 
 For local development, place the full config in `.env.local`:
 
 ```text
-MIMO_API_KEY=your full private API key
-MIMO_BASE_URL=https://ops-ai-gateway.yc345.tv/v1
-MIMO_MODEL=deepseek-v4-flash
-MIMO_INPUT_PRICE_CNY_PER_1K=0
-MIMO_OUTPUT_PRICE_CNY_PER_1K=0
-VITE_MIMO_PROXY_URL=/api/mimo/chat
-VITE_MIMO_INPUT_PRICE_CNY_PER_1K=0
-VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K=0
+DEEPSEEK_API_KEY=your full private API key
+DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
+DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_INPUT_PRICE_CNY_PER_1K=0
+DEEPSEEK_OUTPUT_PRICE_CNY_PER_1K=0
+VITE_DEEPSEEK_PROXY_URL=/api/deepseek/chat
+VITE_DEEPSEEK_INPUT_PRICE_CNY_PER_1K=0
+VITE_DEEPSEEK_OUTPUT_PRICE_CNY_PER_1K=0
 ```
 
 Minimal local verification:
@@ -214,7 +214,7 @@ npm run verify:ai-gateway
 If Vite switches to another port, pass the actual local URL:
 
 ```bash
-npm run verify:ai-gateway -- --url=http://127.0.0.1:5174/api/mimo/chat
+npm run verify:ai-gateway -- --url=http://127.0.0.1:5174/api/deepseek/chat
 ```
 
 The verification script checks:
@@ -226,7 +226,7 @@ The verification script checks:
 To verify a deployed Vercel function:
 
 ```bash
-npm run verify:ai-gateway -- --url=https://your-domain/api/mimo/chat
+npm run verify:ai-gateway -- --url=https://your-domain/api/deepseek/chat
 ```
 
 If the proxy is not configured or the upstream service is unavailable, the product falls back to local templates and shows the reason in the city ledger. If the AI gateway does not return complete usage data, the product still shows AI content and marks ledger costs as estimated.

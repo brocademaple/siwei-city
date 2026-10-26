@@ -165,38 +165,38 @@ npm run check:assets
 前端不会保存 API Key。真实 AI 推演通过 Vercel Serverless Function 代理：
 
 ```text
-api/mimo/chat.ts
+api/deepseek/chat.ts
 ```
 
 Vercel 环境变量：
 
 ```text
-MIMO_API_KEY=你的 AI 网关 Key
-MIMO_BASE_URL=https://ops-ai-gateway.yc345.tv/v1
-MIMO_MODEL=deepseek-v4-flash
-MIMO_INPUT_PRICE_CNY_PER_1K=0
-MIMO_OUTPUT_PRICE_CNY_PER_1K=0
+DEEPSEEK_API_KEY=你的 AI 网关 Key
+DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
+DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_INPUT_PRICE_CNY_PER_1K=0
+DEEPSEEK_OUTPUT_PRICE_CNY_PER_1K=0
 ```
 
 前端环境变量：
 
 ```text
-VITE_MIMO_PROXY_URL=/api/mimo/chat
-VITE_MIMO_INPUT_PRICE_CNY_PER_1K=0
-VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K=0
+VITE_DEEPSEEK_PROXY_URL=/api/deepseek/chat
+VITE_DEEPSEEK_INPUT_PRICE_CNY_PER_1K=0
+VITE_DEEPSEEK_OUTPUT_PRICE_CNY_PER_1K=0
 ```
 
 本地开发可以直接在 `.env.local` 中配置：
 
 ```text
-MIMO_API_KEY=你的完整专属 API key
-MIMO_BASE_URL=https://ops-ai-gateway.yc345.tv/v1
-MIMO_MODEL=deepseek-v4-flash
-MIMO_INPUT_PRICE_CNY_PER_1K=0
-MIMO_OUTPUT_PRICE_CNY_PER_1K=0
-VITE_MIMO_PROXY_URL=/api/mimo/chat
-VITE_MIMO_INPUT_PRICE_CNY_PER_1K=0
-VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K=0
+DEEPSEEK_API_KEY=你的完整专属 API key
+DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
+DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_INPUT_PRICE_CNY_PER_1K=0
+DEEPSEEK_OUTPUT_PRICE_CNY_PER_1K=0
+VITE_DEEPSEEK_PROXY_URL=/api/deepseek/chat
+VITE_DEEPSEEK_INPUT_PRICE_CNY_PER_1K=0
+VITE_DEEPSEEK_OUTPUT_PRICE_CNY_PER_1K=0
 ```
 
 最小本地验证步骤：
@@ -214,10 +214,10 @@ npm run verify:ai-gateway
 如果 Vite 自动切到了其他端口，把终端里显示的地址传给脚本：
 
 ```bash
-npm run verify:ai-gateway -- --url=http://127.0.0.1:5174/api/mimo/chat
+npm run verify:ai-gateway -- --url=http://127.0.0.1:5174/api/deepseek/chat
 ```
 
-验证脚本会打本地 `/api/mimo/chat` 代理，确认三件事：
+验证脚本会打本地 `/api/deepseek/chat` 代理，确认三件事：
 
 - 真实 AI 网关响应包含可解析的 `choices[0].message.content` JSON。
 - `usage.prompt_tokens`、`usage.completion_tokens`、`usage.total_tokens` 完整返回。
@@ -226,7 +226,7 @@ npm run verify:ai-gateway -- --url=http://127.0.0.1:5174/api/mimo/chat
 如果要验证已部署的 Vercel function：
 
 ```bash
-npm run verify:ai-gateway -- --url=https://你的域名/api/mimo/chat
+npm run verify:ai-gateway -- --url=https://你的域名/api/deepseek/chat
 ```
 
 如果代理未配置或上游不可用，产品会自动回退到本地模板，并在城邦账簿中显示可操作的回退原因。若 AI 网关没有返回完整 usage，产品仍会展示 AI 内容，但账簿会标记 `usage 估算`。

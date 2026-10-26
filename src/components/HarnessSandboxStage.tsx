@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { art } from '../assets/art';
+import { requestGatewayJson } from '../lib/agents/gateway';
 import type { EvidencePack } from '../data/evidencePacks';
 import type {
   DistilledPersonaSeal,
@@ -25,6 +26,7 @@ interface HarnessSandboxStageProps {
   onDistillPersona: (seal: DistilledPersonaSeal) => void;
   onDistillSkill: (tablet: DistilledSkillTablet) => void;
   onRunLiveEvidenceRound?: () => void;
+  onUpdateLedger?: (ledger: UsageLedger) => void;
   discussionRunning?: boolean;
   ledger?: UsageLedger;
   onBackToCity: () => void;
@@ -47,6 +49,7 @@ export function HarnessSandboxStage({
   onDistillPersona,
   onDistillSkill,
   onRunLiveEvidenceRound,
+  onUpdateLedger,
   discussionRunning = false,
   ledger,
   onBackToCity,
@@ -65,6 +68,8 @@ export function HarnessSandboxStage({
   const [selectedTokenId, setSelectedTokenId] = useState<string>(activePreset.tokens[0]?.id ?? 'token-01');
   const [newIdeaTitle, setNewIdeaTitle] = useState('');
   const [customTokens, setCustomTokens] = useState<Record<string, IdeaTokenTriage[]>>({});
+  const [triageRunningId, setTriageRunningId] = useState<string | null>(null);
+  const [liveTriagedTokens, setLiveTriagedTokens] = useState<Record<string, Partial<IdeaTokenTriage>>>({});
   const [distillNotice, setDistillNotice] = useState<string | null>(null);
   const [showPresetModal, setShowPresetModal] = useState(false);
   const [newPresetName, setNewPresetName] = useState('');
@@ -72,10 +77,14 @@ export function HarnessSandboxStage({
   const mergedTokens: IdeaTokenTriage[] = [
     ...activePreset.tokens,
     ...(customTokens[activePreset.id] ?? []),
-  ].map((token) => ({
-    ...token,
-    status: tokenOverrides[`${activePreset.id}:${token.id}`] ?? token.status,
-  }));
+  ].map((token) => {
+    const livePatch = liveTriagedTokens[`${activePreset.id}:${token.id}`];
+    return {
+      ...token,
+      ...livePatch,
+      status: tokenOverrides[`${activePreset.id}:${token.id}`] ?? livePatch?.status ?? token.status,
+    };
+  });
 
   const keepTokens = mergedTokens.filter((t) => t.status === 'keep');
   const modifyTokens = mergedTokens.filter((t) => t.status === 'modify');
@@ -87,6 +96,76 @@ export function HarnessSandboxStage({
       ...prev,
       [`${activePreset.id}:${tokenId}`]: nextStatus,
     }));
+  }
+
+  async function handleLiveDeepSeekTriage(token: IdeaTokenTriage) {
+    if (triageRunningId) return;
+    setTriageRunningId(token.id);
+    const packIds = evidencePack.items.map((item) => item.id);
+    const result = await requestGatewayJson(
+      [
+        {
+          role: 'system',
+          content: [
+            `你是思维城邦议会沙盘的 DeepSeek 裁判引擎，当前运行编排为 ${activePreset.code}《${activePreset.name}》。`,
+            `全局铁律：${activePreset.globalRule}`,
+            '请召集三席对输入点子筹码进行 Keep / Modify / Drop 分流，只输出合法 JSON，不输出 markdown。',
+          ].join('\n'),
+        },
+        {
+          role: 'user',
+          content: JSON.stringify({
+            topic: evidencePack.topic,
+            token: { code: token.code, title: token.title, originalProposal: token.originalProposal },
+            seats: activePreset.seats.map((s) => ({
+              seatCode: s.seatCode,
+              seatTitle: s.seatTitle,
+              inquisitionRule: s.inquisitionRule,
+              triageCriterion: s.triageCriterion,
+            })),
+            evidencePack: evidencePack.items.map(({ id, text, source }) => ({ id, text, source })),
+            outputShape: {
+              status: 'keep | modify | drop',
+              keepAction: 'string (当 status=keep 时必填)',
+              modifiedProposal: 'string (当 status=modify 时必填)',
+              dropReason: 'string (当 status=drop 时必填)',
+              evidenceIds: ['E1'],
+              seatClashes: activePreset.seats.map((s) => ({
+                seatCode: s.seatCode,
+                seatTitle: s.seatTitle,
+                verdict: '保留 | 重铸 | 砍除',
+                statement: 'string (引用证据编号如 E1)',
+                citedEvidence: ['E1'],
+              })),
+            },
+          }),
+        },
+      ],
+      `DeepSeek 筹码过筛·${token.code}`,
+    );
+    setTriageRunningId(null);
+    onUpdateLedger?.(result.ledger);
+
+    const parsed = result.json as Partial<IdeaTokenTriage> | undefined;
+    if (result.ledger.status === 'ready' && parsed && (parsed.status === 'keep' || parsed.status === 'modify' || parsed.status === 'drop')) {
+      const validEvidence = Array.isArray(parsed.evidenceIds)
+        ? parsed.evidenceIds.filter((id): id is string => typeof id === 'string' && packIds.includes(id))
+        : token.evidenceIds;
+      setLiveTriagedTokens((prev) => ({
+        ...prev,
+        [`${activePreset.id}:${token.id}`]: {
+          status: parsed.status,
+          keepAction: typeof parsed.keepAction === 'string' ? parsed.keepAction : token.keepAction,
+          modifiedProposal: typeof parsed.modifiedProposal === 'string' ? parsed.modifiedProposal : token.modifiedProposal,
+          dropReason: typeof parsed.dropReason === 'string' ? parsed.dropReason : token.dropReason,
+          evidenceIds: validEvidence.length ? validEvidence : token.evidenceIds,
+          seatClashes: Array.isArray(parsed.seatClashes) && parsed.seatClashes.length ? parsed.seatClashes : token.seatClashes,
+        },
+      }));
+      setDistillNotice(`DeepSeek (${result.ledger.model ?? 'deepseek-chat'}) 已完成筹码【${token.code} ${token.title}】三席实时过筛 → ${parsed.status.toUpperCase()}`);
+    } else {
+      setDistillNotice(result.ledger.lastError ?? 'DeepSeek 实时过筛未接通（请检查 .env.local 中的 DEEPSEEK_API_KEY），当前保留本地沙盘推演结果。');
+    }
   }
 
   function handleAddToken(e: React.FormEvent) {
@@ -254,7 +333,7 @@ export function HarnessSandboxStage({
           </div>
           <div className="top-utility-btns">
             <button type="button" className="terracotta-main-btn" onClick={onRunLiveEvidenceRound} disabled={discussionRunning}>
-              {discussionRunning ? 'DeepSeek 推演中…' : '重跑实时 AI 对质'}
+              {discussionRunning ? 'DeepSeek 推演中…' : 'DeepSeek 实时三席对质'}
             </button>
             <button type="button" className="aegean-ghost-btn" onClick={onOpenLibrary}>
               大图书馆内景 →
@@ -293,8 +372,8 @@ export function HarnessSandboxStage({
               ))}
             </select>
             {ledger && (
-              <span className="stele-ledger-badge">
-                引擎：{ledger.engine} · 证据包 E1–E6 已锁
+              <span className="stele-ledger-badge" title={ledger.lastError ?? 'DeepSeek 网关 (/api/deepseek/chat)'}>
+                引擎：{ledger.engine}{ledger.model ? ` (${ledger.model})` : ' · DeepSeek 网关'} · 证据包 E1–E6 已锁
               </span>
             )}
           </div>
@@ -614,6 +693,14 @@ export function HarnessSandboxStage({
                   <span className="clash-evidence-inline">
                     关联证据：{evidencePack.items.map((it) => `${it.id}:${it.text.slice(0, 12)}…`).join(' ｜ ')}
                   </span>
+                  <button
+                    type="button"
+                    className="vault-distill-btn"
+                    onClick={() => handleLiveDeepSeekTriage(activeToken)}
+                    disabled={triageRunningId === activeToken.id}
+                  >
+                    {triageRunningId === activeToken.id ? 'DeepSeek 过筛中…' : '⚡ DeepSeek 实时过筛此筹码'}
+                  </button>
                 </div>
                 <div className="clash-cards-row">
                   {activeToken.seatClashes.map((clash, idx) => (

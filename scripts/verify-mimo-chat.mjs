@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 loadDotEnv('.env');
 loadDotEnv('.env.local');
 
-const proxyUrl = resolveProxyUrl(readArg('--url') ?? process.env.VITE_MIMO_PROXY_URL ?? '/api/mimo/chat');
+const proxyUrl = resolveProxyUrl(readArg('--url') ?? process.env.VITE_DEEPSEEK_PROXY_URL ?? process.env.VITE_MIMO_PROXY_URL ?? '/api/deepseek/chat');
 
 const messages = [
   {
@@ -62,13 +62,13 @@ console.log(
   JSON.stringify(
     {
       proxyUrl,
-      model: diagnostics.model ?? payload.model ?? process.env.MIMO_MODEL,
+      model: diagnostics.model ?? payload.model ?? process.env.DEEPSEEK_MODEL ?? process.env.MIMO_MODEL ?? 'deepseek-chat',
       promptTokens,
       completionTokens,
       totalTokens,
       estimatedCostCny,
-      priceInputCnyPer1K: diagnostics.cost?.inputPriceCnyPer1K ?? Number(process.env.VITE_MIMO_INPUT_PRICE_CNY_PER_1K ?? 0),
-      priceOutputCnyPer1K: diagnostics.cost?.outputPriceCnyPer1K ?? Number(process.env.VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K ?? 0),
+      priceInputCnyPer1K: diagnostics.cost?.inputPriceCnyPer1K ?? Number(process.env.VITE_DEEPSEEK_INPUT_PRICE_CNY_PER_1K ?? process.env.VITE_MIMO_INPUT_PRICE_CNY_PER_1K ?? 0),
+      priceOutputCnyPer1K: diagnostics.cost?.outputPriceCnyPer1K ?? Number(process.env.VITE_DEEPSEEK_OUTPUT_PRICE_CNY_PER_1K ?? process.env.VITE_MIMO_OUTPUT_PRICE_CNY_PER_1K ?? 0),
       checkedErrorType: errorPayload.body.error.type,
     },
     null,
@@ -158,7 +158,7 @@ function printFailure(title, result) {
         proxyUrl,
         status: result.status,
         error: result.body?.error ?? result.body,
-        hint: result.status === 0 ? '请先运行 npm run dev，或用 --url 指向已部署的 /api/mimo/chat。' : undefined,
+        hint: result.status === 0 ? '请先运行 npm run dev，或用 --url 指向已部署的 /api/deepseek/chat。' : undefined,
       },
       null,
       2,

@@ -829,6 +829,7 @@ function App() {
               onDistillPersona={(seal) => setDistilledPersonas((prev) => [seal, ...prev])}
               onDistillSkill={(tablet) => setDistilledSkills((prev) => [tablet, ...prev])}
               onRunLiveEvidenceRound={startEvidenceRound}
+              onUpdateLedger={setLedger}
               discussionRunning={ledger.status === 'running'}
               ledger={ledger}
               onBackToCity={() => setSceneView('city')}

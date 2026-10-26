@@ -6,7 +6,9 @@ const root = process.cwd();
 const checks = [
   ['src/lib/agents/agentSchemas.ts', ['validateOpeningMapDraft', 'validateTurnDraft', 'validateStructuredImportDraft', 'discussionProtocols', 'argumentMoves']],
   ['src/lib/agents/agentRuntime.ts', ['callWithRepair', 'runOpeningAgents', 'runFindingAgent', 'runStructuredImport', '结构化导入 agent']],
-  ['src/lib/agents/gateway.ts', ['requestGatewayJson', 'mergeLedgers', 'proxyUrl', 'usageSource']],
+  ['src/lib/agents/gateway.ts', ['requestGatewayJson', 'mergeLedgers', 'proxyUrl', 'usageSource', 'VITE_DEEPSEEK_PROXY_URL', 'DEEPSEEK_API_KEY']],
+  ['api/deepseek/chat.ts', ['DEEPSEEK_API_KEY', 'DEEPSEEK_BASE_URL', 'DEEPSEEK_MODEL', 'api.deepseek.com']],
+  ['src/components/HarnessSandboxStage.tsx', ['handleLiveDeepSeekTriage', 'DeepSeek 实时三席对质', 'DEEPSEEK_API_KEY']],
   ['vite.config.ts', ['response_format', 'cityStorageDevProxy', '/api/cities']],
   ['src/lib/storage/cityStorage.ts', ['fetchCurrentCity', 'putCurrentCity', 'archiveCity', 'restoreSavedCity', 'localStorage']],
   ['src/lib/discussionRecords.ts', ['DiscussionRecordOptions', 'parentRecordId', 'buildGenerationSummary', 'discussionGenerationLabel']],
